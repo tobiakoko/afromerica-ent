@@ -1,0 +1,122 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+.nyc_output/
+*.lcov
+junit.xml
+test-results/
+playwright-report/
+playwright/.cache/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+*.log
+
+# env files (can opt-in for committing if needed)
+.env*
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# vercel
+.vercel
+.vercel.json
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+
+# next.js cache
+.next/cache
+
+
+# environment variables
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# sentry
+.sentryclirc
+.sentry-symbols/
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+!*.code-workspace
+.history/
+*.vsix
+
+# temporary Files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.cache
+
+# database
+# local SQLite databases (if using for dev)
+*.db
+*.sqlite
+*.sqlite3
+
+# database dumps
+*.sql
+*.dump
+
+# Generated Files
+# Don't ignore public folder, but ignore uploads
+public/uploads/
+public/temp/
+
+# storybook
+storybook-static/
+
+# aws / cloud
+.aws/
+.aws-sam/
+
+# docker
+docker-compose.override.yml
