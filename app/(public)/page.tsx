@@ -2,8 +2,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Music, Users, ArrowRight, Sparkles } from "lucide-react";
+import { getUpcomingEvents } from "@/lib/cms/services";
+import { SanityImage } from "@/components/sanity/sanity-image";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetch upcoming events from Sanity
+  const upcomingEvents = await getUpcomingEvents(3);
+
   const features = [
     {
       icon: Music,
@@ -19,27 +24,6 @@ export default function HomePage() {
       icon: Users,
       title: "Book Talent",
       description: "Connect with artists and book them for your next event.",
-    },
-  ];
-
-  const upcomingEvents = [
-    {
-      title: "Afrobeat Night",
-      date: "March 15, 2025",
-      location: "Brooklyn, NY",
-      image: "<µ",
-    },
-    {
-      title: "Caribbean Festival",
-      date: "March 22, 2025",
-      location: "Miami, FL",
-      image: "<‰",
-    },
-    {
-      title: "Reggae Live Concert",
-      date: "March 29, 2025",
-      location: "Atlanta, GA",
-      image: "<¸",
     },
   ];
 
@@ -127,30 +111,45 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {upcomingEvents.map((event) => (
-              <Card key={event.title} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center text-6xl">
-                  {event.image}
-                </div>
-                <CardHeader>
-                  <CardTitle>{event.title}</CardTitle>
-                  <CardDescription>
-                    <div className="flex items-center gap-4 mt-2">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {event.date}
-                      </span>
-                    </div>
-                    <div className="mt-1">{event.location}</div>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href="/events">Learn More</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+            {upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event) => (
+                <Card key={event._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="h-48 relative overflow-hidden">
+                    <SanityImage
+                      image={event.image}
+                      alt={event.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <CardHeader>
+                    <CardTitle>{event.title}</CardTitle>
+                    <CardDescription>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          {new Date(event.date).toLocaleDateString("en-US", {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      </div>
+                      <div className="mt-1">{event.city}, {event.state}</div>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link href={`/events/${event.slug}`}>Learn More</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-muted-foreground">No upcoming events at the moment. Check back soon!</p>
+              </div>
+            )}
           </div>
 
           <div className="mt-8 text-center sm:hidden">
