@@ -10,31 +10,94 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShoppingCart, Trash2, ArrowLeft, CreditCard } from "lucide-react";
 import { useCart } from "@/features/pilot-voting/context/cart-context";
+import { createClient } from "@/lib/supabase/client";
+import { generatePaymentReference } from "@/lib/payments/paystack";
+import type { PaymentInitializeRequest } from "@/lib/payments/types";
 
 export default function CartPage() {
   const { cart, removeItem, updateQuantity, clearCart } = useCart();
   const [email, setEmail] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
 
   const handleCheckout = async () => {
+    setError("");
+
     if (!email) {
-      alert("Please enter your email address");
+      setError("Please enter your email address");
       return;
     }
 
     if (cart.items.length === 0) {
-      alert("Your cart is empty");
+      setError("Your cart is empty");
       return;
     }
 
     setProcessing(true);
 
-    // TODO: Integrate with Paystack or payment provider
-    // For now, just show a message
-    setTimeout(() => {
-      alert(`Checkout functionality coming soon! You would be charged $${cart.totalPrice.toFixed(2)} for ${cart.totalVotes} votes.`);
+    try {
+      const supabase = createClient();
+
+      // Generate payment reference
+      const reference = generatePaymentReference("VOTE");
+
+      // Create vote purchase record
+      const { data: purchase, error: purchaseError } = await supabase
+        .from("vote_purchases")
+        .insert({
+          email,
+          items: cart.items,
+          total_votes: cart.totalVotes,
+          total_amount: cart.totalPrice,
+          currency: cart.currency,
+          payment_status: "pending",
+          payment_reference: reference,
+          payment_method: "paystack",
+        })
+        .select()
+        .single();
+
+      if (purchaseError) {
+        throw new Error("Failed to create purchase record");
+      }
+
+      // Initialize payment with Paystack
+      const paymentPayload: PaymentInitializeRequest = {
+        email,
+        amount: cart.totalPrice,
+        currency: cart.currency,
+        type: "voting",
+        metadata: {
+          type: "voting",
+          email,
+          items: cart.items,
+          purchaseId: purchase.id,
+          totalVotes: cart.totalVotes,
+          description: `Vote purchase for ${cart.items.length} artist(s)`,
+        },
+      };
+
+      const response = await fetch("/api/payments/initialize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentPayload),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || "Failed to initialize payment");
+      }
+
+      // Redirect to Paystack payment page
+      window.location.href = result.data.authorizationUrl;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred during checkout");
       setProcessing(false);
-    }, 1000);
+    }
   };
 
   if (cart.items.length === 0) {
@@ -176,6 +239,14 @@ export default function CartPage() {
                     required
                   />
                 </div>
+
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription className="text-xs">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 <Alert>
                   <AlertDescription className="text-xs">
