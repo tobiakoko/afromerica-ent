@@ -19,14 +19,28 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // Music/Entertainment Design System Variants
+        brandPrimary:
+          "bg-brand-primary text-white font-semibold hover:scale-105 hover:shadow-glow-pink active:scale-95 rounded-lg duration-normal",
+        brandSecondary:
+          "bg-brand-secondary text-white font-semibold hover:scale-105 hover:shadow-glow-purple active:scale-95 rounded-lg duration-normal",
+        brandGhost:
+          "bg-transparent border-2 border-brand-primary text-brand-primary font-semibold hover:bg-brand-primary hover:text-white active:scale-95 rounded-lg duration-normal",
+        brandGlass:
+          "card-glass text-white font-semibold hover:bg-brand-primary/20 hover:border-brand-primary active:scale-95 rounded-lg duration-normal",
+        gradient:
+          "bg-gradient-primary text-white font-semibold hover:scale-105 hover:shadow-glow-multi active:scale-95 rounded-lg duration-normal",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        xl: "h-12 rounded-lg px-8 text-base has-[>svg]:px-6",
+        "2xl": "h-14 rounded-xl px-10 text-lg has-[>svg]:px-8",
         icon: "size-9",
         "icon-sm": "size-8",
         "icon-lg": "size-10",
+        "icon-xl": "size-12",
       },
     },
     defaultVariants: {
