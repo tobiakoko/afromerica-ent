@@ -12,6 +12,7 @@ export function Header() {
     { name: "Home", href: "/" },
     { name: "Artists", href: "/artists" },
     { name: "Events", href: "/events" },
+    { name: "Pilot Voting", href: "/pilot-voting" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];

@@ -11,6 +11,7 @@ export function HomeNavigation() {
   const navigation = [
     { name: "Artists", href: "/artists" },
     { name: "Events", href: "/events" },
+    { name: "Pilot Voting", href: "/pilot-voting" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
