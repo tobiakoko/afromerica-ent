@@ -28,7 +28,6 @@ export const eventsApi = {
 
 /**
  * Fetch events with optional filters
- * This will eventually connect to Sanity CMS
  */
 export async function getEvents(params?: EventQueryParams): Promise<EventsResponse> {
   const queryString = new URLSearchParams(

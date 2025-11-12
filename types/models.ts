@@ -170,7 +170,7 @@ export interface BookingUser {
 export interface Transaction {
   id: string
   bookingId: string
-  stripePaymentIntentId?: string
+  paystackReference?: string
   amount: number
   currency: string
   status: TransactionStatus
@@ -203,134 +203,6 @@ export interface User {
 }
 
 export type UserRole = 'USER' | 'ADMIN'
-
-// ============================================================================
-// CMS CONTENT (for Sanity integration)
-// ============================================================================
-
-export interface CMSImage {
-  url: string
-  alt?: string
-  width?: number
-  height?: number
-}
-
-export interface CMSLink {
-  title: string
-  url: string
-  external?: boolean
-}
-
-// ============================================================================
-// SANITY-SPECIFIC TYPES (when fetching from CMS)
-// ============================================================================
-
-/**
- * Event structure from Sanity CMS
- * Transform this to Event type when using in app
- */
-export interface SanityEvent {
-  _id: string
-  title: string
-  slug: {
-    current: string
-  }
-  description: string
-  longDescription?: any[]
-  featuredImage: {
-    asset: {
-      url: string
-    }
-    alt?: string
-  }
-  gallery?: Array<{
-    asset: {
-      url: string
-    }
-  }>
-  eventDate: string
-  eventTime: string
-  venue?: SanityVenue
-  location: string
-  category?: SanityCategory
-  price: number
-  ticketTypes?: TicketType[]
-  capacity: number
-  soldTickets: number
-  featured: boolean
-  status: 'draft' | 'published' | 'cancelled' | 'completed'
-  artists?: SanityArtist[]
-  seo?: SEO
-}
-
-export interface SanityArtist {
-  _id: string
-  name: string
-  stageName?: string
-  slug: {
-    current: string
-  }
-  bio: string
-  fullBio?: any[]
-  profileImage: {
-    asset: {
-      url: string
-    }
-  }
-  coverImage?: {
-    asset: {
-      url: string
-    }
-  }
-  gallery?: Array<{
-    asset: {
-      url: string
-    }
-  }>
-  genre: string[]
-  socials?: SocialLinks
-  featured: boolean
-  verified: boolean
-  albums?: Album[]
-}
-
-export interface SanityVenue {
-  _id: string
-  name: string
-  slug: {
-    current: string
-  }
-  address: string
-  city: string
-  country: string
-  coordinates?: {
-    lat: number
-    lng: number
-  }
-  capacity: number
-  image?: {
-    asset: {
-      url: string
-    }
-  }
-  description?: string
-  amenities?: string[]
-}
-
-export interface SanityCategory {
-  _id: string
-  title: string
-  slug: {
-    current: string
-  }
-  description?: string
-  color?: string
-}
-
-export interface SEO {
-  metaTitle?: string
-  metaDescription?: string
-}
 
 // ============================================================================
 // VOTING SYSTEM
