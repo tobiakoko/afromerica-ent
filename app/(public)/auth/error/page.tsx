@@ -34,8 +34,20 @@ export default function AuthErrorPage() {
         return "Sign in failed. Check the details you provided are correct."
       case "SessionRequired":
         return "Please sign in to access this page."
+      case "auth_callback_error":
+        return "There was an error processing the authentication callback."
+      case "invalid_credentials":
+        return "Invalid email or password. Please try again."
+      case "user_already_exists":
+        return "An account with this email already exists."
+      case "email_not_confirmed":
+        return "Please confirm your email before signing in."
+      case "password_reset_required":
+        return "Password reset is required. Please check your email."
+      case "unauthorized":
+        return "You are not authorized to access this resource."
       default:
-        return "An unexpected error occurred."
+        return "An unexpected error occurred. Please try again."
     }
   }
 
