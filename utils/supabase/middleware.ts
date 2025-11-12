@@ -41,19 +41,49 @@ export async function updateSession(request: NextRequest) {
   });
 
   // Refresh the auth token and session
-  /*const { data } = await supabase.auth.getClaims()
-  const user = data?.claims
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  // Protected routes that require authentication
+  const protectedPaths = ["/dashboard", "/admin", "/profile", "/bookings"];
+  const isProtectedPath = protectedPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  // If accessing a protected route without authentication, redirect to sign in
+  if (isProtectedPath && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/signin";
+    url.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // If accessing admin routes, check for admin role
+  if (request.nextUrl.pathname.startsWith("/admin") && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role !== "admin" && profile?.role !== "editor") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // If already signed in and trying to access auth pages, redirect to dashboard
   if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    user &&
+    (request.nextUrl.pathname.startsWith("/auth/signin") ||
+      request.nextUrl.pathname.startsWith("/auth/signup"))
   ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = '/' ///auth/login
-    return NextResponse.redirect(url)
-  }*/
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }

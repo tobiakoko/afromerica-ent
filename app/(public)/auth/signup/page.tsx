@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
+import { signUp, signInWithOAuth } from "@/features/auth/actions/auth.actions"
+import { toast } from "sonner"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -50,35 +51,25 @@ export default function SignUpPage() {
     }
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed")
-      }
-
-      // Auto sign in after registration
-      const signInResult = await signIn("credentials", {
+      const result = await signUp({
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        full_name: formData.name,
       })
 
-      if (signInResult?.error) {
-        // Registration succeeded but auto sign-in failed, redirect to sign-in
-        router.push("/auth/signin?registered=true")
+      if (!result.success) {
+        setError(result.error || "Registration failed")
       } else {
-        router.push("/dashboard")
-        router.refresh()
+        // Check if email confirmation is needed
+        if (result.data?.needsEmailConfirmation) {
+          toast.success("Account created! Please check your email to confirm.")
+          router.push("/auth/signin?registered=true")
+        } else {
+          // User is automatically signed in
+          toast.success("Account created successfully!")
+          router.push("/dashboard")
+          router.refresh()
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred"
@@ -88,8 +79,12 @@ export default function SignUpPage() {
     }
   }
 
-  const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/dashboard" })
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithOAuth("google")
+    } catch (err) {
+      toast.error("Failed to sign in with Google")
+    }
   }
 
   return (

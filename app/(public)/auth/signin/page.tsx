@@ -1,15 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle } from "lucide-react"
+import { signIn, signInWithOAuth } from "@/features/auth/actions/auth.actions"
+import { toast } from "sonner"
 
 export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
+  const registered = searchParams.get("registered")
 
   const [formData, setFormData] = useState({
     email: "",
@@ -31,15 +33,15 @@ export default function SignInPage() {
     }
 
     try {
-      const result = await signIn("credentials", {
+      const result = await signIn({
         email: formData.email,
         password: formData.password,
-        redirect: false,
       })
 
-      if (result?.error) {
-        setError("Invalid email or password")
+      if (!result.success) {
+        setError(result.error || "Invalid email or password")
       } else {
+        toast.success("Welcome back!")
         router.push(callbackUrl)
         router.refresh()
       }
@@ -50,8 +52,12 @@ export default function SignInPage() {
     }
   }
 
-  const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl })
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithOAuth("google")
+    } catch (err) {
+      toast.error("Failed to sign in with Google")
+    }
   }
 
   return (
@@ -63,6 +69,15 @@ export default function SignInPage() {
         </div>
 
         <div className="bg-gray-900 rounded-xl p-8 border border-gray-800">
+          {registered && (
+            <div className="mb-6 p-4 bg-green-500/10 border border-green-500 rounded-lg flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <p className="text-green-500 text-sm">
+                Account created successfully! Please sign in.
+              </p>
+            </div>
+          )}
+
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
