@@ -12,7 +12,7 @@ interface RouteParams {
  * GET /api/bookings/[id]
  * Get a specific booking by ID
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * DELETE /api/bookings/[id]
  * Cancel a booking (admin only or booking owner)
  */
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -63,14 +63,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Check if user owns this booking or is admin
-    const { data: profile } = await supabase
+    const { data: profile } = (await supabase
       .from('profiles')
       .select('role')
       .eq('id', session.user.id)
-      .single();
+      .single()) as any;
 
     const isAdmin = profile?.role === 'admin';
-    const isOwner = booking.user_id === session.user.id;
+    const isOwner = (booking as any).user_id === session.user.id;
 
     if (!isAdmin && !isOwner) {
       return errorResponse(

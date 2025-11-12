@@ -42,20 +42,22 @@ export default function CartPage() {
       const reference = generatePaymentReference("VOTE");
 
       // Create vote purchase record
-      const { data: purchase, error: purchaseError } = await supabase
-        .from("vote_purchases")
-        .insert({
-          email,
-          items: cart.items,
-          total_votes: cart.totalVotes,
-          total_amount: cart.totalPrice,
-          currency: cart.currency,
-          payment_status: "pending",
-          payment_reference: reference,
-          payment_method: "paystack",
-        })
+      const insertData = {
+        email,
+        items: cart.items,
+        total_votes: cart.totalVotes,
+        total_amount: cart.totalPrice,
+        currency: cart.currency,
+        payment_status: "pending",
+        payment_reference: reference,
+        payment_method: "paystack",
+      };
+      
+      const { data: purchase, error: purchaseError } = (await supabase
+        .from("vote_purchases" as any)
+        .insert([insertData] as any)
         .select()
-        .single();
+        .single()) as any;
 
       if (purchaseError) {
         throw new Error("Failed to create purchase record");
