@@ -17,7 +17,7 @@ export function EventCard({ event, filter }: EventCardProps) {
 
   return (
     <Link href={`/events/${event.slug}`} className="block h-full">
-      <article className="group relative overflow-hidden rounded-lg bg-card border border-border/50 hover:border-border transition-all duration-200 hover:shadow-lg h-full flex flex-col">
+      <article className="group relative overflow-hidden rounded-lg bg-card border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 h-full flex flex-col">
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
           {event.image ? (
@@ -25,7 +25,7 @@ export function EventCard({ event, filter }: EventCardProps) {
               src={event.image}
               alt={event.title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-200"
+              className="object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
@@ -35,19 +35,19 @@ export function EventCard({ event, filter }: EventCardProps) {
 
           {/* Status Badges */}
           {(event.featured || isSoldOut || !isUpcoming) && (
-            <div className="absolute top-3 left-3 flex gap-1.5">
+            <div className="absolute top-3 left-3 flex gap-1.5 z-10">
               {event.featured && (
-                <span className="px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-medium rounded">
+                <span className="px-2.5 py-1 bg-primary text-primary-foreground text-[10px] font-semibold rounded-md shadow-lg backdrop-blur-sm">
                   FEATURED
                 </span>
               )}
               {isSoldOut && (
-                <span className="px-2 py-0.5 bg-destructive text-white text-[10px] font-medium rounded">
+                <span className="px-2.5 py-1 bg-destructive text-white text-[10px] font-semibold rounded-md shadow-lg backdrop-blur-sm">
                   SOLD OUT
                 </span>
               )}
               {!isUpcoming && event.status === 'completed' && (
-                <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-medium rounded">
+                <span className="px-2.5 py-1 bg-muted/80 text-muted-foreground text-[10px] font-semibold rounded-md shadow-lg backdrop-blur-sm">
                   PAST EVENT
                 </span>
               )}
@@ -99,7 +99,11 @@ export function EventCard({ event, filter }: EventCardProps) {
                 {formatPrice(event.price || 0)}
               </p>
             </div>
-            <button className="px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-md hover:bg-primary/90 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed" disabled={isSoldOut}>
+            <button
+              className="px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded-md hover:bg-primary/90 transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-primary/30 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm disabled:active:scale-100"
+              disabled={isSoldOut}
+              aria-label={isSoldOut ? 'Event sold out' : 'Get tickets for this event'}
+            >
               {isSoldOut ? 'Sold Out' : 'Get Tickets'}
             </button>
           </div>

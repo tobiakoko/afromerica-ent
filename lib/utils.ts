@@ -5,8 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Add format.ts and validators.ts functions here 
-
+/**
+ * Format amount as currency
+ */
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-NG', {
     style: 'currency',
@@ -32,8 +33,9 @@ export const formatTime = (time: string): string => {
   return `${displayHour}:${minutes} ${ampm}`
 }
 
-// validators.ts
-
+/**
+ * Validate email address
+ */
 export const validateEmail = (email: string): boolean => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return regex.test(email)
@@ -168,40 +170,25 @@ export function formatTicketAvailability(sold: number, capacity: number): string
   }
 }
 
-/*
-
-// lib/utils.ts
-export function formatCurrency(amount: number, currency: string = 'NGN'): string {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency,
-  }).format(amount)
-}
-
-export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-export function formatTime(time: string): string {
-  return time
-}
-
+/**
+ * Check if event is sold out
+ */
 export function isEventSoldOut(capacity: number, soldTickets: number): boolean {
-  return soldTickets >= capacity
+  return soldTickets >= capacity;
 }
 
+/**
+ * Get remaining ticket availability
+ */
 export function getTicketAvailability(capacity: number, soldTickets: number): number {
-  return Math.max(0, capacity - soldTickets)
+  return Math.max(0, capacity - soldTickets);
 }
 
+/**
+ * Generate unique booking reference
+ */
 export function generateBookingReference(): string {
-  const timestamp = Date.now().toString(36).toUpperCase()
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-  return `AFM-${timestamp}-${random}`
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `AFM-${timestamp}-${random}`;
 }
-
-*/
