@@ -9,7 +9,7 @@ Afromerica Entertainment's web platform
 Welcome to the project! This document summarizes how to set up, run, and contribute following the **System Architecture** roadmap.
 
 ### 🚀 Overview
-This repository powers a full-stack web platform built with **Next.js**, **Supabase**, **Sanity CMS**, **Paystack**, and **Resend**. It includes content management, bookings, payments, and voting systems with real-time features and admin dashboards.
+This repository powers a full-stack web platform built with **Next.js**, **Supabase**, **Paystack**, and **Resend**. It includes content management, bookings, payments, and voting systems with real-time features and admin dashboards.
 
 ---
 
@@ -19,7 +19,6 @@ This repository powers a full-stack web platform built with **Next.js**, **Supab
 - Node.js 18+
 - Docker Desktop (for local Supabase)
 - Supabase project (for production)
-- Sanity CMS account (optional)
 - Paystack API keys (optional)
 - Vercel (for deployment)
 
@@ -71,7 +70,7 @@ See [Supabase Setup Guide](./docs/SUPABASE_SETUP.md) for production deployment.
 | 0 | Preparation | Repo structure, toolchain setup |
 | 1 | Database & Auth | Supabase schema + RLS |
 | 2 | API Skeleton | Shared types, middleware, validation |
-| 3 | Public Site & CMS | Sanity pages + ISR hooks |
+| 3 | Public Site | Public pages + ISR hooks |
 | 4 | Booking & Payments | Cart + Paystack + Webhook |
 | 5 | Voting Systems | Showcase + Pilot event logic |
 | 6 | Admin Dashboard | RBAC, CRUD features |
@@ -95,7 +94,6 @@ features/            # Feature modules
   └── artists/       # Artist profiles
 lib/                 # Core libraries
   ├── auth/          # Authentication
-  ├── cms/           # Sanity CMS
   └── email/         # Email service
 utils/supabase/      # Supabase utilities
   ├── client.ts      # Browser client

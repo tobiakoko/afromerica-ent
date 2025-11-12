@@ -69,10 +69,6 @@ test-results/
 supabase/.branches
 supabase/.temp
 
-# Sanity
-.sanity
-dist/
-
 # Build
 .next/
 dist/
