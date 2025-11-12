@@ -1,20 +1,39 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 import type { VotingStats } from '@/features/voting/types/voting.types';
 
 /**
  * GET /api/voting/stats
- * Get overall voting statistics
+ * Get overall voting statistics from Supabase
  */
 export async function GET() {
   try {
-    // TODO: In production, fetch from database
-    // For now, return mock data
-    
+    const supabase = await createClient();
+
+    // Fetch voting settings
+    const { data: settings } = await supabase
+      .from('showcase_settings')
+      .select('*')
+      .eq('is_active', true)
+      .single();
+
+    // Get total votes from all finalists
+    const { data: finalists } = await supabase
+      .from('showcase_finalists')
+      .select('vote_count');
+
+    const totalVotes = finalists?.reduce((sum, f) => sum + (f.vote_count || 0), 0) || 0;
+
+    // Get unique voters count
+    const { count: uniqueVoters } = await supabase
+      .from('showcase_votes')
+      .select('*', { count: 'exact', head: true });
+
     const stats: VotingStats = {
-      totalVotes: 8374,
-      uniqueVoters: 8374, // Assuming 1 vote per person
-      votingEndsAt: '2025-12-01T23:59:59Z',
-      isVotingActive: new Date() < new Date('2025-12-01T23:59:59Z'),
+      totalVotes,
+      uniqueVoters: uniqueVoters || 0,
+      votingEndsAt: settings?.voting_end_date || new Date().toISOString(),
+      isVotingActive: settings?.is_active || false,
     };
 
     return NextResponse.json(stats);
