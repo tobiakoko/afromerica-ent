@@ -1,6 +1,5 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
-import { NextRequest } from "next/server"
 
 export default async function AuthCallbackPage({
   searchParams,
@@ -9,6 +8,8 @@ export default async function AuthCallbackPage({
 }) {
   const params = await searchParams
   const code = params.code as string | undefined
+  const token_hash = params.token_hash as string | undefined
+  const type = params.type as string | undefined
   const next = (params.next as string) || "/dashboard"
 
   if (code) {
@@ -16,7 +17,30 @@ export default async function AuthCallbackPage({
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      redirect(next)
+      // Verify the session was created
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        redirect(next)
+      }
+    }
+  }
+
+  // Handle email confirmation with token_hash (recommended by Supabase)
+  if (token_hash && type) {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.verifyOtp({
+      type: type as any,
+      token_hash,
+    })
+
+    if (!error) {
+      // Verify the session was created
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        redirect(next)
+      }
     }
   }
 
