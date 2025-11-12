@@ -40,7 +40,9 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh the auth token and session
+  // IMPORTANT: Always use getUser() in server contexts to validate the session
+  // This ensures the token is validated against the Auth server
+  // Never use getSession() in server code as it doesn't guarantee token revalidation
   const {
     data: { user },
   } = await supabase.auth.getUser();
