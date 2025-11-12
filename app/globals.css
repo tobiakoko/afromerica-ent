@@ -353,7 +353,7 @@
     @apply bg-brand-primary text-white font-medium;
     @apply px-4 py-2 rounded-lg text-sm;
     @apply transition-all duration-200;
-    @apply hover:bg-opacity-90;
+    @apply hover:opacity-90;
   }
 
   .btn-primary:hover {
@@ -364,7 +364,7 @@
     @apply bg-brand-secondary text-white font-medium;
     @apply px-4 py-2 rounded-lg text-sm;
     @apply transition-all duration-200;
-    @apply hover:bg-opacity-90;
+    @apply hover:opacity-90;
   }
 
   .btn-secondary:hover {
@@ -375,7 +375,11 @@
     @apply bg-transparent border border-border-default text-text-primary font-medium;
     @apply px-4 py-2 rounded-lg text-sm;
     @apply transition-all duration-200;
-    @apply hover:border-brand-primary hover:bg-brand-primary hover:bg-opacity-10;
+    @apply hover:border-brand-primary;
+  }
+  
+  .btn-ghost:hover {
+    background-color: rgb(99 102 241 / 0.1);
   }
 
   .btn-glass {

@@ -34,6 +34,7 @@ export interface SocialLink {
 }
 
 export interface MusicPlatform {
+  name: string
   icon: string
   label: string
   href: string

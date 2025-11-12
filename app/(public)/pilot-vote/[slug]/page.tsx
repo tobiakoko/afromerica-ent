@@ -48,7 +48,7 @@ export default function PilotArtistDetailPage() {
         .from("pilot_artists")
         .select("*")
         .eq("slug", slug)
-        .single();
+        .single() as any;
 
       if (error) {
         console.error("Error fetching artist:", error);
