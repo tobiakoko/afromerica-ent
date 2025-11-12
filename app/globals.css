@@ -82,10 +82,10 @@
   --transition-duration-normal: 200ms;
   --transition-duration-slow: 300ms;
 
-  /* Box shadows - More sophisticated */
-  --box-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --box-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  /* Box shadows - Adaptive to theme */
+  --box-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --box-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --box-shadow-glow-primary: 0 0 20px rgba(99, 102, 241, 0.3);
   --box-shadow-glow-secondary: 0 0 20px rgba(139, 92, 246, 0.3);
 
@@ -162,7 +162,81 @@
   --sidebar-ring: #6366F1;
 }
 
+/* Light Mode Theme */
+:root:not(.dark) {
+  /* Background Colors (Light Theme) - Clean and bright */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-tertiary: #F1F5F9;
+  --bg-elevated: #E2E8F0;
+
+  /* Text Colors (Light Theme) - Optimized readability */
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-tertiary: #64748B;
+  --text-disabled: #94A3B8;
+
+  /* Border & Divider (Light Theme) - Subtle */
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.04);
+  --border-medium: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.2);
+
+  /* Shadcn UI Compatibility (Light Mode) */
+  --background: #FFFFFF;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #6366F1;
+  --primary-foreground: #FFFFFF;
+  --secondary: #8B5CF6;
+  --secondary-foreground: #FFFFFF;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #EC4899;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.04);
+  --ring: #6366F1;
+  --chart-1: #6366F1;
+  --chart-2: #8B5CF6;
+  --chart-3: #EC4899;
+  --chart-4: #06B6D4;
+  --chart-5: #22C55E;
+  --sidebar: #F8FAFC;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #6366F1;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-ring: #6366F1;
+}
+
+/* Dark Mode Theme */
 .dark {
+  /* Background Colors (Dark Theme) - Refined */
+  --bg-primary: #09090B;
+  --bg-secondary: #18181B;
+  --bg-tertiary: #27272A;
+  --bg-elevated: #3F3F46;
+
+  /* Text Colors (Dark Theme) - Optimized readability */
+  --text-primary: #FAFAFA;
+  --text-secondary: #D4D4D8;
+  --text-tertiary: #A1A1AA;
+  --text-disabled: #71717A;
+
+  /* Border & Divider (Dark Theme) - Subtle */
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-light: rgba(255, 255, 255, 0.04);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+
+  /* Shadcn UI Compatibility (Dark Mode) */
   --background: #09090B;
   --foreground: #FAFAFA;
   --card: #27272A;
@@ -316,7 +390,11 @@
     background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%);
   }
 
-  .hero-overlay {
+  :root:not(.dark) .hero-overlay {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.95) 100%);
+  }
+
+  .dark .hero-overlay {
     background: linear-gradient(180deg, rgba(9, 9, 11, 0) 0%, rgba(9, 9, 11, 0.95) 100%);
   }
 
@@ -328,13 +406,26 @@
 
   /* Card styles - More refined and minimal */
   .card-glass {
-    background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
     transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .card-glass:hover {
+  :root:not(.dark) .card-glass {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  :root:not(.dark) .card-glass:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.12);
+  }
+
+  .dark .card-glass {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .card-glass:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.12);
   }

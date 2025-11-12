@@ -1,10 +1,11 @@
 
 "use client";
- 
+
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
  
 export function HomeNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -68,6 +69,7 @@ export function HomeNavigation() {
           </div>
  
           <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+            <ThemeToggle />
             <Button variant="ghost" asChild className="text-white hover:bg-white/10">
               <Link href="/dashboard">Sign in</Link>
             </Button>
@@ -92,6 +94,9 @@ export function HomeNavigation() {
                 </Link>
               ))}
               <div className="mt-4 space-y-2">
+                <div className="flex justify-center py-2">
+                  <ThemeToggle />
+                </div>
                 <Button variant="ghost" className="w-full text-white hover:bg-white/10" asChild>
                   <Link href="/dashboard">Sign in</Link>
                 </Button>

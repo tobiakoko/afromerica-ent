@@ -1,6 +1,7 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from 'next-themes'
 import { useState, ReactNode } from 'react'
 
 // Should wrap app with:
@@ -8,7 +9,7 @@ import { useState, ReactNode } from 'react'
 Complete this provider setup
     QueryClientProvider (React Query) ✓
     SessionProvider (NextAuth) - TODO: Install next-auth
-    ThemeProvider (next-themes) - TODO
+    ThemeProvider (next-themes) ✓
 */
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -26,7 +27,14 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
