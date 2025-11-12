@@ -42,7 +42,8 @@ export async function signUp(formData: SignUpFormData): Promise<AuthResponse> {
         data: {
           full_name,
         },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        // Use the email confirmation route with token_hash pattern (recommended by Supabase)
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm`,
       },
     });
 
@@ -129,6 +130,16 @@ export async function signIn(formData: SignInFormData): Promise<AuthResponse> {
       };
     }
 
+    // Verify the user with getUser() for security (best practice)
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        success: false,
+        error: "Authentication failed",
+      };
+    }
+
     revalidatePath("/", "layout");
 
     return {
@@ -190,7 +201,7 @@ export async function resetPassword(email: string): Promise<AuthResponse> {
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password/confirm`,
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm?next=/auth/reset-password/confirm`,
     });
 
     if (error) {
