@@ -93,17 +93,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert vote (trigger will update finalist vote_count and rank)
-    const { data: vote, error: voteError } = await supabase
-      .from('showcase_votes')
+    const { data: vote, error: voteError } = (await supabase
+      .from('showcase_votes' as any)
       .insert([{
         finalist_id: validatedData.finalist_id,
         voter_id: validatedData.voter_id,
         ip_address: validatedData.ip_address,
         user_agent: validatedData.user_agent,
         metadata: validatedData.metadata,
-      }])
+      }] as any)
       .select()
-      .single();
+      .single()) as any;
 
     if (voteError) {
       // Check if it's a unique constraint violation

@@ -144,18 +144,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize Paystack payment
-    const paystackResponse = await initializePayment({
-      email: validatedData.email,
-      amount: totalAmount,
-      reference: paymentReference,
-      metadata: {
-        vote_purchase_id: purchase.id,
-        purchase_reference: purchase.reference,
-        total_votes: totalVotes,
-        items: itemsSnapshot,
+    const paystackResponse = await initializePayment(
+      {
+        email: validatedData.email,
+        amount: totalAmount,
+        reference: paymentReference,
+        metadata: {
+          vote_purchase_id: purchase.id,
+          purchase_reference: purchase.reference,
+          total_votes: totalVotes,
+          items: itemsSnapshot,
+        },
+        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/pilot-vote/success`,
       },
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/pilot-vote/success`,
-    });
+      process.env.PAYSTACK_SECRET_KEY!
+    );
 
     if (!paystackResponse.status) {
       // Rollback: delete purchase if payment initialization fails
