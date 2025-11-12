@@ -731,6 +731,85 @@ export interface Database {
           unsubscribed_at?: string | null
         }
       }
+      contact_messages: {
+        Row: {
+          id: string
+          name: string
+          email: string
+          subject: string
+          message: string
+          status: 'new' | 'read' | 'replied' | 'archived'
+          user_id: string | null
+          ip_address: string | null
+          user_agent: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          email: string
+          subject: string
+          message: string
+          status?: 'new' | 'read' | 'replied' | 'archived'
+          user_id?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          email?: string
+          subject?: string
+          message?: string
+          status?: 'new' | 'read' | 'replied' | 'archived'
+          user_id?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      user_vote_history: {
+        Row: {
+          id: string
+          user_id: string | null
+          email: string
+          vote_type: 'showcase' | 'pilot'
+          artist_id: string | null
+          artist_name: string
+          votes_cast: number
+          amount: number
+          purchase_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          email: string
+          vote_type: 'showcase' | 'pilot'
+          artist_id?: string | null
+          artist_name: string
+          votes_cast?: number
+          amount?: number
+          purchase_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          email?: string
+          vote_type?: 'showcase' | 'pilot'
+          artist_id?: string | null
+          artist_name?: string
+          votes_cast?: number
+          amount?: number
+          purchase_id?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
