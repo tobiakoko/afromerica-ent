@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
  
 export default function GlobalError({
   error,
@@ -11,6 +12,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter()
+  
   useEffect(() => {
     // Log error to error reporting service
     console.error('Global application error:', error);
@@ -19,7 +22,7 @@ export default function GlobalError({
   return (
     <html>
       <body>
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-red-50 to-red-100">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-red-50 to-red-100">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
             <div className="text-center space-y-6">
               <div className="mx-auto h-20 w-20 rounded-full bg-red-100 flex items-center justify-center">
@@ -37,7 +40,7 @@ export default function GlobalError({
  
               {process.env.NODE_ENV === 'development' && error.message && (
                 <div className="p-4 bg-red-50 rounded-lg text-left border border-red-200">
-                  <p className="text-sm font-mono text-red-800 break-words">
+                  <p className="text-sm font-mono text-red-800 wrap-break-word">
                     {error.message}
                   </p>
                 </div>
@@ -60,9 +63,7 @@ export default function GlobalError({
                 </Button>
  
                 <Button
-                  onClick={() => {
-                    window.location.href = '/';
-                  }}
+                  onClick={() => router.push('/')}
                   variant="outline"
                   className="w-full"
                   size="lg"

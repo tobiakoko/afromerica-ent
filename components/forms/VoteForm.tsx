@@ -104,6 +104,7 @@ export function VotingForm({ artists, packages }: VotingFormProps) {
       const data = await response.json();
 
       if (data.success && data.authorizationUrl) {
+        // FIXME: Change window.location to next's redirect. See what the drawbacks are first
         window.location.href = data.authorizationUrl;
       } else {
         throw new Error(data.message || 'Payment initialization failed');

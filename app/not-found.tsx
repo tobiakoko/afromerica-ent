@@ -1,11 +1,16 @@
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Home, Search, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
  
 export default function NotFound() {
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-background to-muted">
       <Card className="max-w-2xl w-full">
         <CardHeader className="text-center">
           <div className="mb-4">
@@ -15,7 +20,7 @@ export default function NotFound() {
         </CardHeader>
         <CardContent className="space-y-6 text-center">
           <p className="text-lg text-muted-foreground">
-            Oops! The page you're looking for doesn't exist or has been moved.
+            Oops! The page you&apos;re looking for doesn&apos;t exist or has been moved.
           </p>
  
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4">
@@ -52,7 +57,7 @@ export default function NotFound() {
  
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
-              onClick={() => window.history.back()}
+              onClick={() => router.back()}
               variant="outline"
               className="flex-1"
               size="lg"

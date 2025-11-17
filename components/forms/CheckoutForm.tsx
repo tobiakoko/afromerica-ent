@@ -34,6 +34,7 @@ export function CheckoutForm({ event, ticketTypes }: CheckoutFormProps) {
 
     try {
       // Initialize payment
+      // FIXME: How to do this gracefully in Nextjs
       const response = await fetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -53,6 +54,7 @@ export function CheckoutForm({ event, ticketTypes }: CheckoutFormProps) {
 
       if (data.success && data.authorizationUrl) {
         // Redirect to Paystack
+        // FIXME: Change window.location to next's redirect. See what the drawbacks are first
         window.location.href = data.authorizationUrl;
       } else {
         throw new Error(data.message || 'Payment initialization failed');

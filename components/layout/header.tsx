@@ -59,10 +59,10 @@ export function Header() {
         {/* CTA Buttons */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-3">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/auth/signin">Sign in</Link>
+            <Link href="/signin">Sign in</Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href="/auth/signup">Get Started</Link>
+            <Link href="/signup">Get Started</Link>
           </Button>
         </div>
       </nav>
@@ -88,12 +88,12 @@ export function Header() {
             ))}
             <div className="mt-4 space-y-2 pt-4 border-t border-border/50">
               <Button variant="ghost" className="w-full" size="sm" asChild>
-                <Link href="/auth/signin" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
                   Sign in
                 </Link>
               </Button>
               <Button className="w-full" size="sm" asChild>
-                <Link href="/auth/signup" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
                   Get Started
                 </Link>
               </Button>

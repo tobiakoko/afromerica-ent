@@ -1,5 +1,6 @@
 'use client';
- 
+
+import { useRouter } from "next/navigation";
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,13 +13,19 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   useEffect(() => {
     // Log error to error reporting service
     console.error('Application error:', error);
   }, [error]);
+  
+  const handleGoHome = () => {
+    router.push('/');
+  }
  
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-background to-muted">
       <Card className="max-w-md w-full">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -33,7 +40,7 @@ export default function Error({
  
           {process.env.NODE_ENV === 'development' && error.message && (
             <div className="p-3 bg-destructive/10 rounded-lg text-left">
-              <p className="text-sm font-mono text-destructive break-words">
+              <p className="text-sm font-mono text-destructive wrap-break-word">
                 {error.message}
               </p>
             </div>
@@ -55,7 +62,7 @@ export default function Error({
               Try Again
             </Button>
             <Button
-              onClick={() => (window.location.href = '/')}
+              onClick={handleGoHome}
               variant="outline"
               className="flex-1"
               size="lg"

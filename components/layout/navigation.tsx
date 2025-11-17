@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -20,7 +19,7 @@ export function HomeNavigation() {
   return (
     <>
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-primary via-purple-600 to-pink-600 text-white">
+      <div className="bg-linear-to-r from-primary via-purple-600 to-pink-600 text-white">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-center gap-2 text-sm font-medium">
             <Sparkles className="h-4 w-4" />
@@ -71,10 +70,10 @@ export function HomeNavigation() {
           <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
             <ThemeToggle />
             <Button variant="ghost" asChild className="text-white hover:bg-white/10">
-              <Link href="/dashboard">Sign in</Link>
+              <Link href="/signin">Sign in</Link>
             </Button>
             <Button asChild className="bg-white text-primary hover:bg-white/90">
-              <Link href="/dashboard">Get Started</Link>
+              <Link href="/signup">Get Started</Link>
             </Button>
           </div>
         </nav>
@@ -98,10 +97,10 @@ export function HomeNavigation() {
                   <ThemeToggle />
                 </div>
                 <Button variant="ghost" className="w-full text-white hover:bg-white/10" asChild>
-                  <Link href="/dashboard">Sign in</Link>
+                  <Link href="/signin">Sign in</Link>
                 </Button>
                 <Button className="w-full bg-white text-primary hover:bg-white/90" asChild>
-                  <Link href="/dashboard">Get Started</Link>
+                  <Link href="/signup">Get Started</Link>
                 </Button>
               </div>
             </div>

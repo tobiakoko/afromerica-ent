@@ -22,7 +22,7 @@ export default function AnnouncementBanner({
   if (!isVisible) return null;
 
   return (
-    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-gradient-to-r from-primary to-secondary px-6 py-2.5 sm:px-3.5">
+    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-linear-to-r from-primary to-secondary px-6 py-2.5 sm:px-3.5">
       {/* Decorative background elements */}
       <div
         aria-hidden="true"
@@ -33,7 +33,7 @@ export default function AnnouncementBanner({
             clipPath:
               'polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)',
           }}
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-accent/20 to-secondary/20 opacity-30"
+          className="aspect-577/310 w-144.25 bg-linear-to-r from-accent/20 to-secondary/20 opacity-30"
         />
       </div>
       <div
@@ -45,7 +45,7 @@ export default function AnnouncementBanner({
             clipPath:
               'polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)',
           }}
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-accent/20 to-secondary/20 opacity-30"
+          className="aspect-577/310 w-144.25 bg-linear-to-r from-accent/20 to-secondary/20 opacity-30"
         />
       </div>
 
@@ -60,7 +60,7 @@ export default function AnnouncementBanner({
         {linkHref && linkText && (
           <Link
             href={linkHref}
-            className="flex-none rounded-full bg-white/10 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200 backdrop-blur-sm"
+            className="flex-none rounded-full bg-white/10 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200 backdrop-blur-sm"
           >
             {linkText} <span aria-hidden="true">&rarr;</span>
           </Link>
@@ -73,7 +73,7 @@ export default function AnnouncementBanner({
           <button
             type="button"
             onClick={() => setIsVisible(false)}
-            className="-m-3 p-3 focus-visible:outline-offset-[-4px] hover:bg-white/10 rounded-lg transition-colors duration-200"
+            className="-m-3 p-3 focus-visible:-outline-offset-4 hover:bg-white/10 rounded-lg transition-colors duration-200"
             aria-label="Dismiss announcement"
           >
             <span className="sr-only">Dismiss</span>

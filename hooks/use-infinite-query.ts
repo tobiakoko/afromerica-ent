@@ -197,18 +197,18 @@ function useInfiniteQuery<
     if (!state.hasInitialFetch && typeof window !== 'undefined') {
       storeRef.current.initialize()
     }
-  }, [props.tableName, props.columns, props.pageSize, state.hasInitialFetch])
+  }, [props.tableName, props.columns, props.pageSize, state.hasInitialFetch, props])
 
   return {
-    data: state.data,
-    count: state.count,
-    isSuccess: state.isSuccess,
-    isLoading: state.isLoading,
-    isFetching: state.isFetching,
-    error: state.error,
-    hasMore: state.count > state.data.length,
-    fetchNextPage: storeRef.current.fetchNextPage,
-  }
+        data: state.data,
+        count: state.count,
+        isSuccess: state.isSuccess,
+        isLoading: state.isLoading,
+        isFetching: state.isFetching,
+        error: state.error,
+        hasMore: state.count > state.data.length,
+        fetchNextPage: storeRef.current.fetchNextPage,
+    }
 }
 
 export {
