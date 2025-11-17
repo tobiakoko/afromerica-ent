@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPayment, convertFromKobo } from '@/lib/payments/paystack';
-import { processPayment, type PaymentType } from '@/lib/payments/payment-handlers';
-import type { PaymentVerifyResponse } from '@/lib/payments/types';
+import { verifyPayment, convertFromKobo } from '@/lib/paystack/paystack.service';
+import { processPayment, type PaymentType } from '@/lib/paystack/payment-handlers';
+import type { PaymentVerifyResponse } from '@/lib/paystack/types';
  
 export async function GET(request: NextRequest) {
   try {

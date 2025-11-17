@@ -1,67 +1,147 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateWebhookSignature } from '@/lib/payments/paystack';
-import { processPaymentSuccess, processPaymentFailure, type PaymentType } from '@/lib/payments/payment-handlers';
-import type { WebhookEvent } from '@/lib/payments/types';
- 
+import { createAdminClient } from '@/utils/supabase/admin';
+import crypto from 'crypto';
+import { sendTicketConfirmation, sendVoteConfirmation } from '@/lib/emails/render';
+
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
+
 export async function POST(request: NextRequest) {
   try {
-    // Get the raw body for signature validation
-    const body = await request.text();
+    // Verify webhook signature
     const signature = request.headers.get('x-paystack-signature');
- 
-    if (!signature) {
-      console.error('Missing Paystack signature');
-      return NextResponse.json(
-        { error: 'Missing signature' },
-        { status: 400 }
-      );
-    }
- 
-    const secretKey = process.env.PAYSTACK_SECRET_KEY;
-    if (!secretKey) {
-      console.error('Paystack secret key not configured');
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      );
-    }
- 
-    // Validate webhook signature
-    const isValid = validateWebhookSignature(body, signature, secretKey);
-    if (!isValid) {
+    const body = await request.text();
+
+    const hash = crypto
+      .createHmac('sha512', PAYSTACK_SECRET_KEY)
+      .update(body)
+      .digest('hex');
+
+    if (hash !== signature) {
       console.error('Invalid webhook signature');
       return NextResponse.json(
         { error: 'Invalid signature' },
-        { status: 401 }
+        { status: 400 }
       );
     }
- 
-    // Parse the event
-    const event: WebhookEvent = JSON.parse(body);
- 
-    console.log('Paystack webhook event:', event.event, event.data.reference);
- 
-    // Handle different event types
-    switch (event.event) {
-      case 'charge.success':
-        await handleChargeSuccess(event);
-        break;
- 
-      case 'charge.failed':
-        await handleChargeFailed(event);
-        break;
- 
-      case 'transfer.success':
-      case 'transfer.failed':
-      case 'transfer.reversed':
-        // Handle transfer events if needed
-        console.log('Transfer event:', event.event);
-        break;
- 
-      default:
-        console.log('Unhandled event type:', event.event);
+
+    const event = JSON.parse(body);
+    console.log('Webhook event received:', event.event);
+
+    // Handle successful charge
+    if (event.event === 'charge.success') {
+      const { reference, metadata, customer, amount, paid_at } = event.data;
+      
+      const supabase = createAdminClient();
+
+      if (metadata.type === 'ticket') {
+        // Update booking
+        const { data: booking, error: updateError } = await supabase
+          .from('bookings')
+          .update({
+            payment_status: 'completed',
+            paystack_reference: reference,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('payment_reference', reference)
+          .select(`
+            *,
+            events (
+              title,
+              date,
+              event_venues (
+                venues (
+                  name,
+                  address,
+                  city
+                )
+              )
+            )
+          `)
+          .single();
+
+        if (updateError) {
+          console.error('Error updating booking:', updateError);
+          throw updateError;
+        }
+
+        if (booking) {
+          // Send confirmation email
+          await sendTicketConfirmation({
+            to: customer.email,
+            booking: {
+              ...booking,
+              event: booking.events,
+              venue: booking.events?.event_venues?.[0]?.venues,
+            },
+          });
+
+          console.log(`Ticket confirmation sent to ${customer.email}`);
+        }
+      } else if (metadata.type === 'vote') {
+        // Update vote purchase
+        const { error: purchaseError } = await supabase
+          .from('vote_purchases')
+          .update({
+            payment_status: 'completed',
+            paystack_reference: reference,
+            verified_at: paid_at,
+          })
+          .eq('reference', reference);
+
+        if (purchaseError) {
+          console.error('Error updating vote purchase:', purchaseError);
+          throw purchaseError;
+        }
+
+        // Create vote transaction
+        const { error: transactionError } = await supabase
+          .from('vote_transactions')
+          .insert({
+            purchase_id: metadata.purchaseId,
+            artist_id: metadata.artistId,
+            votes: metadata.votes,
+            amount: amount / 100, // Convert from kobo
+          });
+
+        if (transactionError) {
+          console.error('Error creating vote transaction:', transactionError);
+          // Don't throw - purchase is already marked as completed
+        }
+
+        // Send confirmation email
+        await sendVoteConfirmation({
+          to: customer.email,
+          artistName: metadata.artistName,
+          votes: metadata.votes,
+          amount: amount / 100,
+        });
+
+        console.log(`Vote confirmation sent to ${customer.email}`);
+      }
+
+      return NextResponse.json({ received: true });
     }
- 
+
+    // Handle failed charge
+    if (event.event === 'charge.failed') {
+      const { reference, metadata } = event.data;
+      const supabase = createAdminClient();
+
+      if (metadata.type === 'ticket') {
+        await supabase
+          .from('bookings')
+          .update({ payment_status: 'failed' })
+          .eq('payment_reference', reference);
+      } else if (metadata.type === 'vote') {
+        await supabase
+          .from('vote_purchases')
+          .update({ payment_status: 'failed' })
+          .eq('reference', reference);
+      }
+
+      return NextResponse.json({ received: true });
+    }
+
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('Webhook processing error:', error);
@@ -69,31 +149,5 @@ export async function POST(request: NextRequest) {
       { error: 'Webhook processing failed' },
       { status: 500 }
     );
-  }
-}
- 
-async function handleChargeSuccess(event: WebhookEvent) {
-  const { reference, metadata, paid_at } = event.data;
-  const paymentType = metadata?.type as PaymentType;
-
-  console.log('Processing successful charge:', reference, 'Type:', paymentType);
-
-  try {
-    await processPaymentSuccess(reference, paymentType, paid_at);
-  } catch (error) {
-    console.error('Error processing charge success:', error);
-  }
-}
- 
-async function handleChargeFailed(event: WebhookEvent) {
-  const { reference, metadata } = event.data;
-  const paymentType = metadata?.type as PaymentType;
-
-  console.log('Processing failed charge:', reference, 'Type:', paymentType);
-
-  try {
-    await processPaymentFailure(reference, paymentType);
-  } catch (error) {
-    console.error('Error processing charge failure:', error);
   }
 }

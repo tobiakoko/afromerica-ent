@@ -1,120 +1,90 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  initializePayment,
-  generatePaymentReference,
-  convertToKobo,
-} from '@/lib/payments/paystack';
-import type { PaymentInitializeRequest, PaymentInitializeResponse } from '@/lib/payments/types';
- 
+import { createClient } from '@/utils/supabase/server';
+import { paystackClient } from '@/lib/paystack/client';
+import crypto from 'crypto';
+
 export async function POST(request: NextRequest) {
   try {
-    const body: PaymentInitializeRequest = await request.json();
- 
+    const body = await request.json();
+    const { type, email, amount, ...metadata } = body;
+
     // Validate required fields
-    if (!body.email || !body.amount || !body.type) {
+    if (!type || !email || !amount) {
       return NextResponse.json(
-        {
-          success: false,
-          message: 'Missing required fields: email, amount, type',
-        } as PaymentInitializeResponse,
+        { success: false, message: 'Missing required fields' },
         { status: 400 }
       );
     }
- 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.email)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'Invalid email address',
-        } as PaymentInitializeResponse,
-        { status: 400 }
-      );
-    }
- 
-    // Validate amount
-    if (body.amount <= 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'Amount must be greater than 0',
-        } as PaymentInitializeResponse,
-        { status: 400 }
-      );
-    }
- 
-    const secretKey = process.env.PAYSTACK_SECRET_KEY;
-    if (!secretKey) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'Payment service not configured',
-        } as PaymentInitializeResponse,
-        { status: 500 }
-      );
-    }
- 
+
     // Generate unique reference
-    const reference = generatePaymentReference(
-      body.type === 'voting' ? 'VOTE' : 'BOOK'
-    );
- 
-    // Convert amount to kobo
-    const currency = body.currency || 'NGN';
-    const amountInKobo = convertToKobo(body.amount, currency);
- 
-    // Prepare callback URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
-    const callbackUrl =
-      body.callbackUrl ||
-      `${baseUrl}/payments/verify?reference=${reference}&type=${body.type}`;
- 
-    // Initialize payment with Paystack
-    const response = await initializePayment(
-      {
-        email: body.email,
-        amount: amountInKobo,
+    const reference = `AFR-${type.toUpperCase()}-${Date.now()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+
+    const supabase = await createClient();
+
+    // Initialize Paystack payment
+    const paymentData = await paystackClient.initializeTransaction({
+      email,
+      amount: Math.round(amount * 100), // Convert to kobo
+      reference,
+      callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments/verify?reference=${reference}`,
+      metadata: {
+        type,
+        ...metadata,
         reference,
-        currency,
-        callback_url: callbackUrl,
-        metadata: {
-          ...body.metadata,
-          reference,
-          type: body.type,
-        },
-        channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'],
       },
-      secretKey
-    );
- 
-    if (!response.status) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: response.message || 'Failed to initialize payment',
-        } as PaymentInitializeResponse,
-        { status: 400 }
-      );
+      channels: ['card', 'bank', 'ussd', 'bank_transfer'], // Available payment methods
+    });
+
+    if (!paymentData.status) {
+      throw new Error(paymentData.message || 'Payment initialization failed');
     }
- 
+
+    // Save pending transaction to database
+    if (type === 'ticket') {
+      const { error } = await supabase.from('bookings').insert({
+        event_id: metadata.eventId,
+        email,
+        full_name: metadata.fullName || '',
+        phone: metadata.phone || '',
+        total_amount: amount,
+        currency: 'NGN',
+        payment_status: 'pending',
+        payment_reference: reference,
+        booking_reference: reference,
+        metadata: metadata,
+      });
+
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error('Failed to create booking record');
+      }
+    } else if (type === 'vote') {
+      const { error } = await supabase.from('vote_purchases').insert({
+        reference,
+        email,
+        total_votes: metadata.votes || 0,
+        total_amount: amount,
+        currency: 'NGN',
+        payment_status: 'pending',
+        items: metadata,
+      });
+
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error('Failed to create vote purchase record');
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Payment initialized successfully',
-      data: {
-        reference,
-        authorizationUrl: response.data.authorization_url,
-        accessCode: response.data.access_code,
-      },
-    } as PaymentInitializeResponse);
-  } catch (error) {
+      authorizationUrl: paymentData.data.authorization_url,
+      reference: paymentData.data.reference,
+      accessCode: paymentData.data.access_code,
+    });
+  } catch (error: any) {
     console.error('Payment initialization error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        message: 'An error occurred while initializing payment',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      } as PaymentInitializeResponse,
+      { success: false, message: error.message || 'Payment initialization failed' },
       { status: 500 }
     );
   }
