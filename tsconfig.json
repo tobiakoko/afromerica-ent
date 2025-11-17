@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,15 +23,30 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/features/*": ["./features/*"],
-      "@/types/*": ["./types/*"],
-      "@/hooks/*": ["./hooks/*"],
-      "@/store/*": ["./store/*"],
-      "@/utils/*": ["./utils/*"],
-      "@/config/*": ["./config/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/types/*": [
+        "./types/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/store/*": [
+        "./store/*"
+      ],
+      "@/utils/*": [
+        "./utils/*"
+      ],
+      "@/config/*": [
+        "./config/*"
+      ]
     },
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
@@ -42,5 +61,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
