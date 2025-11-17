@@ -10,7 +10,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-md supports-backdrop-filter:bg-background/60 shadow-sm">
       <nav className="container-wide flex items-center justify-between py-4" aria-label="Main navigation">
         {/* Logo */}
         <div className="flex lg:flex-1">
@@ -19,7 +19,7 @@ export function Header() {
             className="-m-1.5 p-1.5 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-all duration-200 hover:scale-105"
             aria-label="Afromerica Entertainment home page"
           >
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
               {siteConfig.brand.shortName}
             </span>
           </Link>
@@ -59,7 +59,7 @@ export function Header() {
         {/* CTA Buttons */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-3">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/auth/login">Sign in</Link>
+            <Link href="/auth/signin">Sign in</Link>
           </Button>
           <Button size="sm" asChild>
             <Link href="/auth/signup">Get Started</Link>
@@ -88,7 +88,7 @@ export function Header() {
             ))}
             <div className="mt-4 space-y-2 pt-4 border-t border-border/50">
               <Button variant="ghost" className="w-full" size="sm" asChild>
-                <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/auth/signin" onClick={() => setMobileMenuOpen(false)}>
                   Sign in
                 </Link>
               </Button>

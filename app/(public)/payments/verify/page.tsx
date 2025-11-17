@@ -1,177 +1,131 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, XCircle, Loader2, ArrowRight } from "lucide-react";
-import type { PaymentVerifyResponse } from "@/lib/payments/types";
+import Link from "next/link";
+import { CheckCircle, XCircle } from "lucide-react";
 
-export default function PaymentVerifyPage() {
-  const searchParams = useSearchParams();
+export default async function PaymentVerifyPage({
+  searchParams,
+}: {
+  searchParams: { reference: string };
+}) {
+  const { reference } = searchParams;
 
-  const reference = searchParams.get("reference");
-  const type = searchParams.get("type") as "voting" | "booking" | null;
+  if (!reference) {
+    redirect('/');
+  }
 
-  const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
-  const [paymentData, setPaymentData] = useState<PaymentVerifyResponse | null>(null);
-  const [error, setError] = useState("");
+  const supabase = await createClient();
 
-  useEffect(() => {
-    if (!reference) {
-      setStatus("failed");
-      setError("Payment reference not found");
-      return;
+  // Verify with Paystack
+  const response = await fetch(
+    `https://api.paystack.co/transaction/verify/${reference}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+      },
     }
+  );
 
-    verifyPayment();
-  }, [reference]);
+  const data = await response.json();
+  const success = data.status && data.data.status === 'success';
 
-  const verifyPayment = async () => {
-    try {
-      setStatus("loading");
+  // Get transaction details
+  const metadata = data.data?.metadata || {};
+  const type = metadata.type;
 
-      const response = await fetch(`/api/payments/verify?reference=${reference}`);
-      const result: PaymentVerifyResponse = await response.json();
+  let details = null;
 
-      setPaymentData(result);
-
-      if (result.success && result.data?.status === "completed") {
-        setStatus("success");
-      } else {
-        setStatus("failed");
-        setError(result.message || "Payment verification failed");
-      }
-    } catch (err) {
-      console.error("Verification error:", err);
-      setStatus("failed");
-      setError("An error occurred while verifying your payment");
-    }
-  };
-
-  const getRedirectUrl = () => {
-    if (type === "voting") {
-      return "/pilot-voting";
-    } else if (type === "booking") {
-      return "/events";
-    }
-    return "/";
-  };
-
-  const getContinueLabel = () => {
-    if (type === "voting") {
-      return "Back to Voting";
-    } else if (type === "booking") {
-      return "View Events";
-    }
-    return "Go Home";
-  };
+  if (success && type === 'ticket') {
+    const { data: booking } = await supabase
+      .from('bookings')
+      .select('*, events(title)')
+      .eq('payment_reference', reference)
+      .single();
+    details = booking;
+  } else if (success && type === 'vote') {
+    const { data: purchase } = await supabase
+      .from('vote_purchases')
+      .select('*')
+      .eq('reference', reference)
+      .single();
+    details = purchase;
+  }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-2xl mx-auto">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle>Payment Verification</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {status === "loading" && (
-              <div className="text-center space-y-4 py-8">
-                <Loader2 className="h-16 w-16 mx-auto text-primary animate-spin" />
-                <h2 className="text-xl font-semibold">Verifying your payment...</h2>
-                <p className="text-muted-foreground">
-                  Please wait while we confirm your transaction
-                </p>
-              </div>
-            )}
+    <div className="min-h-screen flex items-center justify-center py-12">
+      <div className="container-wide max-w-2xl">
+        <Card className="p-8 text-center">
+          {success ? (
+            <>
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h1 className="text-3xl font-bold mb-2">Payment Successful!</h1>
+              <p className="text-muted-foreground mb-6">
+                Your payment has been confirmed
+              </p>
 
-            {status === "success" && (
-              <div className="text-center space-y-4 py-8">
-                <CheckCircle className="h-16 w-16 mx-auto text-green-600" />
-                <h2 className="text-2xl font-bold text-green-600">Payment Successful!</h2>
-                <p className="text-muted-foreground">
-                  Your payment has been confirmed and processed successfully.
-                </p>
-
-                {paymentData?.data && (
-                  <div className="space-y-2 p-4 bg-accent rounded-lg text-left">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Reference</span>
-                      <span className="text-sm font-medium">
-                        {paymentData.data.reference}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Amount</span>
-                      <span className="text-sm font-medium">
-                        ${paymentData.data.amount.toFixed(2)}
-                      </span>
-                    </div>
-                    {paymentData.data.paidAt && (
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Paid At</span>
-                        <span className="text-sm font-medium">
-                          {new Date(paymentData.data.paidAt).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {type === "voting" && (
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm text-green-800">
-                      Your votes have been applied to your selected artists!
-                    </p>
-                  </div>
-                )}
-
-                {type === "booking" && (
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm text-green-800">
-                      Your booking has been confirmed! A confirmation email has been sent
-                      to your email address.
-                    </p>
-                  </div>
-                )}
-
-                <Link href={getRedirectUrl()}>
-                  <Button size="lg" className="gap-2">
-                    {getContinueLabel()}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
-            )}
-
-            {status === "failed" && (
-              <div className="text-center space-y-4 py-8">
-                <XCircle className="h-16 w-16 mx-auto text-destructive" />
-                <h2 className="text-2xl font-bold text-destructive">Payment Failed</h2>
-                <p className="text-muted-foreground">
-                  {error || "We couldn't verify your payment. Please try again."}
-                </p>
-
-                {reference && (
-                  <div className="p-4 bg-accent rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      Reference: <span className="font-medium">{reference}</span>
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button variant="outline" onClick={verifyPayment}>
-                    Try Again
-                  </Button>
-                  <Link href={getRedirectUrl()}>
-                    <Button variant="outline">{getContinueLabel()}</Button>
-                  </Link>
+              {type === 'ticket' && details && (
+                <div className="bg-muted/50 rounded-lg p-6 mb-6">
+                  <p className="text-sm text-muted-foreground mb-2">Booking Reference</p>
+                  <p className="text-2xl font-bold mb-4">{details.booking_reference}</p>
+                  <p className="text-sm">
+                    Event: <strong>{details.events?.title}</strong>
+                  </p>
+                  <p className="text-sm">
+                    Amount: <strong>₦{details.total_amount.toLocaleString()}</strong>
+                  </p>
                 </div>
+              )}
+
+              {type === 'vote' && details && (
+                <div className="bg-muted/50 rounded-lg p-6 mb-6">
+                  <p className="text-sm text-muted-foreground mb-2">Purchase Reference</p>
+                  <p className="text-2xl font-bold mb-4">{details.reference}</p>
+                  <p className="text-sm">
+                    Votes: <strong>{details.total_votes}</strong>
+                  </p>
+                  <p className="text-sm">
+                    Amount: <strong>₦{details.total_amount.toLocaleString()}</strong>
+                  </p>
+                </div>
+              )}
+
+              <p className="text-sm text-muted-foreground mb-6">
+                A confirmation email has been sent to your email address
+              </p>
+
+              <div className="flex gap-4 justify-center">
+                <Button asChild>
+                  <Link href="/">Go Home</Link>
+                </Button>
+                {type === 'vote' && (
+                  <Button variant="outline" asChild>
+                    <Link href="/events/december-showcase-2025/leaderboard">
+                      View Leaderboard
+                    </Link>
+                  </Button>
+                )}
               </div>
-            )}
-          </CardContent>
+            </>
+          ) : (
+            <>
+              <XCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
+              <h1 className="text-3xl font-bold mb-2">Payment Failed</h1>
+              <p className="text-muted-foreground mb-6">
+                We couldn't process your payment. Please try again.
+              </p>
+
+              <div className="flex gap-4 justify-center">
+                <Button asChild>
+                  <Link href="/">Go Home</Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/events">Browse Events</Link>
+                </Button>
+              </div>
+            </>
+          )}
         </Card>
       </div>
     </div>
