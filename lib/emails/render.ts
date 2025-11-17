@@ -4,6 +4,9 @@ import TicketConfirmationEmail from '@/lib/resend/templates/ticket-confirmation'
 import VoteConfirmationEmail from '@/lib/resend/templates/vote-confirmation';
 import OTPEmail from '@/lib/resend/templates/otp-email';
 
+// FIXME: Add error handling
+// FIXME: Hardcoded email domains should be in env vars
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendTicketConfirmation(data: {

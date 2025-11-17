@@ -26,7 +26,6 @@ export const siteConfig = {
     { label: 'Home', href: '/' },
     { label: 'Artists', href: '/artists' },
     { label: 'Events', href: '/events' },
-    { label: 'Pilot Vote', href: '/pilot-vote' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
   ] as NavItem[],

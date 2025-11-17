@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { z } from 'zod';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -37,8 +38,7 @@ export const formatTime = (time: string): string => {
  * Validate email address
  */
 export const validateEmail = (email: string): boolean => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return regex.test(email)
+  return z.string().email().safeParse(email).success;
 }
 
 export const validatePhone = (phone: string): boolean => {
@@ -49,6 +49,7 @@ export const validatePhone = (phone: string): boolean => {
 /**
  * Format a date string for display
  */
+// Consolidate to single implementation per function type.
 export function formatEventDate(dateString: string): string {
   const date = new Date(dateString);
   
@@ -192,3 +193,4 @@ export function generateBookingReference(): string {
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   return `AFM-${timestamp}-${random}`;
 }
+
