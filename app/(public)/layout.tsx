@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/layout/Header";
+import { HomeNavigation } from "@/components/layout/navigation"
 import { Footer } from '@/components/layout/Footer';
 
 
@@ -20,7 +21,7 @@ export default function PublicLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <HomeNavigation />
       {children}
       <Footer />
     </div>
