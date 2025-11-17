@@ -167,6 +167,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
       const data = await response.json();
 
       if (data.success && data.authorizationUrl) {
+        // FIXME: Change window.location to next's redirect. See what the drawbacks are first
         window.location.href = data.authorizationUrl;
       } else {
         throw new Error(data.message || 'Payment initialization failed');
@@ -351,11 +352,11 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
             )}
 
             <div className="bg-muted/50 rounded-lg p-4 flex items-start gap-3">
-              <Shield className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <Shield className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div className="text-sm">
                 <p className="font-semibold mb-1">Security Notice</p>
                 <p className="text-muted-foreground">
-                  We'll send a verification code to confirm your identity. This helps prevent fraud and ensures fair voting.
+                  We&apos;ll send a verification code to confirm your identity. This helps prevent fraud and ensures fair voting.
                 </p>
               </div>
             </div>

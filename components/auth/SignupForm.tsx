@@ -40,8 +40,17 @@ export function SignUpForm() {
       hasErrors = true;
     }
 
-    if (!password || password.length < 6) {
-      setErrors(prev => ({ ...prev, password: 'Password must be at least 6 characters' }));
+    if (!password || password.length < 8) {
+      setErrors(prev => ({ ...prev, password: 'Password must be at least 8 characters' }));
+      hasErrors = true;
+    } else if (!/[A-Z]/.test(password)) {
+      setErrors(prev => ({ ...prev, password: 'Password must contain at least one uppercase letter' }));
+      hasErrors = true;
+    } else if (!/[a-z]/.test(password)) {
+      setErrors(prev => ({ ...prev, password: 'Password must contain at least one lowercase letter' }));
+      hasErrors = true;
+    } else if (!/[0-9]/.test(password)) {
+      setErrors(prev => ({ ...prev, password: 'Password must contain at least one number' }));
       hasErrors = true;
     }
 
@@ -87,6 +96,7 @@ export function SignUpForm() {
           placeholder="John Doe"
           required
           disabled={isPending}
+          autoComplete="name"
         />
         {errors.fullName && (
           <p className="text-sm text-destructive mt-1">{errors.fullName}</p>
@@ -102,6 +112,7 @@ export function SignUpForm() {
           placeholder="you@example.com"
           required
           disabled={isPending}
+          autoComplete="email"
         />
         {errors.email && (
           <p className="text-sm text-destructive mt-1">{errors.email}</p>
@@ -116,7 +127,11 @@ export function SignUpForm() {
           type="password"
           required
           disabled={isPending}
+          autoComplete="new-password"
         />
+        <p className="text-xs text-muted-foreground mt-1">
+          Must be at least 8 characters with uppercase, lowercase, and number
+        </p>
         {errors.password && (
           <p className="text-sm text-destructive mt-1">{errors.password}</p>
         )}
@@ -130,6 +145,7 @@ export function SignUpForm() {
           type="password"
           required
           disabled={isPending}
+          autoComplete="new-password"
         />
         {errors.confirmPassword && (
           <p className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>

@@ -3,7 +3,13 @@ import { createClient } from '@/utils/supabase/server';
 import { hashOTP, isOTPExpired } from '@/lib/otp/generator';
 import { SignJWT } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
+const JWT_SECRET = (() => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return new TextEncoder().encode(secret);
+})();
 
 export async function POST(request: NextRequest) {
   try {
@@ -112,8 +118,13 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('OTP verification error:', error);
+
     return NextResponse.json(
-      { success: false, message: error.message || 'Verification failed' },
+      {
+        success: false,
+        message: 'An error occurred. Please try again later.',
+        ...(process.env.NODE_ENV === 'development' && { debug: error.message })
+      },
       { status: 500 }
     );
   }

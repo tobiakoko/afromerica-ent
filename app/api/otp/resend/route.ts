@@ -34,7 +34,11 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('OTP resend error:', error);
     return NextResponse.json(
-      { success: false, message: error.message },
+      {
+        success: false,
+        message: 'An error occurred. Please try again later.',
+        ...(process.env.NODE_ENV === 'development' && { debug: error.message })
+      },
       { status: 500 }
     );
   }

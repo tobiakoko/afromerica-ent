@@ -14,14 +14,14 @@ export default function ForgotPasswordPage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Forgot Password?</h1>
           <p className="text-muted-foreground">
-            Enter your email and we'll send you a reset link
+            Enter your email and we&apos;ll send you a reset link
           </p>
         </div>
 
         <ForgotPasswordForm />
 
         <div className="mt-6 text-center text-sm">
-          <Link href="/auth/signin" className="text-primary hover:underline">
+          <Link href="/signin" className="text-primary hover:underline">
             Back to sign in
           </Link>
         </div>

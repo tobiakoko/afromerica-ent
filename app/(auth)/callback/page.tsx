@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
+import { activateAdmin } from "@/lib/auth/actions"
 
 export default async function AuthCallbackPage({
   searchParams,
@@ -10,40 +11,66 @@ export default async function AuthCallbackPage({
   const code = params.code as string | undefined
   const token_hash = params.token_hash as string | undefined
   const type = params.type as string | undefined
-  const next = (params.next as string) || "/dashboard"
+  const next = (params.next as string) || "/admin"
+  const error = params.error as string | undefined
 
+  // Handle OAuth errors
+  if (error) {
+    console.error('OAuth error:', error)
+    redirect(`/signin?error=${error}`)
+  }
+
+  const supabase = await createClient()
+  let userId: string | undefined
+
+  // Handle authorization code exchange (PKCE flow)
   if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error) {
-      // Verify the session was created
-      const { data: { user } } = await supabase.auth.getUser()
+    if (exchangeError) {
+      console.error('Code exchange error:', exchangeError)
+      redirect("/signin?error=auth_callback_error")
+    }
 
-      if (user) {
-        redirect(next)
-      }
+    // Get the authenticated user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      userId = user.id
     }
   }
 
-  // Handle email confirmation with token_hash (recommended by Supabase)
+  // Handle email confirmation with token_hash (Magic Link & Email Verification)
   if (token_hash && type) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.verifyOtp({
+    const { error: verifyError } = await supabase.auth.verifyOtp({
       type: type as any,
       token_hash,
     })
 
-    if (!error) {
-      // Verify the session was created
-      const { data: { user } } = await supabase.auth.getUser()
+    if (verifyError) {
+      console.error('OTP verification error:', verifyError)
+      redirect("/signin?error=verification_failed")
+    }
 
-      if (user) {
-        redirect(next)
-      }
+    // Get the authenticated user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      userId = user.id
     }
   }
 
-  // If there's an error or no code, redirect to login
-  redirect("/auth/signin?error=auth_callback_error")
+  // Activate admin account after email verification
+  if (userId) {
+    const activationResult = await activateAdmin(userId)
+
+    if (activationResult.error) {
+      console.error('Admin activation error:', activationResult.error)
+      // Still redirect to next page - user is authenticated
+      // They may need to contact support about activation
+    }
+
+    redirect(next)
+  }
+
+  // If we reach here, something went wrong
+  redirect("/signin?error=auth_callback_error")
 }

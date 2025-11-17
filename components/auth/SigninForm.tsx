@@ -1,21 +1,37 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useTransition, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { signIn } from "@/lib/auth/actions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function SignInForm() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      const errorMessages: Record<string, string> = {
+        'unauthorized': 'You do not have admin access to this application',
+        'inactive': 'Your account is inactive. Please contact support.',
+        'auth_callback_error': 'Authentication failed. Please try again.',
+        'verification_failed': 'Email verification failed. Please try again.',
+      };
+      setUrlError(errorMessages[error] || 'An error occurred. Please try again.');
+    }
+  }, [searchParams]);
 
   async function handleSubmit(formData: FormData) {
     setErrors({});
+    setUrlError(null);
 
     // Client-side validation
     const email = formData.get('email') as string;
@@ -43,6 +59,13 @@ export function SignInForm() {
 
   return (
     <form action={handleSubmit} className="space-y-4">
+      {urlError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{urlError}</AlertDescription>
+        </Alert>
+      )}
+
       <div>
         <Label htmlFor="email">Email</Label>
         <Input
@@ -52,6 +75,7 @@ export function SignInForm() {
           placeholder="you@example.com"
           required
           disabled={isPending}
+          autoComplete="email"
         />
         {errors.email && (
           <p className="text-sm text-destructive mt-1">{errors.email}</p>
@@ -66,6 +90,7 @@ export function SignInForm() {
           type="password"
           required
           disabled={isPending}
+          autoComplete="current-password"
         />
         {errors.password && (
           <p className="text-sm text-destructive mt-1">{errors.password}</p>

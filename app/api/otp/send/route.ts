@@ -1,12 +1,23 @@
+import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { generateOTP, hashOTP } from '@/lib/otp/generator';
-import { sendOTPEmail, sendOTPSMS } from '@/lib/otp/sender';
+import { SendOTPSchema, validateRequest } from '@/lib/validations/api'
+import { errorResponse, ErrorCodes } from '@/lib/api/response'
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { email, phone, method } = body;
+  const body = await request.json()
+
+  const validation = validateRequest(SendOTPSchema, body)
+  if (!validation.success) {
+    return errorResponse(
+      ErrorCodes.VALIDATION_ERROR,
+      'Invalid request data',
+      validation.error.errors
+    )
+  }
+
+  const { email, phone, method } = validation.data
 
     if (!method || (method !== 'email' && method !== 'sms')) {
       return NextResponse.json(
@@ -31,22 +42,22 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Check for recent OTP requests (rate limiting)
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    
-    const { data: recentOTP } = await supabase
-      .from('otp_codes')
-      .select('id')
-      .or(email ? `email.eq.${email}` : `phone.eq.${phone}`)
-      .gte('created_at', fiveMinutesAgo)
-      .single();
+    // 1. Add IP-based rate limiting
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip');
+    const ipRateLimit = await checkRateLimit(ip, 10, 3600); // 10 requests per hour per IP
 
-    if (recentOTP) {
-      return NextResponse.json(
-        { success: false, message: 'Please wait 5 minutes before requesting another code' },
-        { status: 429 }
-      );
+    // 2. Add account-based rate limiting
+    const accountRateLimit = await checkRateLimit(email || phone, 5, 3600); // 5 per hour
+
+    // 3. Implement backoff
+    const attempts = await getRecentAttempts(email || phone);
+    const waitTime = Math.min(300, Math.pow(2, attempts) * 60); // Exponential backoff
+
+    // 4. Add CAPTCHA after 3 failed verifications
+    if (attempts >= 3 && !captchaToken) {
+      return NextResponse.json({ requiresCaptcha: true }, { status: 429 });
     }
+
 
     // Generate OTP
     const otp = generateOTP(6);
@@ -82,8 +93,13 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('OTP send error:', error);
+    
     return NextResponse.json(
-      { success: false, message: error.message || 'Failed to send verification code' },
+      {
+        success: false,
+        message: 'An error occurred. Please try again later.',
+        ...(process.env.NODE_ENV === 'development' && { debug: error.message })
+      },
       { status: 500 }
     );
   }
