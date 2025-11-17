@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
       const supabase = createAdminClient();
 
       if (metadata.type === 'ticket') {
-        // Update booking
-        const { data: booking, error: updateError } = await supabase
-          .from('bookings')
+        // Update tickets
+        const { data: ticket, error: updateError } = await supabase
+          .from('tickets')
           .update({
             payment_status: 'completed',
             paystack_reference: reference,
@@ -60,18 +60,18 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (updateError) {
-          console.error('Error updating booking:', updateError);
+          console.error('Error updating tickets:', updateError);
           throw updateError;
         }
 
-        if (booking) {
+        if (ticket) {
           // Send confirmation email
           await sendTicketConfirmation({
             to: customer.email,
             booking: {
-              ...booking,
-              event: booking.events,
-              venue: booking.events?.event_venues?.[0]?.venues,
+              ...ticket,
+              event: ticket.events,
+              venue: ticket.events?.event_venues?.[0]?.venues,
             },
           });
 
@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
         }
       } else if (metadata.type === 'vote') {
         // Update vote purchase
-        const { error: purchaseError } = await supabase
-          .from('vote_purchases')
+        const { error: voteError } = await supabase
+          .from('votes')
           .update({
             payment_status: 'completed',
             paystack_reference: reference,
@@ -88,9 +88,9 @@ export async function POST(request: NextRequest) {
           })
           .eq('reference', reference);
 
-        if (purchaseError) {
-          console.error('Error updating vote purchase:', purchaseError);
-          throw purchaseError;
+        if (voteError) {
+          console.error('Error updating vote purchase:', voteError);
+          throw voteError;
         }
 
         // Create vote transaction
@@ -129,12 +129,12 @@ export async function POST(request: NextRequest) {
 
       if (metadata.type === 'ticket') {
         await supabase
-          .from('bookings')
+          .from('tickets')
           .update({ payment_status: 'failed' })
           .eq('payment_reference', reference);
       } else if (metadata.type === 'vote') {
         await supabase
-          .from('vote_purchases')
+          .from('votes')
           .update({ payment_status: 'failed' })
           .eq('reference', reference);
       }

@@ -29,19 +29,51 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: Avoid writing any logic between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protected routes check
-  if (request.nextUrl.pathname.startsWith('/admin') && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/signin'
-    url.searchParams.set('redirect', request.nextUrl.pathname)
-    return NextResponse.redirect(url)
+  // Protected routes check - Admin routes require authentication
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/signin'
+      url.searchParams.set('redirect', request.nextUrl.pathname)
+      return NextResponse.redirect(url)
+    }
+
+    // Check if user is an active admin
+    const { data: admin, error: adminError } = await supabase
+      .from('admins')
+      .select('id, is_active, role')
+      .eq('id', user.id)
+      .single()
+
+    // If user is not in admins table or has error, deny access
+    if (adminError || !admin) {
+      console.error('Admin check error:', adminError)
+      const url = new URL('/signin', request.url)
+      url.searchParams.set('error', 'unauthorized')
+      return NextResponse.redirect(url)
+    }
+
+    // If admin account is inactive, deny access
+    if (!admin.is_active) {
+      const url = new URL('/signin', request.url)
+      url.searchParams.set('error', 'inactive')
+      return NextResponse.redirect(url)
+    }
   }
+
+  // Redirect authenticated users away from auth pages
+  if (user && (
+    request.nextUrl.pathname.startsWith('/signin') ||
+    request.nextUrl.pathname.startsWith('/signup')
+  )) {
+    return NextResponse.redirect(new URL('/admin', request.url))
+  }
+
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:
