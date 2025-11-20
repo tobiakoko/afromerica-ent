@@ -17,7 +17,7 @@ const footerSocialLinks = [
   { platform: 'youtube', label: 'YouTube', href: SOCIAL_LINKS.YOUTUBE },
 ] as const;
 
-export function Footer() {
+export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (

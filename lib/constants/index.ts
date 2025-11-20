@@ -436,8 +436,8 @@ export const SEO_CONFIG = {
  * Developer credit
  */
 export const DEVELOPER = {
-  NAME: 'Tobi Akoko',
-  URL: 'https://github.com/tobiakoko',
+  NAME: 'Arko Media Labs',
+  URL: 'https://tobiakoko.com',
 } as const;
 
 /**
