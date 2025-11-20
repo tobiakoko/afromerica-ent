@@ -93,9 +93,6 @@ const nextConfig: NextConfig = {
   },
   redirects: async () => [],
   output: 'standalone',
-  skipTrailingSlashRedirect: true,
-  // Skip middleware for static pages
-  skipMiddlewareUrlNormalize: true,
 };
 
 export default nextConfig;
