@@ -2,7 +2,7 @@ import { Loader2, Music2 } from 'lucide-react';
 
 export default function Loading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-background to-muted/20 relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 bg-mesh opacity-30" />
 

@@ -5,7 +5,7 @@
 
 import { EventCard } from '@/components/events/EventCard'
 import { PageHero } from '@/components/layout/page-hero'
-import { getEvents } from '@/lib/services/events'
+import { getEventsCached } from '@/lib/services/events'
 import { Calendar } from 'lucide-react'
 
 export const metadata = {
@@ -14,9 +14,12 @@ export const metadata = {
   keywords: ['African music events', 'Nigerian concerts', 'live music', 'African entertainment', 'upcoming events'],
 }
 
+// Enable ISR with 5-minute revalidation
+export const revalidate = 300;
+
 export default async function EventsPage() {
-  // Fetch upcoming events using service layer
-  const { events, error } = await getEvents({
+  // Fetch upcoming events using cached service layer
+  const { events, error } = await getEventsCached({
     filter: 'upcoming',
     sort: 'date-asc',
   })

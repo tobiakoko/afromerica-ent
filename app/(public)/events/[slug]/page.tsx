@@ -6,13 +6,10 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Calendar, MapPin, Clock, Ticket, Music, Users, TrendingUp, AlertCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { getEventBySlug, hasAvailableTickets } from '@/lib/services/events'
-import { formatEventDateRange } from '@/lib/validations/event'
-import { EventStatusBadge } from '@/components/events/EventStatusBadge'
 import { EventTicketProgress } from '@/components/events/EventTicketProgress'
 
 interface EventPageProps {
@@ -40,13 +37,16 @@ export default async function EventPage({ params }: EventPageProps) {
   const eventDate = new Date(event.event_date)
   const endDate = event.end_date ? new Date(event.end_date) : null
 
+  // Get event image with type safety
+  const eventImage = event.cover_image_url || event.image_url
+
   return (
     <div className="min-h-screen">
       {/* Hero Image */}
       <div className="relative h-[50vh] md:h-[60vh] w-full bg-muted overflow-hidden">
-        {(event.cover_image_url || event.image_url) ? (
+        {eventImage ? (
           <Image
-            src={event.cover_image_url || event.image_url}
+            src={eventImage}
             alt={`${event.title} cover image`}
             fill
             className="object-cover"
@@ -59,11 +59,6 @@ export default async function EventPage({ params }: EventPageProps) {
           </div>
         )}
         <div className="absolute inset-0 bg-linear-to-t from-background via-background/80 to-transparent" />
-
-        {/* Status Badges */}
-        <div className="absolute top-6 right-6 flex gap-2" role="status" aria-live="polite">
-          <EventStatusBadge event={event} />
-        </div>
       </div>
 
       {/* Event Details */}
@@ -203,7 +198,7 @@ export default async function EventPage({ params }: EventPageProps) {
                   Event Details
                 </h2>
                 <dl className="space-y-2 text-muted-foreground">
-                  {Object.entries(event.metadata as Record<string, any>).map(([key, value]) => (
+                  {Object.entries(event.metadata as Record<string, unknown>).map(([key, value]) => (
                     <div key={key} className="flex justify-between gap-4">
                       <dt className="capitalize font-medium">{key.replace(/_/g, ' ')}:</dt>
                       <dd className="font-medium text-foreground text-right">{String(value)}</dd>

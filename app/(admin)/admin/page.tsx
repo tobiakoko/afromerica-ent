@@ -11,16 +11,19 @@ export default async function AdminDashboard() {
     { count: totalArtists },
     { count: totalBookings },
     { count: totalVotes },
-    { data: revenue }
+    { data: ticketRevenue },
+    { data: voteRevenue }
   ] = await Promise.all([
     supabase.from('events').select('*', { count: 'exact', head: true }),
     supabase.from('artists').select('*', { count: 'exact', head: true }),
-    supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('payment_status', 'completed'),
-    supabase.from('vote_transactions').select('*', { count: 'exact', head: true }),
-    supabase.from('bookings').select('total_amount').eq('payment_status', 'completed'),
+    supabase.from('tickets').select('*', { count: 'exact', head: true }).eq('payment_status', 'completed'),
+    supabase.from('votes').select('*', { count: 'exact', head: true }).eq('payment_status', 'completed'),
+    supabase.from('tickets').select('total_amount').eq('payment_status', 'completed'),
+    supabase.from('votes').select('amount_paid').eq('payment_status', 'completed'),
   ]);
 
-  const totalRevenue = revenue?.reduce((sum, booking) => sum + Number(booking.total_amount), 0) || 0;
+  const totalRevenue = (ticketRevenue?.reduce((sum, ticket) => sum + Number(ticket.total_amount), 0) || 0) +
+                        (voteRevenue?.reduce((sum, vote) => sum + Number(vote.amount_paid), 0) || 0);
 
   const stats = [
     {
@@ -40,6 +43,12 @@ export default async function AdminDashboard() {
       value: totalBookings || 0,
       icon: TrendingUp,
       color: 'text-purple-500',
+    },
+    {
+      title: 'Total Votes',
+      value: totalVotes || 0,
+      icon: TrendingUp,
+      color: 'text-pink-500',
     },
     {
       title: 'Total Revenue',

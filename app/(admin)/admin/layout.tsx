@@ -3,6 +3,9 @@ import { createClient } from "@/utils/supabase/server";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
+// Admin pages require authentication and must be dynamic
+export const dynamic = 'force-dynamic';
+
 export default async function AdminLayout({
   children,
 }: {

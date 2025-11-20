@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { ArrowLeft, Loader2, Plus, X } from 'lucide-react'
 import Link from 'next/link'
+import { generateSlug } from '@/lib/constants'
 
 export default function NewEventPage() {
   const router = useRouter()
@@ -49,7 +50,7 @@ export default function NewEventPage() {
 
   const fetchVenuesAndArtists = async () => {
     const supabase = createClient()
-    
+
     const [{ data: venuesData }, { data: artistsData }] = await Promise.all([
       supabase.from('venues').select('id, name, city').order('name'),
       supabase.from('artists').select('id, name, stage_name').order('name'),
@@ -57,13 +58,6 @@ export default function NewEventPage() {
 
     setVenues(venuesData || [])
     setArtists(artistsData || [])
-  }
-
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
   }
 
   const handleInputChange = (field: string, value: any) => {

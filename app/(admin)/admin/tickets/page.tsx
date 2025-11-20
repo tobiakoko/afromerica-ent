@@ -14,7 +14,7 @@ export default async function AdminTicketsPage() {
   const supabase = await createClient();
   
   const { data: bookings } = await supabase
-    .from('bookings')
+    .from('tickets')
     .select('*, events(title)')
     .order('created_at', { ascending: false })
     .limit(100);

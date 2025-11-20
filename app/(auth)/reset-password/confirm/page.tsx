@@ -6,6 +6,9 @@ export const metadata = {
   description: 'Set a new password',
 }
 
+// Auth pages with forms must be dynamic
+export const dynamic = 'force-dynamic';
+
 export default function ResetPasswordConfirmPage() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4">

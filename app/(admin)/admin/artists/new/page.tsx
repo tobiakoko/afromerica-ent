@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { generateSlug } from '@/lib/constants'
 
 export default function NewArtistPage() {
   const router = useRouter()
@@ -32,13 +33,6 @@ export default function NewArtistPage() {
       spotify: '',
     },
   })
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-  }
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -78,7 +72,7 @@ export default function NewArtistPage() {
         .map(g => g.trim())
         .filter(g => g.length > 0)
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('artists')
         .insert({
           name: formData.name,

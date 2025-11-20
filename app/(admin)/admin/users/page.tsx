@@ -1,3 +1,4 @@
+// Suspense is used below
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
@@ -6,8 +7,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { PageLoader } from '@/components/shared/suspense-wrapper'
-import { ErrorBoundary } from '@/components/shared/error-boundary'
+// TODO: Add back when components are created
+// import { PageLoader } from '@/components/shared/suspense-wrapper'
+// import { ErrorBoundary } from '@/components/shared/error-boundary'
 import { Users, Search, Mail, Phone, Calendar } from 'lucide-react'
 
 export default async function AdminUsersPage() {
@@ -38,11 +40,9 @@ export default async function AdminUsersPage() {
         </p>
       </div>
 
-      <ErrorBoundary>
-        <Suspense fallback={<PageLoader />}>
-          <UsersTable />
-        </Suspense>
-      </ErrorBoundary>
+      <Suspense fallback={<div>Loading...</div>}>
+        <UsersTable />
+      </Suspense>
     </div>
   )
 }
@@ -58,18 +58,16 @@ async function UsersTable() {
     `)
     .order('created_at', { ascending: false })
 
-  // Get booking counts for each user
-  const userIds = users?.map(u => u.id) || []
+  // Get ticket counts for each user
   const { data: bookingCounts } = await supabase
-    .from('bookings')
-    .select('user_id')
-    .in('user_id', userIds)
+    .from('tickets')
+    .select('user_email')
     .eq('payment_status', 'completed')
 
-  // Count bookings per user
+  // Count bookings per user email
   const bookingsPerUser = bookingCounts?.reduce((acc, b) => {
-    if (b.user_id) {
-      acc[b.user_id] = (acc[b.user_id] || 0) + 1
+    if (b.user_email) {
+      acc[b.user_email] = (acc[b.user_email] || 0) + 1
     }
     return acc
   }, {} as Record<string, number>) || {}

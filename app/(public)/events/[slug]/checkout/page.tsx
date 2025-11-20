@@ -1,29 +1,38 @@
-import { createClient } from "@/utils/supabase/server";
-import { notFound } from "next/navigation";
-import { CheckoutForm } from "@/components/forms/CheckoutForm";
+/**
+ * Event Checkout Page
+ * Handles ticket purchases for events
+ */
 
-export default async function CheckoutPage({ params }: { params: { slug: string } }) {
-  const supabase = await createClient();
-  
-  const { data: event, error } = await supabase
-    .from('events')
-    .select(`
-      *,
-      ticket_types (*)
-    `)
-    .eq('slug', params.slug)
-    .single();
+import { notFound } from 'next/navigation'
+import { CheckoutForm } from '@/components/forms/CheckoutForm'
+import { getEventBySlug } from '@/lib/services/events'
+import { PageHero } from '@/components/layout/page-hero'
+
+interface CheckoutPageProps {
+  params: Promise<{ slug: string }>
+}
+
+export default async function CheckoutPage({ params }: CheckoutPageProps) {
+  const { slug } = await params
+
+  // Fetch event using service layer
+  const { event, error } = await getEventBySlug(slug)
 
   if (error || !event) {
-    notFound();
+    console.error('Error fetching event for checkout:', error)
+    notFound()
   }
 
   return (
-    <div className="min-h-screen py-12">
-      <div className="container-wide max-w-2xl">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-        <CheckoutForm event={event} ticketTypes={event.ticket_types || []} />
-      </div>
+    <div className="min-h-screen">
+      <PageHero
+        title="Checkout"
+        description={`Complete your purchase for ${event.title}`}
+      />
+
+      <section className="container-wide py-12 max-w-2xl">
+        <CheckoutForm event={event} />
+      </section>
     </div>
-  );
+  )
 }

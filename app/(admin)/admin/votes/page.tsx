@@ -14,14 +14,16 @@ export default async function AdminVotesPage() {
   const supabase = await createClient();
   
   const { data: purchases } = await supabase
-    .from('vote_purchases')
+    .from('votes')
     .select('*')
-    .order('purchased_at', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(100);
 
   const { data: artistStats } = await supabase
-    .from('pilot_artists')
-    .select('stage_name, total_votes, total_amount, rank')
+    .from('artists')
+    .select('stage_name, total_votes, total_vote_amount, rank')
+    .eq('is_active', true)
+    .is('deleted_at', null)
     .order('rank', { ascending: true });
 
   return (
@@ -42,7 +44,7 @@ export default async function AdminVotesPage() {
         <Card className="p-6">
           <p className="text-sm text-muted-foreground mb-1">Total Revenue</p>
           <p className="text-3xl font-bold">
-            ₦{artistStats?.reduce((sum, a) => sum + Number(a.total_amount), 0).toLocaleString()}
+            ₦{artistStats?.reduce((sum, a) => sum + Number(a.total_vote_amount), 0).toLocaleString()}
           </p>
         </Card>
         <Card className="p-6">
@@ -71,7 +73,7 @@ export default async function AdminVotesPage() {
                 <TableCell className="font-bold">#{artist.rank}</TableCell>
                 <TableCell>{artist.stage_name}</TableCell>
                 <TableCell>{artist.total_votes.toLocaleString()}</TableCell>
-                <TableCell>₦{Number(artist.total_amount).toLocaleString()}</TableCell>
+                <TableCell>₦{Number(artist.total_vote_amount).toLocaleString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>

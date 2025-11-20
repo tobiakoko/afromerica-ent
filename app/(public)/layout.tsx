@@ -1,10 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Header } from "@/components/layout/Header";
 import { HomeNavigation } from "@/components/layout/navigation"
 import { Footer } from '@/components/layout/Footer';
-
+import { usePathname } from "next/navigation";
 
 export default function PublicLayout({
   children,

@@ -1,16 +1,13 @@
-import { createClient } from "@/utils/supabase/server";
+import { createCachedClient } from "@/utils/supabase/server-cached";
 import { ArtistCard } from "@/components/artists/ArtistCard";
 import { PageHero } from "@/components/layout/page-hero";
 
-export default async function ArtistsPage() {
-  console.log('\n=== ARTISTS PAGE DEBUG ===\n\n');
-  console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-  console.log('Has Anon Key:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-  console.log('\n');
+// Enable ISR with 5-minute revalidation
+export const revalidate = 300;
 
+export default async function ArtistsPage() {
   try {
-    const supabase = await createClient();
-    console.log('Supabase client created successfully');
+    const supabase = createCachedClient();
     
     const { data: artists, error } = await supabase
     .from('artists')

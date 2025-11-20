@@ -2,24 +2,28 @@ import { PageHero } from "@/components/layout/page-hero";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Card } from "@/components/ui/card";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { APP_METADATA } from "@/lib/constants";
+
+// This page uses client components with state
+export const dynamic = 'force-dynamic';
 
 const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "hello@afromerica.com",
-    href: "mailto:hello@afromerica.com"
+    value: APP_METADATA.EMAIL,
+    href: `mailto:${APP_METADATA.EMAIL}`
   },
   {
     icon: Phone,
     label: "Phone",
-    value: "+234 XXX XXX XXXX",
-    href: "tel:+234XXXXXXXXX"
+    value: APP_METADATA.PHONE,
+    href: `tel:${APP_METADATA.PHONE}`
   },
   {
     icon: MapPin,
     label: "Address",
-    value: "Lagos, Nigeria",
+    value: APP_METADATA.LOCATION,
     href: null
   },
 ];

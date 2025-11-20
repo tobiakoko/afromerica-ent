@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
 import { Providers } from "./providers"
+import { APP_METADATA, BRAND_COLORS, SOCIAL_HANDLES, SEO_CONFIG } from '@/lib/constants'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,46 +17,46 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Afromerica Entertainment - African Music & Events',
-    template: '%s | Afromerica Entertainment',
+    default: `${APP_METADATA.NAME} - African Music & Events`,
+    template: `%s | ${APP_METADATA.NAME}`,
   },
-  description: 'Discover the hottest African music events, artists, and experiences. Book tickets to festivals, concerts, and cultural celebrations.',
-  keywords: ['African music', 'events', 'concerts', 'festivals', 'Afrobeat', 'tickets', 'Nigeria', 'Ghana', 'Kenya'],
-  authors: [{ name: 'Afromerica Entertainment' }],
-  creator: 'Afromerica Entertainment',
-  publisher: 'Afromerica Entertainment',
+  description: APP_METADATA.DESCRIPTION,
+  keywords: [...SEO_CONFIG.KEYWORDS],
+  authors: [{ name: APP_METADATA.AUTHOR }],
+  creator: APP_METADATA.AUTHOR,
+  publisher: APP_METADATA.AUTHOR,
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://afromerica.com'),
+  metadataBase: new URL(APP_METADATA.URL),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_BASE_URL,
-    siteName: 'Afromerica Entertainment',
-    title: 'Afromerica Entertainment - African Music & Events',
-    description: 'Discover the hottest African music events, artists, and experiences.',
+    url: APP_METADATA.URL,
+    siteName: APP_METADATA.NAME,
+    title: `${APP_METADATA.NAME} - African Music & Events`,
+    description: APP_METADATA.DESCRIPTION,
     images: [
       {
-        url: '/og-image.jpg',
+        url: APP_METADATA.OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: 'Afromerica Entertainment',
+        alt: APP_METADATA.NAME,
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    site: '@afromerica',
-    creator: '@afromerica',
-    title: 'Afromerica Entertainment - African Music & Events',
-    description: 'Discover the hottest African music events, artists, and experiences.',
-    images: ['/twitter-image.jpg'],
+    card: SEO_CONFIG.TWITTER_CARD,
+    site: SOCIAL_HANDLES.TWITTER,
+    creator: SOCIAL_HANDLES.TWITTER,
+    title: `${APP_METADATA.NAME} - African Music & Events`,
+    description: APP_METADATA.DESCRIPTION,
+    images: [APP_METADATA.OG_IMAGE],
   },
   icons: {
     icon: '/favicon.ico',
@@ -69,7 +70,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#FF6B00',
+  themeColor: BRAND_COLORS.ORANGE,
 }
 
 export default function RootLayout({
