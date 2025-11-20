@@ -1,5 +1,5 @@
 import { HomeNavigation } from "@/components/layout/navigation"
-import Footer from "@/components/layout/Footer";
+import Footer from "@/components/layout/footer";
 
 export default function PublicLayout({
   children,
