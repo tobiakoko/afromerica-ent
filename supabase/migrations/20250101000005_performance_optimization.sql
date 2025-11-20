@@ -132,19 +132,19 @@ SELECT
   a.total_votes,
   a.total_vote_amount,
   a.rank,
-  
-  -- Transaction metrics
-  COUNT(v.id) as transaction_count,
-  COUNT(v.id) FILTER (WHERE v.payment_status = 'completed') as completed_transactions,
-  COUNT(v.id) FILTER (WHERE v.payment_status = 'pending') as pending_transactions,
-  
-  -- Vote metrics
-  COALESCE(AVG(v.vote_count) FILTER (WHERE v.payment_status = 'completed'), 0) as avg_votes_per_transaction,
-  COALESCE(AVG(v.amount_paid) FILTER (WHERE v.payment_status = 'completed'), 0) as avg_amount_per_transaction,
-  
+
+  -- Transaction metrics (cast to int for TypeScript compatibility)
+  COUNT(v.id)::int as transaction_count,
+  COUNT(v.id) FILTER (WHERE v.payment_status = 'completed')::int as completed_transactions,
+  COUNT(v.id) FILTER (WHERE v.payment_status = 'pending')::int as pending_transactions,
+
+  -- Vote metrics (cast to numeric for consistency)
+  COALESCE(AVG(v.vote_count) FILTER (WHERE v.payment_status = 'completed'), 0)::numeric as avg_votes_per_transaction,
+  COALESCE(AVG(v.amount_paid) FILTER (WHERE v.payment_status = 'completed'), 0)::numeric as avg_amount_per_transaction,
+
   -- Most recent vote
   MAX(v.verified_at) FILTER (WHERE v.payment_status = 'completed') as last_vote_at
-  
+
 FROM public.artists a
 LEFT JOIN public.votes v ON v.artist_id = a.id
 WHERE a.is_active = true AND a.deleted_at IS NULL
