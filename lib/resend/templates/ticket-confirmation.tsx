@@ -43,7 +43,7 @@ export const TicketConfirmationEmail = ({
           {/* Logo */}
           <Section style={logoSection}>
             <Img
-              src={`${process.env.NEXT_PUBLIC_BASE_URL}/logo.png`}
+              src={`${APP_METADATA.URL}/logo.png`}
               alt={APP_METADATA.NAME}
               width="150"
               height="40"
@@ -103,7 +103,7 @@ export const TicketConfirmationEmail = ({
 
           {/* CTA Button */}
           <Section style={buttonSection}>
-            <Button style={button} href={`${process.env.NEXT_PUBLIC_BASE_URL}/bookings/${bookingReference}`}>
+            <Button style={button} href={`${APP_METADATA.URL}/bookings/${bookingReference}`}>
               View Your Ticket
             </Button>
           </Section>

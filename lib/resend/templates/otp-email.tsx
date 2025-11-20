@@ -30,7 +30,7 @@ export const OTPEmail = ({
           {/* Logo */}
           <Section style={logoSection}>
             <Img
-              src={`${process.env.NEXT_PUBLIC_BASE_URL}/logo.png`}
+              src={`${APP_METADATA.URL}/logo.png`}
               alt={APP_METADATA.NAME}
               width="150"
               height="40"

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { APP_METADATA } from '@/lib/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Forward to send endpoint
     const sendResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/otp/send`,
+      `${APP_METADATA.URL}/api/otp/send`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

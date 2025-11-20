@@ -4,7 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
-import { BASE_URL } from '@/lib/env'
+import { APP_METADATA } from '@/lib/constants'
+
+const BASE_URL = APP_METADATA.URL
+
 
 // Validation helpers
 function validateEmail(email: string): string | null {

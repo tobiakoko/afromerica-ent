@@ -37,7 +37,7 @@ export const VoteConfirmationEmail = ({
           {/* Logo */}
           <Section style={logoSection}>
             <Img
-              src={`${process.env.NEXT_PUBLIC_BASE_URL}/logo.png`}
+              src={`${APP_METADATA.URL}/logo.png`}
               alt={APP_METADATA.NAME}
               width="150"
               height="40"
@@ -86,7 +86,7 @@ export const VoteConfirmationEmail = ({
 
           {/* CTA Button */}
           <Section style={buttonSection}>
-            <Button style={button} href={`${process.env.NEXT_PUBLIC_BASE_URL}/events/december-showcase-2025/leaderboard`}>
+            <Button style={button} href={`${APP_METADATA.URL}/events/december-showcase-2025/leaderboard`}>
               View Leaderboard
             </Button>
           </Section>

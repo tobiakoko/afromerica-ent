@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { paystackClient } from '@/lib/paystack/client';
 import crypto from 'crypto';
-import { CURRENCY, PAYMENT_STATUS } from '@/lib/constants';
+import { CURRENCY, PAYMENT_STATUS, APP_METADATA } from '@/lib/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       email,
       amount: Math.round(amount * 100),
       reference,
-      callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments/verify?reference=${reference}`,
+      callback_url: `${APP_METADATA.URL}/payments/verify?reference=${reference}`,
     });
 
     let paymentData;
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         email,
         amount: Math.round(amount * 100), // Convert to kobo
         reference,
-        callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payments/verify?reference=${reference}`,
+        callback_url: `${APP_METADATA.URL}/payments/verify?reference=${reference}`,
         metadata: {
           type,
           ...metadata,
