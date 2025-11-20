@@ -12,9 +12,9 @@ interface AnnouncementBannerProps {
 }
 
 export default function AnnouncementBanner({
-  message = "Join us for the December Pilot Vote! Cast your vote for your favorite artist.",
-  linkText = "Vote Now",
-  linkHref = "/pilot-vote",
+  message,
+  linkText,
+  linkHref,
   dismissible = true,
 }: AnnouncementBannerProps) {
   const [isVisible, setIsVisible] = useState(true);
@@ -22,7 +22,7 @@ export default function AnnouncementBanner({
   if (!isVisible) return null;
 
   return (
-    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-linear-to-r from-primary to-secondary px-6 py-2.5 sm:px-3.5">
+    <div className="relative isolate flex items-center justify-center gap-x-6 overflow-hidden bg-linear-to-r from-primary to-secondary px-6 py-2.5 sm:px-3.5">
       {/* Decorative background elements */}
       <div
         aria-hidden="true"
@@ -50,7 +50,7 @@ export default function AnnouncementBanner({
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-2">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-white animate-pulse" aria-hidden="true" />
           <p className="text-sm leading-6 text-white">
@@ -69,11 +69,11 @@ export default function AnnouncementBanner({
 
       {/* Dismiss button */}
       {dismissible && (
-        <div className="flex flex-none items-center gap-x-1">
+        <div className="flex flex-none items-center gap-x-1 absolute right-3">
           <button
             type="button"
             onClick={() => setIsVisible(false)}
-            className="-m-3 p-3 focus-visible:-outline-offset-4 hover:bg-white/10 rounded-lg transition-colors duration-200"
+            className="-m-3 p-3 focus-visible:outline-offset-4 hover:bg-white/10 rounded-lg transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white"
             aria-label="Dismiss announcement"
           >
             <span className="sr-only">Dismiss</span>

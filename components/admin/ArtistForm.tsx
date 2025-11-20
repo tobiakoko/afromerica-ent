@@ -52,7 +52,7 @@ export function ArtistForm({ artist }: ArtistFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          genre: formData.genre.split(',').map(g => g.trim()).filter(Boolean),
+          genre: formData.genre.split(',').map((g: string) => g.trim()).filter(Boolean),
         }),
       });
 

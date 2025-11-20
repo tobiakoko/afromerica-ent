@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,20 +11,45 @@ import Image from "next/image";
 
 interface VotingFormProps {
   artists: any[];
-  packages: any[];
+  preselectedArtistSlug?: string;
+  votePrice: number;
 }
 
-export function VotingForm({ artists, packages }: VotingFormProps) {
+export function VotingForm({ artists, preselectedArtistSlug, votePrice }: VotingFormProps) {
   const [step, setStep] = useState<'select' | 'validate' | 'payment'>('select');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     artistId: '',
-    packageId: '',
+    voteCount: '',
+    amount: '',
     email: '',
     phone: '',
     validationMethod: 'email',
     verificationCode: '',
   });
+
+  // Pre-select artist based on slug from URL
+  useEffect(() => {
+    if (preselectedArtistSlug && artists.length > 0) {
+      const artist = artists.find(a => a.slug === preselectedArtistSlug);
+      if (artist) {
+        setFormData(prev => ({ ...prev, artistId: artist.id }));
+        // Show toast to inform user
+        toast.success(`${artist.stage_name || artist.name} selected! Choose the number of votes to continue.`);
+      } else {
+        // Artist slug not found
+        toast.error('Artist not found. Please select an artist to continue.');
+      }
+    }
+  }, [preselectedArtistSlug, artists]);
+
+  // Auto-calculate amount when vote count changes
+  useEffect(() => {
+    if (formData.voteCount && votePrice) {
+      const calculatedAmount = parseInt(formData.voteCount) * parseFloat(votePrice.toString());
+      setFormData(prev => ({ ...prev, amount: calculatedAmount.toFixed(2) }));
+    }
+  }, [formData.voteCount, votePrice]);
 
   // Step 1: Send Validation Code
   const handleSendCode = async () => {
@@ -62,8 +87,10 @@ export function VotingForm({ artists, packages }: VotingFormProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          [formData.validationMethod]: formData.validationMethod === 'email' ? formData.email : formData.phone,
+          email: formData.validationMethod === 'email' ? formData.email : undefined,
+          phone: formData.validationMethod === 'sms' ? formData.phone : undefined,
           code: formData.verificationCode,
+          method: formData.validationMethod,
         }),
       });
 
@@ -86,17 +113,15 @@ export function VotingForm({ artists, packages }: VotingFormProps) {
   // Step 3: Initialize Payment
   const handleInitializePayment = async (validationToken: string) => {
     try {
-      const selectedPackage = packages.find(p => p.id === formData.packageId);
-      
       const response = await fetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'vote',
           artistId: formData.artistId,
-          packageId: formData.packageId,
+          voteCount: parseInt(formData.voteCount),
           email: formData.email,
-          amount: selectedPackage.price,
+          amount: parseFloat(formData.amount),
           validationToken,
         }),
       });
@@ -114,7 +139,6 @@ export function VotingForm({ artists, packages }: VotingFormProps) {
     }
   };
 
-  const selectedPackage = packages.find(p => p.id === formData.packageId);
   const selectedArtist = artists.find(a => a.id === formData.artistId);
 
   return (
@@ -138,57 +162,60 @@ export function VotingForm({ artists, packages }: VotingFormProps) {
                 >
                   <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
                     <Image
-                      src={artist.image_url || '/images/default-artist.jpg'}
+                      src={artist.photo_url || '/images/default-artist.svg'}
                       alt={artist.name}
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <p className="font-semibold text-sm text-center">{artist.stage_name}</p>
+                  <p className="font-semibold text-sm text-center">{artist.stage_name || artist.name}</p>
                   <p className="text-xs text-muted-foreground text-center">
-                    {artist.total_votes} votes
+                    {artist.total_votes?.toLocaleString() || 0} votes
                   </p>
                 </button>
               ))}
             </div>
           </Card>
 
-          {/* Package Selection */}
+          {/* Vote Details */}
           <Card className="p-6">
-            <h2 className="text-2xl font-semibold mb-4">Select Vote Package</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {packages.map((pkg) => (
-                <button
-                  key={pkg.id}
-                  onClick={() => setFormData({ ...formData, packageId: pkg.id })}
-                  className={`p-6 rounded-lg border-2 transition-all relative ${
-                    formData.packageId === pkg.id
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-primary/50'
-                  }`}
+            <h2 className="text-2xl font-semibold mb-4">Enter Vote Details</h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="voteCount">Number of Votes</Label>
+                <Select
+                  value={formData.voteCount}
+                  onValueChange={(value) => setFormData({ ...formData, voteCount: value })}
                 >
-                  {pkg.popular && (
-                    <div className="absolute -top-2 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      Popular
-                    </div>
-                  )}
-                  <h3 className="font-bold text-lg mb-2">{pkg.name}</h3>
-                  <p className="text-3xl font-bold text-primary mb-2">
-                    ₦{pkg.price.toLocaleString()}
-                  </p>
-                  <p className="text-muted-foreground text-sm mb-2">
-                    {pkg.votes} votes
-                  </p>
-                  {pkg.discount > 0 && (
-                    <p className="text-xs text-green-600 font-semibold">
-                      Save {pkg.discount}%
-                    </p>
-                  )}
-                  {pkg.description && (
-                    <p className="text-xs text-muted-foreground mt-2">{pkg.description}</p>
-                  )}
-                </button>
-              ))}
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select number of votes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((count) => (
+                      <SelectItem key={count} value={count.toString()}>
+                        {count} {count === 1 ? 'vote' : 'votes'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Choose the number of votes you want to purchase
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="amount">Total Amount (₦)</Label>
+                <Input
+                  id="amount"
+                  type="text"
+                  value={formData.amount ? `₦${parseFloat(formData.amount).toLocaleString()}` : '₦0.00'}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  ₦{votePrice.toLocaleString()} per vote
+                </p>
+              </div>
             </div>
           </Card>
 
@@ -245,7 +272,7 @@ export function VotingForm({ artists, packages }: VotingFormProps) {
             size="lg"
             className="w-full"
             onClick={handleSendCode}
-            disabled={loading || !formData.artistId || !formData.packageId || (!formData.email && !formData.phone)}
+            disabled={loading || !formData.artistId || !formData.voteCount || !formData.amount || (!formData.email && !formData.phone)}
           >
             {loading ? 'Sending Code...' : 'Continue to Verification'}
           </Button>
@@ -295,25 +322,21 @@ export function VotingForm({ artists, packages }: VotingFormProps) {
       )}
 
       {/* Order Summary (shown on select step) */}
-      {step === 'select' && selectedPackage && selectedArtist && (
+      {step === 'select' && selectedArtist && formData.voteCount && formData.amount && (
         <Card className="p-6 bg-muted/50">
           <h3 className="font-semibold mb-4">Order Summary</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>Artist:</span>
-              <span className="font-semibold">{selectedArtist.stage_name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Package:</span>
-              <span className="font-semibold">{selectedPackage.name}</span>
+              <span className="font-semibold">{selectedArtist.stage_name || selectedArtist.name}</span>
             </div>
             <div className="flex justify-between">
               <span>Votes:</span>
-              <span className="font-semibold">{selectedPackage.votes}</span>
+              <span className="font-semibold">{parseInt(formData.voteCount).toLocaleString()}</span>
             </div>
             <div className="border-t pt-2 flex justify-between font-bold text-lg">
               <span>Total:</span>
-              <span>₦{selectedPackage.price.toLocaleString()}</span>
+              <span>₦{parseFloat(formData.amount).toLocaleString()}</span>
             </div>
           </div>
         </Card>

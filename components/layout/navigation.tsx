@@ -1,109 +1,198 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Menu, X, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
- 
+import AnnouncementBanner from "@/components/banner";
+
 export function HomeNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
- 
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
   const navigation = [
     { name: "Artists", href: "/artists" },
     { name: "Events", href: "/events" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
- 
+
+  // Handle Escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener("keydown", handleEscape);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = "hidden";
+
+      // Focus first menu item when opened
+      const firstMenuItem = mobileMenuRef.current?.querySelector<HTMLAnchorElement>('a');
+      firstMenuItem?.focus();
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  const handleMobileMenuToggle = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+    menuButtonRef.current?.focus();
+  };
+
   return (
     <>
+      {/* Skip to main content link for keyboard navigation - WCAG 2.4.1 */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-4 focus:py-2 focus:bg-white focus:text-primary focus:rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary"
+      >
+        Skip to main content
+      </a>
+
       {/* Top Banner */}
-      <div className="bg-linear-to-r from-primary via-purple-600 to-pink-600 text-white">
-        <div className="container mx-auto px-4 py-2">
-          <div className="flex items-center justify-center gap-2 text-sm font-medium">
-            <Sparkles className="h-4 w-4" />
-            <span>Welcome to AfroMerica Entertainment - Celebrating Culture Through Music & Art</span>
-          </div>
-        </div>
-      </div>
- 
+      <AnnouncementBanner
+          message="Welcome to AfroMerica Entertainment"
+          linkHref="events/december-showcase-2025"
+          linkText="December Artist Discovery is open"
+       />
+
       {/* Navigation */}
-      <header className="absolute top-12 left-0 right-0 z-50 w-full">
-        <nav className="container mx-auto flex items-center justify-between p-4 lg:px-8" aria-label="Global">
-          <div className="flex lg:flex-1">
-            <Link href="/" className="-m-1.5 p-1.5">
-              <span className="text-2xl font-bold text-white drop-shadow-lg">
+      <header className="absolute top-12 left-0 right-0 z-50 w-full" role="banner">
+        <nav className="container mx-auto flex items-center justify-between p-4 lg:px-8" aria-label="Main" role="navigation">
+          <div className="flex lg:flex-1 items-center">
+            <Link
+              href="/"
+              className="-m-1.5 p-1.5 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:ring-2 focus-visible:ring-white transition-all duration-200 hover:scale-105 flex items-center gap-3"
+              aria-label="AfroMerica Entertainment home page"
+            >
+              <div
+                className="
+                  flex items-center justify-center
+                  rounded-md
+                  p-1.5
+                  bg-neutral-900/90 dark:bg-white/90
+                  shadow-sm
+                  ring-1 ring-white/10 dark:ring-black/30
+                  w-auto h-10
+                "
+                style={{ minWidth: 40 }}
+              >
+                <Image
+                  src="/logo.png"
+                  alt="AfroMerica Entertainment"
+                  width={160}
+                  height={40}
+                  className="h-8 w-auto object-contain"
+                  priority
+                  unoptimized
+                />
+              </div>
+              <span className="hidden sm:inline-block text-base font-semibold tracking-tight text-white dark:text-white drop-shadow-md">
                 AfroMerica
+                <span className="sr-only"> Entertainment</span>
               </span>
             </Link>
           </div>
- 
+
           <div className="flex lg:hidden">
             <Button
+              ref={menuButtonRef}
               variant="ghost"
               size="icon"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white hover:bg-white/10"
+              onClick={handleMobileMenuToggle}
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
+              aria-haspopup="true"
+              className="text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white"
             >
-              <span className="sr-only">Toggle menu</span>
+              <span className="sr-only">
+                {mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              </span>
               {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-6 w-6" aria-hidden="true" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-6 w-6" aria-hidden="true" />
               )}
             </Button>
           </div>
- 
-          <div className="hidden lg:flex lg:gap-x-8">
+
+          <ul className="hidden lg:flex lg:gap-x-8" role="list">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm font-semibold text-white/90 hover:text-white transition-colors drop-shadow"
-              >
-                {item.name}
-              </Link>
+              <li key={item.name}>
+                <Link
+                  href={item.href}
+                  className="text-sm font-semibold text-white hover:text-white/90 transition-colors drop-shadow-lg rounded-lg px-2 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  {item.name}
+                </Link>
+              </li>
             ))}
-          </div>
- 
-          <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+          </ul>
+
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4 lg:items-center">
             <ThemeToggle />
-            <Button variant="ghost" asChild className="text-white hover:bg-white/10">
+            <Button variant="ghost" asChild className="text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white">
               <Link href="/signin">Sign in</Link>
             </Button>
-            <Button asChild className="bg-white text-primary hover:bg-white/90">
+            <Button asChild className="bg-white text-primary hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-primary">
               <Link href="/signup">Get Started</Link>
             </Button>
           </div>
         </nav>
- 
+
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-black/90 backdrop-blur-lg border-t border-white/10">
-            <div className="space-y-1 px-4 pb-3 pt-2">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <div className="mt-4 space-y-2">
+          <div
+            ref={mobileMenuRef}
+            id="mobile-menu"
+            className="lg:hidden bg-black/90 backdrop-blur-lg border-t border-white/10"
+            role="navigation"
+            aria-label="Mobile"
+          >
+            <nav>
+              <ul className="space-y-1 px-4 pb-3 pt-2" role="list">
+                {navigation.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:ring-2 focus-visible:ring-white transition-all duration-200"
+                      onClick={closeMobileMenu}
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 space-y-2 px-4 pb-3">
                 <div className="flex justify-center py-2">
                   <ThemeToggle />
                 </div>
-                <Button variant="ghost" className="w-full text-white hover:bg-white/10" asChild>
-                  <Link href="/signin">Sign in</Link>
+                <Button variant="ghost" className="w-full text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white" asChild>
+                  <Link href="/signin" onClick={closeMobileMenu}>Sign in</Link>
                 </Button>
-                <Button className="w-full bg-white text-primary hover:bg-white/90" asChild>
-                  <Link href="/signup">Get Started</Link>
+                <Button className="w-full bg-white text-primary hover:bg-white/90 focus-visible:ring-2 focus-visible:ring-primary" asChild>
+                  <Link href="/signup" onClick={closeMobileMenu}>Get Started</Link>
                 </Button>
               </div>
-            </div>
+            </nav>
           </div>
         )}
       </header>

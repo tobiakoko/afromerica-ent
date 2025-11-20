@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { EVENT_STATUS, EVENT_CATEGORY, EVENT_STATUS_LABELS, EVENT_CATEGORY_LABELS } from '@/lib/constants';
 
 interface EventFormProps {
   event?: any;
@@ -26,8 +27,8 @@ export function EventForm({ event }: EventFormProps) {
     date: event?.date ? new Date(event.date).toISOString().slice(0, 16) : '',
     time: event?.time || '',
     capacity: event?.capacity || '',
-    status: event?.status || 'upcoming',
-    category: event?.category || 'concert',
+    status: event?.status || EVENT_STATUS.UPCOMING,
+    category: event?.category || EVENT_CATEGORY.CONCERT,
     featured: event?.featured || false,
     image_url: event?.image_url || '',
     cover_image_url: event?.cover_image_url || '',
@@ -101,10 +102,10 @@ export function EventForm({ event }: EventFormProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="concert">Concert</SelectItem>
-                <SelectItem value="festival">Festival</SelectItem>
-                <SelectItem value="club">Club Event</SelectItem>
-                <SelectItem value="private">Private Event</SelectItem>
+                <SelectItem value={EVENT_CATEGORY.CONCERT}>{EVENT_CATEGORY_LABELS[EVENT_CATEGORY.CONCERT]}</SelectItem>
+                <SelectItem value={EVENT_CATEGORY.FESTIVAL}>{EVENT_CATEGORY_LABELS[EVENT_CATEGORY.FESTIVAL]}</SelectItem>
+                <SelectItem value={EVENT_CATEGORY.CLUB}>{EVENT_CATEGORY_LABELS[EVENT_CATEGORY.CLUB]}</SelectItem>
+                <SelectItem value={EVENT_CATEGORY.PRIVATE}>{EVENT_CATEGORY_LABELS[EVENT_CATEGORY.PRIVATE]}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -150,11 +151,11 @@ export function EventForm({ event }: EventFormProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="upcoming">Upcoming</SelectItem>
-                <SelectItem value="ongoing">Ongoing</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="soldout">Sold Out</SelectItem>
+                <SelectItem value={EVENT_STATUS.UPCOMING}>{EVENT_STATUS_LABELS[EVENT_STATUS.UPCOMING]}</SelectItem>
+                <SelectItem value={EVENT_STATUS.ONGOING}>{EVENT_STATUS_LABELS[EVENT_STATUS.ONGOING]}</SelectItem>
+                <SelectItem value={EVENT_STATUS.COMPLETED}>{EVENT_STATUS_LABELS[EVENT_STATUS.COMPLETED]}</SelectItem>
+                <SelectItem value={EVENT_STATUS.CANCELLED}>{EVENT_STATUS_LABELS[EVENT_STATUS.CANCELLED]}</SelectItem>
+                <SelectItem value={EVENT_STATUS.SOLDOUT}>{EVENT_STATUS_LABELS[EVENT_STATUS.SOLDOUT]}</SelectItem>
               </SelectContent>
             </Select>
           </div>

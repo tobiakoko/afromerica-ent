@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
-import { siteConfig } from "@/config/site";
+import { APP_METADATA, FOOTER_LINKS, SOCIAL_LINKS, DEVELOPER } from "@/lib/constants";
 
 const socialIcons = {
   facebook: Facebook,
@@ -8,6 +9,13 @@ const socialIcons = {
   twitter: Twitter,
   youtube: Youtube,
 };
+
+const footerSocialLinks = [
+  { platform: 'facebook', label: 'Facebook', href: SOCIAL_LINKS.FACEBOOK },
+  { platform: 'instagram', label: 'Instagram', href: SOCIAL_LINKS.INSTAGRAM },
+  { platform: 'twitter', label: 'Twitter', href: SOCIAL_LINKS.TWITTER },
+  { platform: 'youtube', label: 'YouTube', href: SOCIAL_LINKS.YOUTUBE },
+] as const;
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -19,15 +27,19 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="inline-block">
-              <span className="text-xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
-                {siteConfig.brand.fullName}
-              </span>
+              <Image
+                src="/logo.png"
+                alt={APP_METADATA.NAME}
+                width={150}
+                height={40}
+                className="h-8 w-auto"
+              />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
-              {siteConfig.description}
+              {APP_METADATA.DESCRIPTION}
             </p>
             <p className="text-xs text-muted-foreground">
-              {siteConfig.contact.location}
+              {APP_METADATA.LOCATION}
             </p>
           </div>
 
@@ -35,7 +47,7 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-4">Company</h3>
             <ul className="space-y-3">
-              {siteConfig.footerLinks.company.map((item) => (
+              {FOOTER_LINKS.COMPANY.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -52,7 +64,7 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-4">Legal</h3>
             <ul className="space-y-3">
-              {siteConfig.footerLinks.legal.map((item) => (
+              {FOOTER_LINKS.LEGAL.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -71,7 +83,7 @@ export function Footer() {
 
             {/* Social Links */}
             <div className="flex gap-3 mb-4">
-              {siteConfig.footerSocialLinks.map((item) => {
+              {footerSocialLinks.map((item) => {
                 const Icon = socialIcons[item.platform as keyof typeof socialIcons];
                 if (!Icon) return null;
 
@@ -93,13 +105,13 @@ export function Footer() {
             {/* Contact Info */}
             <div className="space-y-2">
               <a
-                href={`mailto:${siteConfig.contact.email}`}
+                href={`mailto:${APP_METADATA.EMAIL}`}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors block"
               >
-                {siteConfig.contact.email}
+                {APP_METADATA.EMAIL}
               </a>
               <p className="text-xs text-muted-foreground">
-                {siteConfig.contact.businessHours}
+                {APP_METADATA.BUSINESS_HOURS}
               </p>
             </div>
           </div>
@@ -109,20 +121,20 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground text-center md:text-left">
-              &copy; {currentYear} {siteConfig.brand.fullName}. All rights reserved.
+              &copy; {currentYear} {APP_METADATA.NAME}. All rights reserved.
             </p>
 
             {/* Developer Credit */}
-            {siteConfig.developer.url !== '#' && (
+            {DEVELOPER.URL && (
               <p className="text-xs text-muted-foreground">
                 Developed by{' '}
                 <a
-                  href={siteConfig.developer.url}
+                  href={DEVELOPER.URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
-                  {siteConfig.developer.name}
+                  {DEVELOPER.NAME}
                 </a>
               </p>
             )}

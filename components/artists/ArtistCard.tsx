@@ -26,7 +26,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         {/* Image */}
         <div className="relative aspect-square overflow-hidden">
           <Image
-            src={artist.photo_url || '/images/default-artist.jpg'}
+            src={artist.photo_url || '/images/default-artist.svg'}
             alt={artist.name}
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-300"

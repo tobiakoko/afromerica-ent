@@ -72,7 +72,7 @@ export function ArtistTable({ artists }: ArtistTableProps) {
                 <div className="flex items-center gap-3">
                   <div className="relative w-10 h-10 rounded-full overflow-hidden">
                     <Image
-                      src={artist.image_url || '/images/default-artist.jpg'}
+                      src={artist.image_url || '/images/default-artist.svg'}
                       alt={artist.name}
                       fill
                       className="object-cover"

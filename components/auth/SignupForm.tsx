@@ -79,7 +79,7 @@ export function SignUpForm() {
         <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold mb-2">Check Your Email</h3>
         <p className="text-muted-foreground">
-          We've sent you a confirmation link. Please check your email to activate your account.
+          We&apos;ve sent you a confirmation link. Please check your email to activate your account.
         </p>
       </div>
     );

@@ -230,7 +230,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
                 >
                   <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
                     <Image
-                      src={artist.image_url || '/images/default-artist.jpg'}
+                      src={artist.image_url || '/images/default-artist.svg'}
                       alt={artist.name}
                       fill
                       className="object-cover"

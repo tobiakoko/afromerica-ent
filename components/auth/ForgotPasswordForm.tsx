@@ -31,7 +31,7 @@ export function ForgotPasswordForm() {
         <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold mb-2">Check Your Email</h3>
         <p className="text-muted-foreground">
-          We've sent you a password reset link. Please check your email.
+          We&apos;ve sent you a password reset link. Please check your email.
         </p>
       </div>
     );

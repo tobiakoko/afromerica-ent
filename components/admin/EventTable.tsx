@@ -22,6 +22,7 @@ import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { EVENT_STATUS, EVENT_STATUS_LABELS, DATE_FORMATS } from '@/lib/constants';
 
 interface EventTableProps {
   events: any[];
@@ -72,7 +73,7 @@ export function EventTable({ events }: EventTableProps) {
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 rounded overflow-hidden">
                     <Image
-                      src={event.image_url || '/images/default-event.jpg'}
+                      src={event.image_url || '/images/default-event.svg'}
                       alt={event.title}
                       fill
                       className="object-cover"
@@ -85,17 +86,17 @@ export function EventTable({ events }: EventTableProps) {
                 </div>
               </TableCell>
               <TableCell>
-                {format(new Date(event.date), 'MMM d, yyyy')}
+                {format(new Date(event.date), DATE_FORMATS.SHORT)}
               </TableCell>
               <TableCell>
                 <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                  event.status === 'upcoming' ? 'bg-blue-100 text-blue-800' :
-                  event.status === 'ongoing' ? 'bg-green-100 text-green-800' :
-                  event.status === 'completed' ? 'bg-gray-100 text-gray-800' :
-                  event.status === 'soldout' ? 'bg-red-100 text-red-800' :
+                  event.status === EVENT_STATUS.UPCOMING ? 'bg-blue-100 text-blue-800' :
+                  event.status === EVENT_STATUS.ONGOING ? 'bg-green-100 text-green-800' :
+                  event.status === EVENT_STATUS.COMPLETED ? 'bg-gray-100 text-gray-800' :
+                  event.status === EVENT_STATUS.SOLDOUT ? 'bg-red-100 text-red-800' :
                   'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {event.status}
+                  {EVENT_STATUS_LABELS[event.status as keyof typeof EVENT_STATUS_LABELS] || event.status}
                 </span>
               </TableCell>
               <TableCell>

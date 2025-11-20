@@ -10,6 +10,7 @@ import { Calendar, MapPin, Music, TrendingUp } from 'lucide-react'
 import { format } from 'date-fns'
 import { type PublicEvent } from '@/lib/validations/event'
 import { cn } from '@/lib/utils'
+import { PUBLIC_ROUTES } from '@/lib/constants'
 
 interface EventCardProps {
   event: PublicEvent
@@ -21,7 +22,7 @@ export function EventCard({ event, priority = false }: EventCardProps) {
 
   return (
     <Link
-      href={`/events/${event.slug}`}
+      href={PUBLIC_ROUTES.EVENT_DETAIL(event.slug)}
       className={cn('group block', event.featured && 'md:col-span-2 lg:col-span-1')}
     >
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 h-full flex flex-col">
@@ -37,7 +38,7 @@ export function EventCard({ event, priority = false }: EventCardProps) {
               priority={priority}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/20 to-primary/5">
               <Music className="w-16 h-16 text-muted-foreground/30" aria-hidden="true" />
             </div>
           )}

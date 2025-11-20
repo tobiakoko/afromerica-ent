@@ -7,20 +7,20 @@ import { Input } from './input';
 
 export interface PhoneInputProps {
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: (value?: string) => void;
   placeholder?: string;
   disabled?: boolean;
   defaultCountry?: string;
 }
 
 export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
-  ({ value, onChange, placeholder, disabled, defaultCountry = 'NG' }, ref) => {
+  ({ value, onChange, placeholder, disabled, defaultCountry = 'NG' }, _ref) => {
     return (
       <PhoneInputWithCountry
         international
         defaultCountry={defaultCountry as any}
         value={value}
-        onChange={onChange}
+        onChange={onChange as any}
         placeholder={placeholder}
         disabled={disabled}
         inputComponent={Input as any}
