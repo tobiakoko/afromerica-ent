@@ -6,11 +6,12 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from '@react-email/components';
-import * as React from 'react';
+import { APP_METADATA } from '@/lib/constants';
 
 interface VoteConfirmationEmailProps {
   artistName: string;
@@ -25,7 +26,7 @@ export const VoteConfirmationEmail = ({
   votes = 50,
   amount = 1800,
   reference = 'AFR-VOTE-123456',
-  customerEmail = 'voter@example.com',
+  customerEmail: _customerEmail = 'voter@example.com',
 }: VoteConfirmationEmailProps) => {
   return (
     <Html>
@@ -35,7 +36,13 @@ export const VoteConfirmationEmail = ({
         <Container style={container}>
           {/* Logo */}
           <Section style={logoSection}>
-            <Heading style={logo}>Afromerica Entertainment</Heading>
+            <Img
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/logo.png`}
+              alt={APP_METADATA.NAME}
+              width="150"
+              height="40"
+              style={logoImage}
+            />
           </Section>
 
           {/* Header */}
@@ -46,7 +53,7 @@ export const VoteConfirmationEmail = ({
           </Text>
           
           <Text style={text}>
-            Your vote has been successfully recorded. You're helping to shape the future of African music!
+            Your vote has been successfully recorded. You&apos;re helping to shape the future of African music!
           </Text>
 
           {/* Vote Details Card */}
@@ -96,13 +103,13 @@ export const VoteConfirmationEmail = ({
           {/* Footer */}
           <Text style={footer}>
             Questions? Contact us at{' '}
-            <a href="mailto:votes@afromerica.com" style={link}>
-              votes@afromerica.com
+            <a href="mailto:votes@afromericaent.com" style={link}>
+              votes@afromericaent.com
             </a>
           </Text>
           
           <Text style={footer}>
-            © {new Date().getFullYear()} Afromerica Entertainment. All rights reserved.
+            © {new Date().getFullYear()} {APP_METADATA.NAME}. All rights reserved.
           </Text>
         </Container>
       </Body>
@@ -131,11 +138,9 @@ const logoSection = {
   textAlign: 'center' as const,
 };
 
-const logo = {
-  color: '#FF6B00',
-  fontSize: '24px',
-  fontWeight: 'bold',
-  margin: '0',
+const logoImage = {
+  margin: '0 auto',
+  display: 'block',
 };
 
 const h1 = {

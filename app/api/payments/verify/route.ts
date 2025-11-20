@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyPayment, convertFromKobo } from '@/lib/paystack/paystack.service';
 import { processPayment, type PaymentType } from '@/lib/paystack/payment-handlers';
 import type { PaymentVerifyResponse } from '@/lib/paystack/types';
+import { PAYMENT_STATUS } from '@/lib/constants';
  
 export async function GET(request: NextRequest) {
   try {
@@ -45,28 +46,30 @@ export async function GET(request: NextRequest) {
     const { data } = response;
  
     // Map Paystack status to our status
-    let paymentStatus: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
+    let paymentStatus: 'pending' | 'processing' | 'success' | 'failed' | 'refunded';
     switch (data.status) {
       case 'success':
-        paymentStatus = 'completed';
+        paymentStatus = PAYMENT_STATUS.SUCCESS;
         break;
       case 'failed':
-        paymentStatus = 'failed';
+        paymentStatus = PAYMENT_STATUS.FAILED;
         break;
       default:
-        paymentStatus = 'pending';
+        paymentStatus = PAYMENT_STATUS.PENDING;
     }
  
     // Process payment using shared handler
     const metadata = data.metadata;
     const paymentType = metadata?.type as PaymentType;
 
-    if (paymentStatus === 'completed' || paymentStatus === 'failed') {
+    if (paymentStatus === PAYMENT_STATUS.SUCCESS || paymentStatus === PAYMENT_STATUS.FAILED) {
       try {
+        // Map our payment status ('success') to processPayment's expected status ('completed')
+        const processStatus: 'completed' | 'failed' = paymentStatus === PAYMENT_STATUS.SUCCESS ? 'completed' : 'failed';
         await processPayment(
           reference,
           paymentType,
-          paymentStatus === 'completed' ? 'completed' : 'failed',
+          processStatus,
           data.paid_at
         );
       } catch (error) {

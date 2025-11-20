@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/utils/supabase/admin';
 import crypto from 'crypto';
 import { sendTicketConfirmation, sendVoteConfirmation } from '@/lib/emails/render';
+import { PAYMENT_STATUS } from '@/lib/constants';
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY!;
 
@@ -38,8 +39,9 @@ export async function POST(request: NextRequest) {
         const { data: ticket, error: updateError } = await supabase
           .from('tickets')
           .update({
-            payment_status: 'completed',
+            payment_status: PAYMENT_STATUS.SUCCESS,
             paystack_reference: reference,
+            verified_at: paid_at,
             updated_at: new Date().toISOString(),
           })
           .eq('payment_reference', reference)
@@ -47,14 +49,10 @@ export async function POST(request: NextRequest) {
             *,
             events (
               title,
-              date,
-              event_venues (
-                venues (
-                  name,
-                  address,
-                  city
-                )
-              )
+              event_date,
+              venue,
+              venue_address,
+              city
             )
           `)
           .single();
@@ -71,7 +69,6 @@ export async function POST(request: NextRequest) {
             booking: {
               ...ticket,
               event: ticket.events,
-              venue: ticket.events?.event_venues?.[0]?.venues,
             },
           });
 
@@ -82,37 +79,23 @@ export async function POST(request: NextRequest) {
         const { error: voteError } = await supabase
           .from('votes')
           .update({
-            payment_status: 'completed',
+            payment_status: PAYMENT_STATUS.SUCCESS,
             paystack_reference: reference,
             verified_at: paid_at,
+            updated_at: new Date().toISOString(),
           })
-          .eq('reference', reference);
+          .eq('payment_reference', reference);
 
         if (voteError) {
           console.error('Error updating vote purchase:', voteError);
           throw voteError;
         }
 
-        // Create vote transaction
-        const { error: transactionError } = await supabase
-          .from('vote_transactions')
-          .insert({
-            purchase_id: metadata.purchaseId,
-            artist_id: metadata.artistId,
-            votes: metadata.votes,
-            amount: amount / 100, // Convert from kobo
-          });
-
-        if (transactionError) {
-          console.error('Error creating vote transaction:', transactionError);
-          // Don't throw - purchase is already marked as completed
-        }
-
         // Send confirmation email
         await sendVoteConfirmation({
           to: customer.email,
-          artistName: metadata.artistName,
-          votes: metadata.votes,
+          artistName: metadata.artistName || 'Artist',
+          votes: metadata.votes || 0,
           amount: amount / 100,
         });
 
@@ -130,13 +113,19 @@ export async function POST(request: NextRequest) {
       if (metadata.type === 'ticket') {
         await supabase
           .from('tickets')
-          .update({ payment_status: 'failed' })
+          .update({
+            payment_status: PAYMENT_STATUS.FAILED,
+            updated_at: new Date().toISOString(),
+          })
           .eq('payment_reference', reference);
       } else if (metadata.type === 'vote') {
         await supabase
           .from('votes')
-          .update({ payment_status: 'failed' })
-          .eq('reference', reference);
+          .update({
+            payment_status: PAYMENT_STATUS.FAILED,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('payment_reference', reference);
       }
 
       return NextResponse.json({ received: true });

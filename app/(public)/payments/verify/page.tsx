@@ -1,35 +1,55 @@
-import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle, XCircle } from "lucide-react";
+import { PAYSTACK_CONFIG } from "@/lib/constants";
+import { sendVoteConfirmation } from "@/lib/emails/render";
+
+// This page must be dynamic as it requires search params
+export const dynamic = 'force-dynamic';
 
 export default async function PaymentVerifyPage({
   searchParams,
 }: {
-  searchParams: { reference: string };
+  searchParams: Promise<{ reference?: string; trxref?: string }>;
 }) {
-  const { reference } = searchParams;
+  const params = await searchParams;
+  // Paystack sends 'trxref' parameter, but we also support 'reference' for manual testing
+  const reference = params.trxref || params.reference;
+
+  console.log('Payment verification params:', params);
 
   if (!reference) {
+    console.error('No reference found in URL params');
     redirect('/');
   }
 
-  const supabase = await createClient();
+  // Use admin client to bypass RLS for payment verification
+  const supabase = createAdminClient();
 
   // Verify with Paystack
   const response = await fetch(
-    `https://api.paystack.co/transaction/verify/${reference}`,
+    `${PAYSTACK_CONFIG.API_BASE_URL}${PAYSTACK_CONFIG.VERIFY_ENDPOINT}/${reference}`,
     {
       headers: {
         Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
       },
+      cache: 'no-store', // Don't cache verification requests
     }
   );
 
   const data = await response.json();
-  const success = data.status && data.data.status === 'success';
+
+  console.log('Paystack verification response:', {
+    status: data.status,
+    transactionStatus: data.data?.status,
+    reference,
+    fullData: data,
+  });
+
+  const success = data.status && data.data?.status === 'success';
 
   // Get transaction details
   const metadata = data.data?.metadata || {};
@@ -37,20 +57,72 @@ export default async function PaymentVerifyPage({
 
   let details = null;
 
-  if (success && type === 'ticket') {
-    const { data: booking } = await supabase
-      .from('bookings')
-      .select('*, events(title)')
-      .eq('payment_reference', reference)
-      .single();
-    details = booking;
-  } else if (success && type === 'vote') {
-    const { data: purchase } = await supabase
-      .from('vote_purchases')
-      .select('*')
-      .eq('reference', reference)
-      .single();
-    details = purchase;
+  // Update payment status in database if successful
+  if (success) {
+    if (type === 'ticket') {
+      const { data: ticket, error } = await supabase
+        .from('tickets')
+        .update({
+          payment_status: 'completed',
+          paystack_reference: data.data.reference,
+        })
+        .eq('payment_reference', reference)
+        .select('*, events(title)')
+        .single();
+
+      if (error) {
+        console.error('Error updating ticket:', error);
+      }
+      details = ticket;
+    } else if (type === 'vote') {
+      const { data: vote, error } = await supabase
+        .from('votes')
+        .update({
+          payment_status: 'completed',
+          paystack_reference: data.data.reference,
+          verified_at: new Date().toISOString(),
+        })
+        .eq('payment_reference', reference)
+        .select('*, artists(name, stage_name)')
+        .single();
+
+      if (error) {
+        console.error('Error updating vote:', error);
+      } else if (vote) {
+        // Send confirmation email
+        try {
+          await sendVoteConfirmation({
+            to: vote.user_identifier,
+            artistName: vote.artists?.stage_name || vote.artists?.name || 'Artist',
+            votes: vote.vote_count,
+            amount: vote.amount_paid,
+            reference: vote.payment_reference,
+          });
+          console.log('Vote confirmation email sent to:', vote.user_identifier);
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+          // Don't fail the whole transaction if email fails
+        }
+      }
+      details = vote;
+    }
+  } else {
+    // Payment failed or pending - just fetch the record
+    if (type === 'ticket') {
+      const { data: ticket } = await supabase
+        .from('tickets')
+        .select('*, events(title)')
+        .eq('payment_reference', reference)
+        .single();
+      details = ticket;
+    } else if (type === 'vote') {
+      const { data: vote } = await supabase
+        .from('votes')
+        .select('*, artists(name, stage_name)')
+        .eq('payment_reference', reference)
+        .single();
+      details = vote;
+    }
   }
 
   return (
@@ -81,12 +153,12 @@ export default async function PaymentVerifyPage({
               {type === 'vote' && details && (
                 <div className="bg-muted/50 rounded-lg p-6 mb-6">
                   <p className="text-sm text-muted-foreground mb-2">Purchase Reference</p>
-                  <p className="text-2xl font-bold mb-4">{details.reference}</p>
+                  <p className="text-2xl font-bold mb-4">{details.payment_reference}</p>
                   <p className="text-sm">
-                    Votes: <strong>{details.total_votes}</strong>
+                    Votes: <strong>{details.vote_count}</strong>
                   </p>
                   <p className="text-sm">
-                    Amount: <strong>₦{details.total_amount.toLocaleString()}</strong>
+                    Amount: <strong>₦{details.amount_paid.toLocaleString()}</strong>
                   </p>
                 </div>
               )}
@@ -113,7 +185,7 @@ export default async function PaymentVerifyPage({
               <XCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
               <h1 className="text-3xl font-bold mb-2">Payment Failed</h1>
               <p className="text-muted-foreground mb-6">
-                We couldn't process your payment. Please try again.
+                We couldn&apos;t process your payment. Please try again.
               </p>
 
               <div className="flex gap-4 justify-center">
