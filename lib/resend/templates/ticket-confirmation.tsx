@@ -11,7 +11,7 @@ import {
   Section,
   Text,
 } from '@react-email/components';
-import * as React from 'react';
+import { APP_METADATA } from '@/lib/constants';
 
 interface TicketConfirmationEmailProps {
   bookingReference: string;
@@ -42,7 +42,13 @@ export const TicketConfirmationEmail = ({
         <Container style={container}>
           {/* Logo */}
           <Section style={logoSection}>
-            <Heading style={logo}>Afromerica Entertainment</Heading>
+            <Img
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/logo.png`}
+              alt={APP_METADATA.NAME}
+              width="150"
+              height="40"
+              style={logoImage}
+            />
           </Section>
 
           {/* Header */}
@@ -114,13 +120,13 @@ export const TicketConfirmationEmail = ({
           {/* Footer */}
           <Text style={footer}>
             If you have any questions, please contact us at{' '}
-            <a href="mailto:support@afromerica.com" style={link}>
-              support@afromerica.com
+            <a href={`mailto:${APP_METADATA.SUPPORT_EMAIL}`} style={link}>
+              {APP_METADATA.SUPPORT_EMAIL}
             </a>
           </Text>
           
           <Text style={footer}>
-            © {new Date().getFullYear()} Afromerica Entertainment. All rights reserved.
+            © {new Date().getFullYear()} {APP_METADATA.NAME}. All rights reserved.
           </Text>
         </Container>
       </Body>
@@ -149,11 +155,9 @@ const logoSection = {
   textAlign: 'center' as const,
 };
 
-const logo = {
-  color: '#FF6B00',
-  fontSize: '24px',
-  fontWeight: 'bold',
-  margin: '0',
+const logoImage = {
+  margin: '0 auto',
+  display: 'block',
 };
 
 const h1 = {

@@ -167,7 +167,7 @@ function setupDatabaseMonitoring() {
     // Periodic health check
     setInterval(async () => {
       try {
-        const { createClient } = await import('@/lib/supabase/server');
+        const { createClient } = await import('@/utils/supabase/server');
         const supabase = await createClient();
  
         // Simple query to check connection

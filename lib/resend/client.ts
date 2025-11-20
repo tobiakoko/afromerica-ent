@@ -1,5 +1,5 @@
 // lib/resend.ts
-import fetch from 'node-fetch';
+// import fetch from 'node-fetch';
 const RESEND_KEY = process.env.RESEND_API_KEY!;
 export async function sendReceiptEmail(to: string, subject: string, html: string) {
   const res = await fetch('https://api.resend.com/emails', {

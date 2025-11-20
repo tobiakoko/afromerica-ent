@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { z } from 'zod';
+import { CURRENCY } from '@/lib/constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -10,9 +11,9 @@ export function cn(...inputs: ClassValue[]) {
  * Format amount as currency
  */
 export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-NG', {
+  return new Intl.NumberFormat(CURRENCY.LOCALE, {
     style: 'currency',
-    currency: 'NGN',
+    currency: CURRENCY.CODE,
     minimumFractionDigits: 0,
   }).format(amount)
 }
@@ -88,16 +89,16 @@ export function formatEventDateTime(dateString: string, timeString?: string): st
 /**
  * Format price with currency symbol
  */
-export function formatPrice(price: number, currency: string = 'NGN'): string {
+export function formatPrice(price: number, currency: string = CURRENCY.CODE): string {
   const currencySymbols: Record<string, string> = {
-    NGN: '₦',
+    [CURRENCY.CODE]: CURRENCY.SYMBOL,
     USD: '$',
     GBP: '£',
     EUR: '€',
   };
 
   const symbol = currencySymbols[currency] || currency;
-  
+
   return `${symbol}${price.toLocaleString()}`;
 }
 

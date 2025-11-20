@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod'
+import { EVENT_STATUS_VALUES, EVENT_STATUS } from '@/lib/constants'
 
 // Database event schema (matches Supabase schema)
 export const eventSchema = z.object({
@@ -12,8 +13,8 @@ export const eventSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   description: z.string().nullable().optional(),
   short_description: z.string().max(500).nullable().optional(),
-  event_date: z.string().datetime(),
-  end_date: z.string().datetime().nullable().optional(),
+  event_date: z.string(),
+  end_date: z.string().nullable().optional(),
   time: z.string().nullable().optional(),
   venue: z.string().min(1).nullable().optional(),
   venue_address: z.string().nullable().optional(),
@@ -21,18 +22,18 @@ export const eventSchema = z.object({
   ticket_price: z.number().min(0).nullable().optional(),
   capacity: z.number().int().positive().nullable().optional(),
   tickets_sold: z.number().int().min(0).default(0),
-  image_url: z.string().url().nullable().optional(),
-  cover_image_url: z.string().url().nullable().optional(),
-  status: z.enum(['draft', 'upcoming', 'ongoing', 'completed', 'cancelled', 'soldout']),
+  image_url: z.url().nullable().optional(),
+  cover_image_url: z.url().nullable().optional(),
+  status: z.enum(EVENT_STATUS_VALUES),
   is_active: z.boolean().default(true),
   is_published: z.boolean().default(false),
   featured: z.boolean().default(false),
   show_leaderboard: z.boolean().default(false),
-  metadata: z.record(z.any()).nullable().optional(),
-  deleted_at: z.string().datetime().nullable().optional(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  published_at: z.string().datetime().nullable().optional(),
+  metadata: z.record(z.string(), z.any()).nullable().optional(),
+  deleted_at: z.string().nullable().optional(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  published_at: z.string().nullable().optional(),
 })
 
 export type DatabaseEvent = z.infer<typeof eventSchema>
@@ -66,7 +67,7 @@ export type EventQuery = z.infer<typeof eventQuerySchema>
 export function sanitizeEvent(rawEvent: unknown): DatabaseEvent | null {
   const result = eventSchema.safeParse(rawEvent)
   if (!result.success) {
-    console.error('Event validation failed:', result.error.errors)
+    console.error('Event validation failed:', result.error)
     return null
   }
   return result.data
@@ -87,9 +88,9 @@ export function transformToPublicEvent(event: DatabaseEvent): PublicEvent {
     ...event,
     tickets_available: ticketsAvailable,
     sold_out_percentage: Math.min(100, soldOutPercentage),
-    is_sold_out: ticketsAvailable <= 0 || event.status === 'soldout',
+    is_sold_out: ticketsAvailable <= 0 || event.status === EVENT_STATUS.SOLDOUT,
     is_past: eventDate < now,
-    is_upcoming: eventDate > now && event.status === 'upcoming',
+    is_upcoming: eventDate > now && event.status === EVENT_STATUS.UPCOMING,
   }
 }
 
@@ -116,7 +117,7 @@ export function getEventStatusBadge(event: PublicEvent): {
   if (event.featured) {
     return { label: 'Featured Event', variant: 'default' }
   }
-  if (event.status === 'ongoing') {
+  if (event.status === EVENT_STATUS.ONGOING) {
     return { label: 'Happening Now', variant: 'success' }
   }
   return null

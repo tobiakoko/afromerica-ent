@@ -61,7 +61,7 @@ type SupabaseQueryHandler<T extends SupabaseTableName> = (
   query: SupabaseSelectBuilder<T>
 ) => SupabaseSelectBuilder<T>
 
-interface UseInfiniteQueryProps<T extends SupabaseTableName, Query extends string = '*'> {
+interface UseInfiniteQueryProps<T extends SupabaseTableName, _Query extends string = '*'> {
   // The table name to query
   tableName: T
   // The columns to select, defaults to `*`

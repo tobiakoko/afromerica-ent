@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import type { User, Session, Profile } from "../types/auth.types";
+import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
+
+interface Profile {
+  id: string;
+  [key: string]: any;
+}
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);

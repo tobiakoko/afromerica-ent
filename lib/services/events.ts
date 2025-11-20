@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '@/utils/supabase/server'
+import { createCachedClient } from '@/utils/supabase/server-cached'
 import {
   type DatabaseEvent,
   type PublicEvent,
@@ -116,6 +117,71 @@ export const getEvents = cache(async (query?: Partial<EventQuery>): Promise<{
       const start = (query.page - 1) * query.limit
       const end = start + query.limit - 1
       queryBuilder = queryBuilder.range(start, end)
+    }
+
+    const { data, error: fetchError } = await queryBuilder
+
+    if (fetchError) {
+      console.error('Error fetching events:', fetchError)
+      return { events: [], error: new Error('Failed to fetch events') }
+    }
+
+    // Validate and transform events
+    const validEvents = (data || [])
+      .map(sanitizeEvent)
+      .filter((event): event is DatabaseEvent => event !== null)
+      .map(transformToPublicEvent)
+
+    return { events: validEvents, error: null }
+  } catch (err) {
+    console.error('Unexpected error fetching events:', err)
+    return {
+      events: [],
+      error: err instanceof Error ? err : new Error('Unknown error'),
+    }
+  }
+})
+
+/**
+ * Fetch all published events with optional filtering (CACHED VERSION for ISR)
+ * Uses createCachedClient for static generation - no cookies/auth
+ * Use this version for public pages that should be cached
+ */
+export const getEventsCached = cache(async (query?: Partial<EventQuery>): Promise<{
+  events: PublicEvent[]
+  error: Error | null
+}> => {
+  try {
+    const supabase = createCachedClient()
+
+    let queryBuilder = supabase
+      .from('events')
+      .select(EVENT_SELECT)
+      .eq('is_published', true)
+      .eq('is_active', true)
+      .is('deleted_at', null)
+
+    // Apply filters
+    if (query?.filter === 'upcoming') {
+      queryBuilder = queryBuilder
+        .gte('event_date', new Date().toISOString())
+        .eq('status', 'upcoming')
+    } else if (query?.filter === 'past') {
+      queryBuilder = queryBuilder
+        .lt('event_date', new Date().toISOString())
+    } else if (query?.filter === 'featured') {
+      queryBuilder = queryBuilder.eq('featured', true)
+    } else if (query?.filter === 'soldout') {
+      queryBuilder = queryBuilder.eq('status', 'soldout')
+    }
+
+    // Apply sorting
+    if (query?.sort === 'date-asc') {
+      queryBuilder = queryBuilder.order('event_date', { ascending: true })
+    } else if (query?.sort === 'date-desc') {
+      queryBuilder = queryBuilder.order('event_date', { ascending: false })
+    } else {
+      queryBuilder = queryBuilder.order('event_date', { ascending: true })
     }
 
     const { data, error: fetchError } = await queryBuilder

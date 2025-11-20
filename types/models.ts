@@ -218,9 +218,18 @@ export interface Vote {
 
 export interface VoteStats {
   artistId: string
-  category: string
-  voteCount: number
-  rank: number
+  totalVotes: number
+  totalVoteAmount: number
+  rank: number | null
+  completedTransactions?: number
+  transactionCount?: number
+  avgVotesPerTransaction?: number
+  previousRank?: number | null
+}
+
+// Type combining Artist with VoteStats for leaderboards and rankings
+export type ArtistWithVotes = Pick<Artist, 'id' | 'slug' | 'name' | 'stageName' | 'image' | 'profileImage' | 'featured'> & {
+  voteStats: VoteStats
 }
 
 // ============================================================================

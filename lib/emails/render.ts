@@ -13,7 +13,7 @@ export async function sendTicketConfirmation(data: {
   to: string;
   booking: any;
 }) {
-  const emailHtml = render(
+  const emailHtml = await render(
     TicketConfirmationEmail({
       bookingReference: data.booking.booking_reference,
       eventTitle: data.booking.event?.title || 'Event',
@@ -47,7 +47,7 @@ export async function sendVoteConfirmation(data: {
   amount: number;
   reference?: string;
 }) {
-  const emailHtml = render(
+  const emailHtml = await render(
     VoteConfirmationEmail({
       artistName: data.artistName,
       votes: data.votes,
@@ -70,7 +70,7 @@ export async function sendOTP(data: {
   otp: string;
   expiresInMinutes?: number;
 }) {
-  const emailHtml = render(
+  const emailHtml = await render(
     OTPEmail({
       otp: data.otp,
       expiresInMinutes: data.expiresInMinutes || 10,
