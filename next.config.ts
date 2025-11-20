@@ -33,6 +33,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // Disable static generation for error pages to work around Turbopack bug
+    staticGenerationRetryCount: 0,
   },
   logging: {
     fetches: {
@@ -91,6 +93,9 @@ const nextConfig: NextConfig = {
   },
   redirects: async () => [],
   output: 'standalone',
+  skipTrailingSlashRedirect: true,
+  // Skip middleware for static pages
+  skipMiddlewareUrlNormalize: true,
 };
 
 export default nextConfig;
