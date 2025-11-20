@@ -4,13 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Trophy, Medal, Award } from "lucide-react";
+import { type ArtistWithVotes } from "@/types";
 
 interface LeaderboardTableProps {
-  artists: any[];
+  artists: ArtistWithVotes[];
 }
 
 export function LeaderboardTable({ artists }: LeaderboardTableProps) {
-  const getRankIcon = (rank: number) => {
+  const getRankIcon = (rank: number | null) => {
+    if (!rank) return null;
+
     switch (rank) {
       case 1:
         return <Trophy className="w-6 h-6 text-yellow-500" />;
@@ -23,7 +26,9 @@ export function LeaderboardTable({ artists }: LeaderboardTableProps) {
     }
   };
 
-  const getRankClass = (rank: number) => {
+  const getRankClass = (rank: number | null) => {
+    if (!rank) return "";
+
     switch (rank) {
       case 1:
         return "bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border-yellow-500";
@@ -38,47 +43,56 @@ export function LeaderboardTable({ artists }: LeaderboardTableProps) {
 
   return (
     <div className="space-y-4">
-      {artists.map((artist) => (
-        <Card
-          key={artist.id}
-          className={`p-6 transition-all duration-300 hover:shadow-lg ${
-            artist.rank <= 3 ? `border-2 ${getRankClass(artist.rank)}` : ''
-          }`}
-        >
-          <div className="flex items-center gap-6">
-            {/* Rank */}
-            <div className="flex-shrink-0 w-12 flex justify-center">
-              {getRankIcon(artist.rank)}
-            </div>
+      {artists.map((artist) => {
+        const rank = artist.voteStats.rank;
+        const totalVotes = artist.voteStats.totalVotes;
 
-            {/* Artist Image */}
-            <Link href={`/artists/${artist.slug}`} className="flex-shrink-0">
-              <div className="relative w-20 h-20 rounded-full overflow-hidden ring-2 ring-border hover:ring-primary transition-all">
-                <Image
-                  src={artist.image_url || '/images/default-artist.jpg'}
-                  alt={artist.name}
-                  fill
-                  className="object-cover"
-                />
+        return (
+          <Card
+            key={artist.id}
+            className={`p-6 transition-all duration-300 hover:shadow-lg ${
+              rank && rank <= 3 ? `border-2 ${getRankClass(rank)}` : ''
+            }`}
+          >
+            <div className="flex items-center gap-6">
+              {/* Rank */}
+              <div className="shrink-0 w-12 flex justify-center">
+                {getRankIcon(rank)}
               </div>
-            </Link>
 
-            {/* Artist Info */}
-            <div className="flex-1 min-w-0">
-              <Link href={`/artists/${artist.slug}`} className="hover:underline">
-                <h3 className="font-bold text-lg truncate">{artist.stage_name}</h3>
-                <p className="text-sm text-muted-foreground truncate">{artist.name}</p>
+              {/* Artist Image */}
+              <Link href={`/artists/${artist.slug}`} className="shrink-0">
+                <div className="relative w-20 h-20 rounded-full overflow-hidden ring ring-border hover:ring-primary transition-all">
+                  <Image
+                    src={artist.image || artist.profileImage || '/images/default-artist.svg'}
+                    alt={artist.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               </Link>
-            </div>
 
-            {/* Stats */}
-            <div className="text-right">
-              <p className="text-2xl font-bold text-primary">{artist.total_votes.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">votes</p>
+              {/* Artist Info */}
+              <div className="flex-1 min-w-0">
+                <Link href={`/artists/${artist.slug}`} className="hover:underline">
+                  <h3 className="font-bold text-lg truncate">
+                    {artist.stageName || artist.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground truncate">{artist.name}</p>
+                </Link>
+              </div>
+
+              {/* Stats */}
+              <div className="text-right">
+                <p className="text-2xl font-bold text-primary">
+                  {totalVotes.toLocaleString()}
+                </p>
+                <p className="text-sm text-muted-foreground">votes</p>
+              </div>
             </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        );
+      })}
 
       {artists.length === 0 && (
         <div className="text-center py-16">
