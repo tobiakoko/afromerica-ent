@@ -8,16 +8,14 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Delete any existing OTPs for this email/phone
-    const deleteQuery = supabase.from('otp_codes').delete();
-    
-    if (method === 'email') {
-      deleteQuery.eq('email', email);
-    } else {
-      deleteQuery.eq('phone', phone);
-    }
+    // Mark any existing OTPs for this identifier as used
+    const identifier = method === 'email' ? email : phone;
 
-    await deleteQuery;
+    await supabase
+      .from('vote_validations')
+      .update({ is_used: true })
+      .eq('identifier', identifier)
+      .eq('is_used', false);
 
     // Forward to send endpoint
     const sendResponse = await fetch(

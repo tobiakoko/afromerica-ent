@@ -1,7 +1,7 @@
-import { Resend } from 'resend';
+// import { Resend } from 'resend';
 import { sendOTP } from '@/lib/emails/render';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOTPEmail(email: string, otp: string) {
   try {

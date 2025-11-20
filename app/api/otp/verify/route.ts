@@ -32,19 +32,16 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Find OTP record
-    const query = supabase
-      .from('otp_codes')
+    // Find OTP record using identifier (email or phone)
+    const identifier = method === 'email' ? email : phone;
+
+    const { data: otpRecord, error } = await supabase
+      .from('vote_validations')
       .select('*')
-      .eq('method', method);
-
-    if (method === 'email') {
-      query.eq('email', email);
-    } else {
-      query.eq('phone', phone);
-    }
-
-    const { data: otpRecord, error } = await query
+      .eq('identifier', identifier)
+      .eq('method', method)
+      .eq('is_used', false)
+      .eq('is_verified', false)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
@@ -58,47 +55,60 @@ export async function POST(request: NextRequest) {
 
     // Check if OTP is expired
     if (isOTPExpired(new Date(otpRecord.expires_at))) {
-      // Clean up expired OTP
-      await supabase.from('otp_codes').delete().eq('id', otpRecord.id);
-      
+      // Mark as used
+      await supabase
+        .from('vote_validations')
+        .update({ is_used: true })
+        .eq('id', otpRecord.id);
+
       return NextResponse.json(
         { success: false, message: 'Verification code has expired' },
         { status: 400 }
       );
     }
 
-    // Check attempts (max 3 attempts)
-    if (otpRecord.attempts >= 3) {
-      await supabase.from('otp_codes').delete().eq('id', otpRecord.id);
-      
+    // Check attempts (max attempts from database)
+    if (otpRecord.attempts >= otpRecord.max_attempts) {
+      await supabase
+        .from('vote_validations')
+        .update({ is_used: true })
+        .eq('id', otpRecord.id);
+
       return NextResponse.json(
         { success: false, message: 'Too many failed attempts. Please request a new code.' },
         { status: 400 }
       );
     }
 
-    // Verify OTP
+    // Verify OTP (using verification_code instead of code)
     const hashedInput = hashOTP(code);
-    
-    if (hashedInput !== otpRecord.code) {
+
+    if (hashedInput !== otpRecord.verification_code) {
       // Increment attempts
       await supabase
-        .from('otp_codes')
+        .from('vote_validations')
         .update({ attempts: otpRecord.attempts + 1 })
         .eq('id', otpRecord.id);
 
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           message: 'Invalid verification code',
-          attemptsLeft: 3 - (otpRecord.attempts + 1)
+          attemptsLeft: otpRecord.max_attempts - (otpRecord.attempts + 1)
         },
         { status: 400 }
       );
     }
 
-    // OTP is valid - delete it and generate verification token
-    await supabase.from('otp_codes').delete().eq('id', otpRecord.id);
+    // OTP is valid - mark it as verified and used
+    await supabase
+      .from('vote_validations')
+      .update({
+        is_verified: true,
+        is_used: true,
+        verified_at: new Date().toISOString()
+      })
+      .eq('id', otpRecord.id);
 
     // Generate JWT token valid for 1 hour
     const token = await new SignJWT({

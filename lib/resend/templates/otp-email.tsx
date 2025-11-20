@@ -5,11 +5,12 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from '@react-email/components';
-import * as React from 'react';
+import { APP_METADATA } from '@/lib/constants';
 
 interface OTPEmailProps {
   otp: string;
@@ -28,7 +29,13 @@ export const OTPEmail = ({
         <Container style={container}>
           {/* Logo */}
           <Section style={logoSection}>
-            <Heading style={logo}>Afromerica Entertainment</Heading>
+            <Img
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/logo.png`}
+              alt={APP_METADATA.NAME}
+              width="150"
+              height="40"
+              style={logoImage}
+            />
           </Section>
 
           {/* Header */}
@@ -50,19 +57,19 @@ export const OTPEmail = ({
           {/* Warning */}
           <Section style={warningBox}>
             <Text style={warningText}>
-              <strong>⚠️ Security Notice:</strong> Never share this code with anyone. Afromerica staff will never ask for your verification code.
+              <strong>⚠️ Security Notice:</strong> Never share this code with anyone. {APP_METADATA.SHORT_NAME} staff will never ask for your verification code.
             </Text>
           </Section>
 
           <Text style={text}>
-            If you didn't request this code, you can safely ignore this email.
+            If you didn&apos;t request this code, you can safely ignore this email.
           </Text>
 
           <Hr style={hr} />
 
           {/* Footer */}
           <Text style={footer}>
-            © {new Date().getFullYear()} Afromerica Entertainment. All rights reserved.
+            © {new Date().getFullYear()} {APP_METADATA.NAME}. All rights reserved.
           </Text>
           
           <Text style={footer}>
@@ -95,11 +102,9 @@ const logoSection = {
   textAlign: 'center' as const,
 };
 
-const logo = {
-  color: '#FF6B00',
-  fontSize: '24px',
-  fontWeight: 'bold',
-  margin: '0',
+const logoImage = {
+  margin: '0 auto',
+  display: 'block',
 };
 
 const h1 = {
