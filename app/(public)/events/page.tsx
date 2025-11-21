@@ -9,16 +9,13 @@ import { PageHero } from '@/components/layout/page-hero'
 import { getEventsCached } from '@/lib/services/events'
 import { Calendar } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Upcoming Events - Afromerica Entertainment',
   description: 'Experience the best of African and Caribbean music and culture. Browse our upcoming events and get your tickets today.',
   keywords: ['African music events', 'Nigerian concerts', 'live music', 'African entertainment', 'upcoming events'],
 }
-
-export const dynamic = 'force-dynamic'
-
-// Enable ISR with 5-minute revalidation
-export const revalidate = 300;
 
 export default async function EventsPage() {
   // Fetch upcoming events using cached service layer

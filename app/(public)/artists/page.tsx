@@ -3,6 +3,8 @@ import { createCachedClient } from "@/utils/supabase/server-cached";
 import { ArtistCard } from "@/components/artists/ArtistCard";
 import { PageHero } from "@/components/layout/page-hero";
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Artists - Afromerica Entertainment',
   description: 'Discover talented African and Caribbean artists. Browse profiles, listen to their music, and support your favorite performers.',
@@ -13,9 +15,6 @@ export const metadata: Metadata = {
     type: 'website',
   },
 }
-
-// Enable ISR with 5-minute revalidation
-export const revalidate = 300;
 
 export default async function ArtistsPage() {
   try {
