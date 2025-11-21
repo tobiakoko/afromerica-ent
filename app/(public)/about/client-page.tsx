@@ -1,3 +1,5 @@
+"use client";
+
 import { Music, Users, Trophy, Heart, Target, Lightbulb } from "lucide-react";
 import Link from "next/link";
 
