@@ -28,8 +28,6 @@ const slides = [
 export function HomepageCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isPaused, setIsPaused] = useState(false);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -45,7 +43,6 @@ export function HomepageCarousel() {
 
   const togglePlay = useCallback(() => {
     setIsPlaying((prev) => !prev);
-    setIsPaused((prev) => !prev);
   }, []);
 
   // Auto-play carousel

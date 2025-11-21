@@ -5,11 +5,9 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Card } from '@/components/ui/card'
 import { Calendar, MapPin, Music, TrendingUp } from 'lucide-react'
 import { format } from 'date-fns'
 import { type PublicEvent } from '@/lib/validations/event'
-import { cn } from '@/lib/utils'
 import { PUBLIC_ROUTES } from '@/lib/constants'
 
 interface EventCardProps {
