@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '2mb',
     },
     // Disable static generation for error pages to work around Turbopack bug
-    staticGenerationRetryCount: 0,
+    // staticGenerationRetryCount: 0,
   },
   logging: {
     fetches: {
