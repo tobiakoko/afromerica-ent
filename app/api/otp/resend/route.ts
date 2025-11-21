@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    // FIXME update this in production to log the error and send an alert to the customer. I think client gets an error page 
     const data = await sendResponse.json();
     return NextResponse.json(data, { status: sendResponse.status });
   } catch (error: any) {

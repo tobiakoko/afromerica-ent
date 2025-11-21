@@ -72,7 +72,7 @@ See [Supabase Setup Guide](./docs/SUPABASE_SETUP.md) for production deployment.
 | 2 | API Skeleton | Shared types, middleware, validation |
 | 3 | Public Site | Public pages + ISR hooks |
 | 4 | Booking & Payments | Cart + Paystack + Webhook |
-| 5 | Voting Systems | Showcase + Pilot event logic |
+| 5 | Voting Systems | Showcase event logic |
 | 6 | Admin Dashboard | RBAC, CRUD features |
 | 7 | Email & Realtime | Resend + Supabase Realtime |
 | 8 | Testing & QA | Unit, integration, E2E tests |

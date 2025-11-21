@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         console.error('Paystack initialization failed:', paymentData);
         throw new Error(paymentData.message || 'Payment initialization failed');
       }
-    } catch (paystackError: any) {
+    } catch (paystackError: any) { // FIXME: figure out how to fix this type error
       console.error('Paystack API error:', {
         message: paystackError.message,
         error: paystackError,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       reference: paymentData.data.reference,
       accessCode: paymentData.data.access_code,
     });
-  } catch (error: any) {
+  } catch (error: any) {  // FIX ME: figure out how to fix this type error
     console.error('Payment initialization error:', error);
     return NextResponse.json(
       { success: false, message: error.message || 'Payment initialization failed' },

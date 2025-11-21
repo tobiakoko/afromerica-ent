@@ -14,7 +14,7 @@
 
 export const TICKET_RULES = {
   /** Maximum tickets that can be purchased in a single transaction */
-  MAX_PER_TRANSACTION: 10,
+  MAX_PER_TRANSACTION: 1000,
   
   /** Minimum tickets that can be purchased */
   MIN_PER_TRANSACTION: 1,
@@ -47,22 +47,16 @@ export const VOTING_RULES = {
   MAX_VOTES_PER_EMAIL: 1000,
   
   /** Maximum votes in a single transaction */
-  MAX_VOTES_PER_TRANSACTION: 100,
+  MAX_VOTES_PER_TRANSACTION: 1000,
   
   /** Minimum votes that can be purchased */
   MIN_VOTES_PER_TRANSACTION: 1,
-  
-  /** Pilot voting: Minimum package amount in kobo (NGN 1.00) */
-  PILOT_MIN_PACKAGE_AMOUNT: 100,
-  
-  /** Pilot voting: Maximum package amount in kobo (NGN 100,000.00) */
-  PILOT_MAX_PACKAGE_AMOUNT: 10000000,
   
   /** Showcase voting: Free votes are allowed */
   SHOWCASE_FREE_VOTING: true,
   
   /** Time window to complete vote after OTP verification (minutes) */
-  VOTE_COMPLETION_WINDOW: 5,
+  VOTE_COMPLETION_WINDOW: 10,
   
   /** Maximum OTP verification attempts before cooldown */
   MAX_OTP_ATTEMPTS: 3,
@@ -76,7 +70,7 @@ export const PAYMENT_RULES = {
   /** Minimum payment amount in kobo (Paystack requirement: NGN 1.00) */
   MIN_AMOUNT: 100,
   
-  /** Maximum payment amount in kobo (NGN 5,000,000.00 - reasonable limit) */
+  /** Maximum payment amount in kobo (NGN 5,000,000.00 - reasonable limit. FUTURE ENHANCEMENT: Might increase this in the future depending on business need) */
   MAX_AMOUNT: 500000000,
   
   /** Payment verification timeout (seconds) */

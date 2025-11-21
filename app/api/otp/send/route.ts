@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send OTP
+    // FIXME: This block needs to be updated. how does the user receive OTP during production.
     try {
       if (method === 'email') {
         await sendOTPEmail(email!, otp);
@@ -99,6 +100,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // This part is not needed. Delete this after the production email implementation
     return NextResponse.json({
       success: true,
       message: `Verification code sent to your ${method === 'email' ? 'email' : 'phone'}`,

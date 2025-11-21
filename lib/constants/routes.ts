@@ -34,14 +34,11 @@ export const PUBLIC_ROUTES = {
   /** Voting page */
   VOTING: '/voting',
   
-  /** Showcase voting (free) */
+  /** Showcase voting */
   VOTING_SHOWCASE: '/voting/showcase',
   
-  /** Pilot voting (paid) */
-  VOTING_PILOT: '/voting/pilot',
-  
   /** Vote for specific artist */
-  VOTE_ARTIST: (artistId: string) => `/voting/pilot/${artistId}`,
+  VOTE_ARTIST: (artistId: string) => `/voting/${artistId}`,
   
   /** Leaderboard */
   LEADERBOARD: '/voting/leaderboard',
@@ -110,7 +107,7 @@ export const API_ROUTES = {
   WEBHOOK_PAYSTACK: '/api/webhooks/paystack',
   WEBHOOK_RESEND: '/api/webhooks/resend',
   
-  /** Newsletter API */
+  /** Newsletter API future enhancement */
   NEWSLETTER_SUBSCRIBE: '/api/newsletter/subscribe',
   NEWSLETTER_UNSUBSCRIBE: '/api/newsletter/unsubscribe',
   
@@ -133,7 +130,7 @@ export const ADMIN_ROUTES = {
   DASHBOARD: '/admin',
   
   /** Login */
-  LOGIN: '/admin/login',
+  LOGIN: '/login',
   
   /** Events management */
   EVENTS: '/admin/events',
@@ -157,13 +154,12 @@ export const ADMIN_ROUTES = {
   /** Voting management */
   VOTING: '/admin/voting',
   VOTING_SHOWCASE: '/admin/voting/showcase',
-  VOTING_PILOT: '/admin/voting/pilot',
   
   /** Payments management */
   PAYMENTS: '/admin/payments',
   PAYMENT_DETAIL: (id: string) => `/admin/payments/${id}`,
   
-  /** Newsletter management */
+  /** Newsletter management future enhancement */
   NEWSLETTER: '/admin/newsletter',
   NEWSLETTER_SEND: '/admin/newsletter/send',
   
@@ -192,9 +188,6 @@ export const AUTH_ROUTES = {
   /** Sign in */
   SIGN_IN: '/sign-in',
   
-  /** Sign up */
-  SIGN_UP: '/sign-up',
-  
   /** Sign out */
   SIGN_OUT: '/sign-out',
   
@@ -220,10 +213,10 @@ export const AUTH_ROUTES = {
 
 export const EXTERNAL_URLS = {
   /** Social media */
-  INSTAGRAM: 'https://instagram.com/afromericaent',
-  FACEBOOK: 'https://facebook.com/afromericaent',
-  TWITTER: 'https://twitter.com/afromericaent',
-  YOUTUBE: 'https://youtube.com/@afromericaent',
+  INSTAGRAM: 'https://instagram.com/afromerica.official',
+  FACEBOOK: 'https://facebook.com/afromerica.official',
+  TWITTER: 'https://twitter.com/afromerica.official',
+  YOUTUBE: 'https://youtube.com/@afromerica.official',
   
   /** Paystack */
   PAYSTACK_DASHBOARD: 'https://dashboard.paystack.com',
@@ -234,7 +227,7 @@ export const EXTERNAL_URLS = {
   
   /** Support */
   SUPPORT_EMAIL: 'mailto:support@afromericaent.com',
-  SUPPORT_PHONE: 'tel:+234XXXXXXXXXX',
+  SUPPORT_PHONE: 'tel:+2347080315470',
 } as const;
 
 // ==========================================
@@ -254,7 +247,6 @@ export const UNPROTECTED_ROUTES = [
   PUBLIC_ROUTES.PRIVACY,
   PUBLIC_ROUTES.TERMS,
   AUTH_ROUTES.SIGN_IN,
-  AUTH_ROUTES.SIGN_UP,
   AUTH_ROUTES.FORGOT_PASSWORD,
 ] as const;
 
@@ -288,7 +280,6 @@ export const PROTECTED_API_ROUTES = [
  */
 export const AUTH_REDIRECT_ROUTES = [
   AUTH_ROUTES.SIGN_IN,
-  AUTH_ROUTES.SIGN_UP,
 ] as const;
 
 // ==========================================
@@ -348,7 +339,7 @@ export function getPostLoginRedirect(role?: string): string {
 /**
  * Build query string from params
  */
-export function buildQueryString(params: Record<string, any>): string {
+export function buildQueryString(params: Record<string, any>): string { //FIXME: figure out how to fix this type error
   const searchParams = new URLSearchParams();
   
   Object.entries(params).forEach(([key, value]) => {
@@ -366,7 +357,7 @@ export function buildQueryString(params: Record<string, any>): string {
  */
 export function buildUrl(
   path: string,
-  params?: Record<string, any>
+  params?: Record<string, any> //FIXME: figure out how to fix this type error
 ): string {
   if (!params) return path;
   return `${path}${buildQueryString(params)}`;

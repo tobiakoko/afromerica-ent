@@ -89,7 +89,7 @@ export default async function PaymentVerifyPage({
       if (error) {
         console.error('Error updating vote:', error);
       } else if (vote) {
-        // Send confirmation email
+        // Send confirmation email or text message
         try {
           await sendVoteConfirmation({
             to: vote.user_identifier,

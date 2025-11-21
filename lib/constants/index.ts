@@ -304,7 +304,7 @@ export const APP_METADATA = {
   BOOKINGS_EMAIL: 'bookings@afromericaent.com',
   CAREER_EMAIL:'career@afromericaent.com',
   PRESS_EMAIL: 'press@afromericaent.com',
-  PHONE: '+234 (0) 708 031 5470',
+  PHONE: '+2347080315470',
   LOCATION: 'Lagos, Nigeria',
   BUSINESS_HOURS: 'Mon - Fri: 9:00 AM - 6:00 PM WAT',
 } as const;

@@ -25,10 +25,6 @@ export const FEATURES = {
   
   /** Enable showcase voting (free voting) */
   SHOWCASE_VOTING_ENABLED: true,
-  
-  /** Enable pilot voting (paid voting) */
-  PILOT_VOTING_ENABLED: true,
-  
   /** Enable newsletter subscriptions */
   NEWSLETTER_ENABLED: true,
   
@@ -293,9 +289,6 @@ export const INTEGRATION_FEATURES = {
   /** Enable Resend email integration */
   RESEND_INTEGRATION: true,
   
-  /** Enable Sanity CMS (currently disabled) */
-  SANITY_CMS_ENABLED: false,
-  
   /** Enable social media integrations */
   SOCIAL_MEDIA_INTEGRATION: true,
   
@@ -336,7 +329,7 @@ export function isFeatureEnabled(
   feature: string
 ): boolean {
   const featureGroup = ALL_FEATURES[category];
-  return (featureGroup as any)[feature] ?? false;
+  return (featureGroup as any)[feature] ?? false; // FIXME: figure out a way to correct this type error
 }
 
 /**
@@ -363,7 +356,6 @@ export function getClientFeatureFlags() {
   return {
     ticketing: FEATURES.TICKETING_ENABLED,
     showcaseVoting: FEATURES.SHOWCASE_VOTING_ENABLED,
-    pilotVoting: FEATURES.PILOT_VOTING_ENABLED,
     newsletter: FEATURES.NEWSLETTER_ENABLED,
     contactForm: FEATURES.CONTACT_FORM_ENABLED,
     darkMode: UI_FEATURES.DARK_MODE_ENABLED,

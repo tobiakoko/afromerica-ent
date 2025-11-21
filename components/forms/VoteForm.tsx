@@ -146,37 +146,6 @@ export function VotingForm({ artists, preselectedArtistSlug, votePrice }: Voting
       {/* Step 1: Select Artist & Package */}
       {step === 'select' && (
         <div className="space-y-6">
-          {/* Artist Selection */}
-          <Card className="p-6">
-            <h2 className="text-2xl font-semibold mb-4">Select Artist</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {artists.map((artist) => (
-                <button
-                  key={artist.id}
-                  onClick={() => setFormData({ ...formData, artistId: artist.id })}
-                  className={`p-3 rounded-lg border-2 transition-all ${
-                    formData.artistId === artist.id
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
-                    <Image
-                      src={artist.photo_url || '/images/default-artist.svg'}
-                      alt={artist.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <p className="font-semibold text-sm text-center">{artist.stage_name || artist.name}</p>
-                  <p className="text-xs text-muted-foreground text-center">
-                    {artist.total_votes?.toLocaleString() || 0} votes
-                  </p>
-                </button>
-              ))}
-            </div>
-          </Card>
-
           {/* Vote Details */}
           <Card className="p-6">
             <h2 className="text-2xl font-semibold mb-4">Enter Vote Details</h2>

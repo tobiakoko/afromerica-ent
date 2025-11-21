@@ -110,9 +110,6 @@ ORDER BY pg_relation_size(indexrelid) DESC;
 -- Recalculate showcase rankings
 SELECT public.recalculate_showcase_rankings();
 
--- Recalculate pilot rankings
-SELECT public.recalculate_pilot_rankings();
-
 -- ==========================================
 -- SECTION 7: PERFORMANCE REPORT
 -- ==========================================

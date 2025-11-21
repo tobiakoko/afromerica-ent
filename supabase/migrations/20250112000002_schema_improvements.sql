@@ -49,7 +49,6 @@ CREATE TABLE IF NOT EXISTS public.user_vote_history (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
-  vote_type TEXT NOT NULL CHECK (vote_type IN ('showcase', 'pilot')),
   artist_id UUID,
   artist_name TEXT NOT NULL,
   votes_cast INTEGER DEFAULT 1,
@@ -119,10 +118,6 @@ CREATE POLICY "Anyone can submit contact messages" ON public.contact_messages
 -- Enable RLS on user_vote_history
 ALTER TABLE public.user_vote_history ENABLE ROW LEVEL SECURITY;
 
--- Users can view their own vote history
-CREATE POLICY "Users can view own vote history" ON public.user_vote_history
-  FOR SELECT USING (auth.uid() = user_id OR email = (SELECT email FROM public.profiles WHERE id = auth.uid()));
-
 -- Admins can view all vote history
 CREATE POLICY "Admins can view all vote history" ON public.user_vote_history
   FOR SELECT USING (
@@ -184,18 +179,21 @@ CREATE POLICY "Anyone can create purchases" ON public.vote_purchases
 CREATE OR REPLACE FUNCTION record_showcase_vote_history()
 RETURNS TRIGGER AS $$
 BEGIN
+-- Only record if payment is completed
+  IF NEW.payment_status = 'completed' AND OLD.payment_status != 'completed' THEN
   -- Insert into user vote history
   INSERT INTO public.user_vote_history (
     user_id,
     email,
-    vote_type,
     artist_id,
     artist_name,
     votes_cast,
-    amount
+    amount,
+    purchase_id
   )
   SELECT
-    NULL, -- showcase votes are anonymous
+    NEW.user_id,
+    NEW.email, -- showcase votes are anonymous keep track of the validation email
     'anonymous@showcase.vote', -- placeholder for anonymous votes
     'showcase',
     NEW.finalist_id,
@@ -214,44 +212,3 @@ CREATE TRIGGER record_showcase_vote
   AFTER INSERT ON public.showcase_votes
   FOR EACH ROW
   EXECUTE FUNCTION record_showcase_vote_history();
-
--- Function to record pilot vote purchases in history
-CREATE OR REPLACE FUNCTION record_pilot_vote_history()
-RETURNS TRIGGER AS $$
-BEGIN
-  -- Only record if payment is completed
-  IF NEW.payment_status = 'completed' AND OLD.payment_status != 'completed' THEN
-    -- Insert history records for each vote transaction
-    INSERT INTO public.user_vote_history (
-      user_id,
-      email,
-      vote_type,
-      artist_id,
-      artist_name,
-      votes_cast,
-      amount,
-      purchase_id
-    )
-    SELECT
-      NEW.user_id,
-      NEW.email,
-      'pilot',
-      vt.artist_id,
-      (SELECT stage_name FROM public.pilot_artists WHERE id = vt.artist_id),
-      vt.votes,
-      vt.amount,
-      NEW.id
-    FROM public.vote_transactions vt
-    WHERE vt.purchase_id = NEW.id;
-  END IF;
-
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger to record pilot vote purchases
-DROP TRIGGER IF EXISTS record_pilot_purchase ON public.vote_purchases;
-CREATE TRIGGER record_pilot_purchase
-  AFTER UPDATE ON public.vote_purchases
-  FOR EACH ROW
-  EXECUTE FUNCTION record_pilot_vote_history();

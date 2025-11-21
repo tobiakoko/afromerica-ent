@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Card } from "@/components/ui/card";
+import { Music } from "lucide-react";
 
 interface ArtistCardProps {
     artist: {
@@ -21,36 +21,53 @@ export function ArtistCard({ artist }: ArtistCardProps) {
   const genres = (artist.genre as string[]) || [];
 
   return (
-    <Link href={`/artists/${artist.slug}`} className="group block">
-      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300">
-        {/* Image */}
-        <div className="relative aspect-square overflow-hidden">
-          <Image
-            src={artist.photo_url || '/images/default-artist.svg'}
-            alt={artist.name}
-            fill
-            className="object-cover group-hover:scale-110 transition-transform duration-300"
-          />
-          {artist.featured && (
-            <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
-              Featured
+    <Link href={`/artists/${artist.slug}`} className="group block h-full">
+      {/* Apple-style card with minimal border and subtle shadow */}
+      <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200/60 dark:border-gray-800 transition-all duration-500 hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-black/40 hover:-translate-y-1">
+        {/* Image - reduced height */}
+        <div className="relative bg-gray-100 dark:bg-gray-800 aspect-4/3 overflow-hidden">
+          {artist.photo_url ? (
+            <Image
+              src={artist.photo_url}
+              alt={artist.name}
+              fill
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900">
+              <Music className="w-16 h-16 text-gray-300 dark:text-gray-700 stroke-[1.5]" aria-hidden="true" />
             </div>
           )}
         </div>
 
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="font-semibold text-lg mb-1 truncate">{artist.name}</h3>
+        {/* Content - reduced height by third */}
+        <div className="flex-1 flex flex-col p-4">
+          <h3 className="font-semibold text-lg md:text-xl tracking-tight text-gray-900 dark:text-white mb-1 line-clamp-1 leading-snug">
+            {artist.name}
+          </h3>
+
           {artist.stage_name && (
-            <p className="text-sm text-muted-foreground mb-2">&quot;{artist.stage_name}&quot;</p>
-          )}
-          {genres.length > 0 && (
-            <p className="text-xs text-muted-foreground truncate">
-              {genres.slice(0, 2).join(', ')}
+            <p className="text-xs text-gray-500 dark:text-gray-500 mb-2 line-clamp-1">
+              &quot;{artist.stage_name}&quot;
             </p>
           )}
+
+          {/* Genres */}
+          {genres.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-auto">
+              {genres.slice(0, 2).map((genre) => (
+                <span
+                  key={genre}
+                  className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium"
+                >
+                  {genre}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-      </Card>
+      </div>
     </Link>
   );
 }

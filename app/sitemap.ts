@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { createClient } from '@/utils/supabase/server';
  
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://afromerica-ent.com';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://afromericaent.com';
   const supabase = await createClient();
  
   // Static routes
@@ -37,12 +37,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/pilot-voting`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
   ];
  
   // Fetch artists
@@ -73,23 +67,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })) || [];
  
-  // Fetch pilot voting artists
-  const { data: pilotArtists } = await supabase
-    .from('pilot_artists')
-    .select('slug, updated_at');
- 
-  const pilotVotingRoutes: MetadataRoute.Sitemap =
-    pilotArtists?.map((artist) => ({
-      url: `${baseUrl}/pilot-voting/${artist.slug}`,
-      lastModified: new Date(artist.updated_at),
-      changeFrequency: 'daily' as const,
-      priority: 0.7,
-    })) || [];
- 
   return [
     ...staticRoutes,
     ...artistRoutes,
     ...eventRoutes,
-    ...pilotVotingRoutes,
   ];
 }

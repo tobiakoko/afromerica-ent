@@ -85,7 +85,7 @@ export type PaymentMethod = (typeof PAYMENT_METHOD)[keyof typeof PAYMENT_METHOD]
 
 export const PAYMENT_PROVIDER = {
   PAYSTACK: 'paystack',
-  // Future: Add other providers if needed
+  // Future: Add other providers if needed -- maybe Stripe
 } as const;
 
 export type PaymentProvider =
@@ -109,8 +109,7 @@ export const PAYMENT_PROVIDER_VALUES = Object.values(PAYMENT_PROVIDER) as [
 // ==========================================
 
 export const VOTE_TYPE = {
-  SHOWCASE: 'showcase',
-  PILOT: 'pilot',
+  SHOWCASE: 'showcase'
 } as const;
 
 export type VoteType = (typeof VOTE_TYPE)[keyof typeof VOTE_TYPE];
@@ -140,7 +139,7 @@ export const VOTE_STATUS_VALUES = Object.values(VOTE_STATUS) as [
 export const USER_ROLE = {
   ADMIN: 'admin',
   SUPER_ADMIN: 'super_admin',
-  CONTENT_MANAGER: 'content_manager',
+  CONTENT_MANAGER: 'content_manager', // Depending on how large the site gets, this might have something to do with CMS
 } as const;
 
 export type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
@@ -155,7 +154,7 @@ export const USER_ROLE_VALUES = Object.values(USER_ROLE) as [
 // ==========================================
 
 export const EMAIL_TYPE = {
-  BOOKING_CONFIRMATION: 'booking_confirmation',
+  BOOKING_CONFIRMATION: 'booking_confirmation', // FINDOUT: Is this Booking or ticket?
   BOOKING_CANCELLATION: 'booking_cancellation',
   VOTE_CONFIRMATION: 'vote_confirmation',
   OTP_VERIFICATION: 'otp_verification',

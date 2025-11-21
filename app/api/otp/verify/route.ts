@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify OTP (using verification_code instead of code)
+    // Verify OTP
     const hashedInput = hashOTP(code);
 
     if (hashedInput !== otpRecord.verification_code) {
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
       message: 'Verification successful',
       token,
     });
-  } catch (error: any) {
+  } catch (error: any) { //FIXME: figure out how to get rid of this typescript error
     console.error('OTP verification error:', error);
 
     return NextResponse.json(

@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
 
     // Send email to admin
     await resend.emails.send({
-      from: 'Contact Form <noreply@afromerica.com>',
-      to: process.env.ADMIN_EMAIL || 'admin@afromerica.com',
+      from: 'Contact Form <noreply@afromericaent.com>',
+      to: process.env.ADMIN_EMAIL || 'admin@afromericaent.com',
       subject: `Contact Form: ${subject}`,
       html: `
         <h2>New Contact Form Submission</h2>
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation to user
     await resend.emails.send({
-      from: 'Afromerica <hello@afromerica.com>',
+      from: 'Afromerica <info@afromericaent.com>',
       to: email,
       subject: 'We received your message',
       html: `

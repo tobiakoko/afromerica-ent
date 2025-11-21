@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import type { PublicEvent } from "@/lib/validations/event";
 import { formatCurrency } from "@/lib/constants";
@@ -67,11 +66,11 @@ export function CheckoutForm({ event }: CheckoutFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Event Summary */}
-      <Card className="p-6 bg-muted/50">
-        <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
-        <p className="text-sm text-muted-foreground mb-4">
+      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 md:p-8 border border-gray-200/60 dark:border-gray-700/60">
+        <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">{event.title}</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-light mb-6">
           {new Date(event.event_date).toLocaleDateString('en-NG', {
             weekday: 'long',
             year: 'numeric',
@@ -80,20 +79,20 @@ export function CheckoutForm({ event }: CheckoutFormProps) {
           })}
         </p>
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-primary">{formatCurrency(ticketPrice)}</span>
-          <span className="text-sm text-muted-foreground">per ticket</span>
+          <span className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">{formatCurrency(ticketPrice)}</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400 font-light">per ticket</span>
         </div>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-light mt-2">
           {event.tickets_available} tickets remaining
         </p>
-      </Card>
+      </div>
 
       {/* Ticket Quantity */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Select Quantity</h2>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Select Quantity</h2>
 
-        <div>
-          <Label htmlFor="quantity">Number of Tickets</Label>
+        <div className="space-y-2">
+          <Label htmlFor="quantity" className="text-sm font-medium text-gray-700 dark:text-gray-300">Number of Tickets</Label>
           <Input
             id="quantity"
             type="number"
@@ -105,80 +104,86 @@ export function CheckoutForm({ event }: CheckoutFormProps) {
               setFormData({ ...formData, quantity: Math.min(Math.max(1, value), maxQuantity) });
             }}
             required
-            className="mt-2"
+            className="h-12 px-4 bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl text-base font-light focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
           />
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 font-light">
             Maximum {maxQuantity} tickets per purchase
           </p>
         </div>
-      </Card>
+      </div>
 
       {/* Contact Information */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
-        
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="fullName">Full Name</Label>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Contact Information</h2>
+
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="fullName" className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</Label>
             <Input
               id="fullName"
               value={formData.fullName}
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
               required
+              placeholder="Your full name"
+              className="h-12 px-4 bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl text-base font-light focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
             />
           </div>
 
-          <div>
-            <Label htmlFor="email">Email</Label>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
+              placeholder="your@email.com"
+              className="h-12 px-4 bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl text-base font-light focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
             />
           </div>
 
-          <div>
-            <Label htmlFor="phone">Phone Number</Label>
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</Label>
             <Input
               id="phone"
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
+              placeholder="+234 XXX XXX XXXX"
+              className="h-12 px-4 bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl text-base font-light focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
             />
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Order Summary */}
-      <Card className="p-6 border-primary/20">
-        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 md:p-8 border border-gray-200/60 dark:border-gray-700/60">
+        <h2 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white mb-6">Order Summary</h2>
 
-        <div className="space-y-3">
-          <div className="flex justify-between text-muted-foreground">
+        <div className="space-y-4">
+          <div className="flex justify-between text-gray-600 dark:text-gray-400 font-light">
             <span>Tickets × {formData.quantity}</span>
-            <span>{formatCurrency(ticketPrice * formData.quantity)}</span>
+            <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(ticketPrice * formData.quantity)}</span>
           </div>
-          <div className="border-t pt-3 flex justify-between font-bold text-lg">
-            <span>Total</span>
-            <span className="text-primary">{formatCurrency(totalAmount)}</span>
+          <div className="border-t border-gray-200/60 dark:border-gray-700/60 pt-4 flex justify-between">
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">Total</span>
+            <span className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">{formatCurrency(totalAmount)}</span>
           </div>
         </div>
-      </Card>
+      </div>
 
       <Button
         type="submit"
         size="lg"
-        className="w-full"
+        className="w-full h-14 rounded-xl text-lg font-semibold bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
         disabled={loading || event.tickets_available === 0 || !formData.fullName || !formData.email || !formData.phone}
       >
         {loading ? 'Processing...' : `Pay ${formatCurrency(totalAmount)}`}
       </Button>
 
-      <p className="text-xs text-center text-muted-foreground">
-        🔒 Secure payment powered by Paystack
+      <p className="text-xs text-center text-gray-500 dark:text-gray-500 font-light">
+        Secure payment powered by Paystack
       </p>
     </form>
   );

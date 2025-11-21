@@ -295,39 +295,40 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
 
       {/* Step 2: Contact Info */}
       {step === 'contact' && (
-        <Card className="p-8">
+        <Card className="p-8 md:p-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-gray-200/60 dark:border-gray-800">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setStep('selection')}
-            className="mb-4"
+            className="mb-6 -ml-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
 
-          <h2 className="text-2xl font-semibold mb-6">Contact Information</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <Label>Verification Method</Label>
+          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">Contact Information</h2>
+          <p className="text-gray-600 dark:text-gray-400 font-light mb-8">We'll send a verification code to confirm your identity</p>
+
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Verification Method</Label>
               <Select
                 value={formData.validationMethod}
                 onValueChange={(value) => setFormData({ ...formData, validationMethod: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 rounded-xl border-gray-200/60 dark:border-gray-800 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="sms">Phone (SMS)</SelectItem>
+                <SelectContent className="rounded-xl border-gray-200/60 dark:border-gray-800">
+                  <SelectItem value="email" className="rounded-lg">Email</SelectItem>
+                  <SelectItem value="sms" className="rounded-lg">Phone (SMS)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {formData.validationMethod === 'email' ? (
-              <div>
-                <Label htmlFor="email">Email Address</Label>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -335,11 +336,12 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="you@example.com"
                   required
+                  className="h-12 px-4 bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl text-base font-light focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
                 />
               </div>
             ) : (
-              <div>
-                <Label htmlFor="phone">Phone Number</Label>
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -347,15 +349,16 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="+234 XXX XXX XXXX"
                   required
+                  className="h-12 px-4 bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl text-base font-light focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
                 />
               </div>
             )}
 
-            <div className="bg-muted/50 rounded-lg p-4 flex items-start gap-3">
-              <Shield className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-5 flex items-start gap-4 border border-gray-200/60 dark:border-gray-700/60">
+              <Shield className="w-5 h-5 text-gray-600 dark:text-gray-400 shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-semibold mb-1">Security Notice</p>
-                <p className="text-muted-foreground">
+                <p className="font-semibold text-gray-900 dark:text-white mb-1">Security Notice</p>
+                <p className="text-gray-600 dark:text-gray-400 font-light leading-relaxed">
                   We&apos;ll send a verification code to confirm your identity. This helps prevent fraud and ensures fair voting.
                 </p>
               </div>
@@ -364,7 +367,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
 
           <Button
             size="lg"
-            className="w-full mt-6"
+            className="w-full h-12 mt-8 rounded-xl text-base font-semibold bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             onClick={handleSendOTP}
             disabled={loading || (!formData.email && !formData.phone)}
           >
@@ -376,37 +379,37 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
 
       {/* Step 3: OTP Verification */}
       {step === 'otp' && (
-        <Card className="p-8 max-w-md mx-auto">
+        <Card className="p-8 md:p-10 max-w-md mx-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-gray-200/60 dark:border-gray-800">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setStep('contact')}
-            className="mb-4"
+            className="mb-6 -ml-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
 
-          <h2 className="text-2xl font-semibold mb-2">Verify Your {formData.validationMethod === 'email' ? 'Email' : 'Phone'}</h2>
-          <p className="text-muted-foreground mb-6">
+          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">Verify Your {formData.validationMethod === 'email' ? 'Email' : 'Phone'}</h2>
+          <p className="text-gray-600 dark:text-gray-400 font-light mb-8">
             Enter the 6-digit code we sent to{' '}
-            <strong>{formData.validationMethod === 'email' ? formData.email : formData.phone}</strong>
+            <strong className="font-semibold text-gray-900 dark:text-white">{formData.validationMethod === 'email' ? formData.email : formData.phone}</strong>
           </p>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="otp">Verification Code</Label>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="otp" className="text-sm font-medium text-gray-700 dark:text-gray-300">Verification Code</Label>
               <Input
                 id="otp"
                 value={formData.otpCode}
                 onChange={(e) => setFormData({ ...formData, otpCode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
                 placeholder="000000"
                 maxLength={6}
-                className="text-center text-3xl tracking-[0.5em] font-bold"
+                className="h-16 text-center text-3xl tracking-[0.5em] font-semibold bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
                 required
               />
               {attemptsLeft < 3 && (
-                <p className="text-sm text-amber-600 mt-2">
+                <p className="text-sm text-amber-600 dark:text-amber-500 mt-2 font-medium">
                   {attemptsLeft} {attemptsLeft === 1 ? 'attempt' : 'attempts'} remaining
                 </p>
               )}
@@ -414,7 +417,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
 
             <Button
               size="lg"
-              className="w-full"
+              className="w-full h-12 rounded-xl text-base font-semibold bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               onClick={handleVerifyOTP}
               disabled={loading || formData.otpCode.length !== 6}
             >
@@ -424,7 +427,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
 
             <Button
               variant="ghost"
-              className="w-full"
+              className="w-full h-12 rounded-xl text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={handleResendOTP}
               disabled={loading}
             >

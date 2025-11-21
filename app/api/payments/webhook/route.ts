@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
             },
           });
 
-          console.log(`Ticket confirmation sent to ${customer.email}`);
+          // console.log(`Ticket confirmation sent to ${customer.email}`);
         }
       } else if (metadata.type === 'vote') {
         // Update vote purchase
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
           amount: amount / 100,
         });
 
-        console.log(`Vote confirmation sent to ${customer.email}`);
+      //  console.log(`Vote confirmation sent to ${customer.email}`);
       }
 
       return NextResponse.json({ received: true });

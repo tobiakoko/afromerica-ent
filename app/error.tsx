@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+import { AlertTriangle, RefreshCw, ArrowLeftIcon } from 'lucide-react';
  
 export default function Error({
   error,
@@ -20,8 +20,8 @@ export default function Error({
     console.error('Application error:', error);
   }, [error]);
   
-  const handleGoHome = () => {
-    router.push('/');
+  const handleGoBack = () => {
+    router.back();
   }
  
   return (
@@ -35,7 +35,7 @@ export default function Error({
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-muted-foreground">
-            We apologize for the inconvenience. An unexpected error has occurred.
+            An unexpected error has occurred.
           </p>
  
           {process.env.NODE_ENV === 'development' && error.message && (
@@ -62,13 +62,13 @@ export default function Error({
               Try Again
             </Button>
             <Button
-              onClick={handleGoHome}
+              onClick={handleGoBack}
               variant="outline"
               className="flex-1"
               size="lg"
             >
-              <Home className="mr-2 h-4 w-4" />
-              Go Home
+              <ArrowLeftIcon className="mr-2 h-4 w-4" />
+              Go Back
             </Button>
           </div>
  

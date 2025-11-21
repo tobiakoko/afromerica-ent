@@ -57,8 +57,7 @@ export function ShaderRGB() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none absolute inset-0 z-0 opacity-30"
-      style={{ mixBlendMode: "overlay" }}
+      className="pointer-events-none absolute inset-0 z-0 opacity-30 mix-blend-overlay"
     />
   );
 }
