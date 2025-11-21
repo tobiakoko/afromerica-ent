@@ -14,6 +14,8 @@ export const metadata = {
   keywords: ['African music events', 'Nigerian concerts', 'live music', 'African entertainment', 'upcoming events'],
 }
 
+export const dynamic = 'force-dynamic'
+
 // Enable ISR with 5-minute revalidation
 export const revalidate = 300;
 
