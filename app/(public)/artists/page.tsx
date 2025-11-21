@@ -1,6 +1,18 @@
+import type { Metadata } from 'next'
 import { createCachedClient } from "@/utils/supabase/server-cached";
 import { ArtistCard } from "@/components/artists/ArtistCard";
 import { PageHero } from "@/components/layout/page-hero";
+
+export const metadata: Metadata = {
+  title: 'Artists - Afromerica Entertainment',
+  description: 'Discover talented African and Caribbean artists. Browse profiles, listen to their music, and support your favorite performers.',
+  keywords: ['African artists', 'Caribbean musicians', 'African music', 'artist profiles', 'vote for artists', 'African entertainment'],
+  openGraph: {
+    title: 'Our Artists - Afromerica Entertainment',
+    description: 'Discover talented African and Caribbean artists. Browse profiles, listen to their music, and support your favorite performers.',
+    type: 'website',
+  },
+}
 
 // Enable ISR with 5-minute revalidation
 export const revalidate = 300;

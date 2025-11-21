@@ -3,12 +3,13 @@
  * Displays all upcoming published events
  */
 
+import type { Metadata } from 'next'
 import { EventCard } from '@/components/events/EventCard'
 import { PageHero } from '@/components/layout/page-hero'
 import { getEventsCached } from '@/lib/services/events'
 import { Calendar } from 'lucide-react'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Upcoming Events - Afromerica Entertainment',
   description: 'Experience the best of African and Caribbean music and culture. Browse our upcoming events and get your tickets today.',
   keywords: ['African music events', 'Nigerian concerts', 'live music', 'African entertainment', 'upcoming events'],
