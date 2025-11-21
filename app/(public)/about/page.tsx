@@ -1,6 +1,8 @@
 import { Music, Users, Trophy, Heart, Target, Lightbulb } from "lucide-react";
 import Link from "next/link";
  
+export const dynamic = 'force-dynamic'
+
 const values = [
   {
     icon: Music,
