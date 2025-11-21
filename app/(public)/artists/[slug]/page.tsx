@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Instagram, Twitter, Facebook, Youtube, Music, TrendingUp, Award, Users } from "lucide-react";
 
+export const dynamic = 'force-dynamic'
+
 const socialIcons = {
   instagram: Instagram,
   twitter: Twitter,

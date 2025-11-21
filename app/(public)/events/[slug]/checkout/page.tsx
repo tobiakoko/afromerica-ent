@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation'
 import { CheckoutForm } from '@/components/forms/CheckoutForm'
 import { getEventBySlug } from '@/lib/services/events'
 
+export const dynamic = 'force-dynamic'
+
 interface CheckoutPageProps {
   params: Promise<{ slug: string }>
 }

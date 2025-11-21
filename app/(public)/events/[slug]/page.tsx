@@ -12,6 +12,8 @@ import { format } from 'date-fns'
 import { getEventBySlug, hasAvailableTickets } from '@/lib/services/events'
 import { EventTicketProgress } from '@/components/events/EventTicketProgress'
 
+export const dynamic = 'force-dynamic'
+
 interface EventPageProps {
   params: Promise<{ slug: string }>
 }
