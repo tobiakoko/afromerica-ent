@@ -132,6 +132,7 @@ export function HomepageCarousel() {
             className="object-cover"
             priority={index === 0}
             unoptimized
+            crossOrigin="anonymous"
           />
           {/* Subtle overlay for Apple aesthetic */}
           <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />

@@ -32,6 +32,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
+              crossOrigin="anonymous"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900">

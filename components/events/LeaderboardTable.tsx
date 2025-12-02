@@ -68,6 +68,7 @@ export function LeaderboardTable({ artists }: LeaderboardTableProps) {
                     alt={artist.name}
                     fill
                     className="object-cover"
+                    crossOrigin="anonymous"
                   />
                 </div>
               </Link>
