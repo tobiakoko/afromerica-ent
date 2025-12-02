@@ -4,10 +4,18 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
-const slides = [
+interface Slide {
+  id: number;
+  image: string;
+  title: string;
+  description: string;
+}
+
+// Fallback slides in case API fails
+const fallbackSlides: Slide[] = [
   {
     id: 1,
-    image: "/images/carousel/slide-1.jpg",
+    image: "/images/carousel/slide-1.webp",
     title: "Afromerica Entertainment",
     description: "Bringing African culture to the world"
   },
@@ -28,14 +36,39 @@ const slides = [
 export function HomepageCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [slides, setSlides] = useState<Slide[]>(fallbackSlides);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch carousel images from API
+  useEffect(() => {
+    async function fetchCarouselImages() {
+      try {
+        const response = await fetch('/api/carousel/images');
+        if (!response.ok) {
+          throw new Error('Failed to fetch carousel images');
+        }
+        const data = await response.json();
+        if (data.slides && data.slides.length > 0) {
+          setSlides(data.slides);
+        }
+      } catch (error) {
+        console.error('Error fetching carousel images:', error);
+        // Keep using fallback slides
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCarouselImages();
+  }, []);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const goToSlide = useCallback((index: number) => {
     setCurrentSlide(index);
@@ -70,6 +103,17 @@ export function HomepageCarousel() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [prevSlide, nextSlide, togglePlay]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="relative w-full h-full overflow-hidden bg-gray-100 dark:bg-gray-900">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900 dark:border-white"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full overflow-hidden group">
