@@ -1,16 +1,32 @@
-// import { Resend } from 'resend';
-import { sendOTP } from '@/lib/emails/render';
-
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendOTPEmail(email: string, otp: string) {
+  const TERMII_API_KEY = process.env.TERMII_API_KEY;
+  const TERMII_BASE_URL = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com';
+
+  if (!TERMII_API_KEY) {
+    throw new Error('Email service not configured');
+  }
+
   try {
-    await sendOTP({
-      to: email,
-      otp, 
-      expiresInMinutes: 10,
+    const response = await fetch(`${TERMII_BASE_URL}/api/email/otp/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        api_key: TERMII_API_KEY,
+        email_address: email,
+        code: otp,
+        email_configuration_id: process.env.TERMII_EMAIL_CONFIG_ID,
+      }),
     });
-    
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Termii email error:', data);
+      throw new Error(data.message || 'Failed to send email');
+    }
+
     return { success: true };
   } catch (error) {
     console.error('Email sending error:', error);
@@ -19,10 +35,10 @@ export async function sendOTPEmail(email: string, otp: string) {
 }
 
 export async function sendOTPSMS(phone: string, otp: string) {
-  // Integration with Twilio, Africa's Talking, or Termii
-  // Example with Termii (popular in Africa)
-  
+  // Integration with Termii (popular in Africa)
+
   const TERMII_API_KEY = process.env.TERMII_API_KEY;
+  const TERMII_BASE_URL = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com';
   const TERMII_SENDER_ID = process.env.TERMII_SENDER_ID || 'Afromerica';
 
   if (!TERMII_API_KEY) {
@@ -30,7 +46,7 @@ export async function sendOTPSMS(phone: string, otp: string) {
   }
 
   try {
-    const response = await fetch('https://api.ng.termii.com/api/sms/send', {
+    const response = await fetch(`${TERMII_BASE_URL}/api/sms/send`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
