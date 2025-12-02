@@ -35,7 +35,7 @@ export async function GET() {
     ) || [];
 
     // Generate public URLs for each file
-    const slides = slideFiles.map((file, index) => {
+    const slides = slideFiles.map((file) => {
       const { data } = supabase
         .storage
         .from(bucketName)
