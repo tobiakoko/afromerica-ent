@@ -35,12 +35,11 @@ export async function getLeaderboardData(): Promise<{
         stageName: row.stage_name ?? undefined,
         image: row.photo_url ?? undefined,
         profileImage: row.photo_url ?? undefined,
-        featured: false, // Not available in view
         voteStats: {
           artistId: row.id!,
           totalVotes: row.total_votes ?? 0,
           totalVoteAmount: row.total_vote_amount ?? 0,
-          rank: row.rank,
+          rank: 1, // Set all artists to rank 1
           completedTransactions: row.completed_transactions ?? undefined,
           transactionCount: row.transaction_count ?? undefined,
           avgVotesPerTransaction: row.avg_votes_per_transaction ?? undefined,
@@ -99,16 +98,17 @@ export default async function LeaderboardPage({ params }: LeaderboardPageProps) 
   const { slug } = await params
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8">
       <PageHero
         title={
-          <span className="flex items-center justify-center gap-3">
-            <Trophy className="size-8 text-yellow-500" />
+          <span className="flex items-center justify-center gap-2 sm:gap-3">
+            <Trophy className="size-6 sm:size-8 text-yellow-500" />
             Leaderboard
           </span>
         }
         description="Live rankings updated in real-time"
         badge="December Showcase"
+        badgeHref={`/events/${slug}`}
       />
 
       <LeaderboardContent eventSlug={slug} />

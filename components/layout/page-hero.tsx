@@ -1,10 +1,11 @@
 interface PageHeroProps {
   badge?: string;
+  badgeHref?: string;
   title: string | React.ReactNode;
   description?: string;
 }
 
-export function PageHero({ badge, title, description }: PageHeroProps) {
+export function PageHero({ badge, badgeHref, title, description }: PageHeroProps) {
   return (
     <section className="relative py-20 md:py-28 lg:py-32 overflow-hidden">
       {/* Apple-style gradient background */}
@@ -14,9 +15,18 @@ export function PageHero({ badge, title, description }: PageHeroProps) {
         {/* Badge with glassmorphism */}
         {badge && (
           <div className="inline-block mb-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
-            <span className="px-4 py-2 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-900 dark:text-white rounded-full text-sm font-medium shadow-sm border border-gray-200/60 dark:border-gray-700/60">
-              {badge}
-            </span>
+            {badgeHref ? (
+              <a
+                href={badgeHref}
+                className="inline-block px-4 py-2 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-900 dark:text-white rounded-full text-sm font-medium shadow-sm border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-200/80 dark:hover:bg-gray-700/80 transition-colors"
+              >
+                {badge}
+              </a>
+            ) : (
+              <span className="px-4 py-2 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-md text-gray-900 dark:text-white rounded-full text-sm font-medium shadow-sm border border-gray-200/60 dark:border-gray-700/60">
+                {badge}
+              </span>
+            )}
           </div>
         )}
 

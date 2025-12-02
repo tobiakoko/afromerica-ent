@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Instagram, Twitter, Facebook, Youtube, Music, TrendingUp, Award, Users } from "lucide-react";
+import { Instagram, Twitter, Facebook, Youtube, Music, TrendingUp, Award, Video, Hash } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
 
 const socialIcons = {
   instagram: Instagram,
+  tiktok: Video,
   twitter: Twitter,
   facebook: Facebook,
   youtube: Youtube,
@@ -29,6 +30,7 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
     .from('artists')
     .select(`
       id,
+      artist_id,
       name,
       slug,
       stage_name,
@@ -37,14 +39,10 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
       photo_url,
       cover_image_url,
       instagram,
-      twitter,
-      spotify_url,
-      apple_music_url,
-      youtube_url,
+      tiktok,
       total_votes,
       rank,
-      is_active,
-      featured
+      is_active
     `)
     .eq('slug', slug)
     .eq('is_active', true) // Only show active artists
@@ -63,10 +61,7 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
   // Build social media object from individual columns
   const socialMedia: Record<string, string> = {};
   if (artist.instagram) socialMedia.instagram = artist.instagram;
-  if (artist.twitter) socialMedia.twitter = artist.twitter;
-  if (artist.spotify_url) socialMedia.spotify = artist.spotify_url;
-  if (artist.apple_music_url) socialMedia.appleMusic = artist.apple_music_url;
-  if (artist.youtube_url) socialMedia.youtube = artist.youtube_url;
+  if (artist.tiktok) socialMedia.tiktok = artist.tiktok;
 
   const genres = Array.isArray(artist.genre) ? artist.genre : [];
 
@@ -162,6 +157,18 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
 
               {/* Stats Row - Apple Style Metrics */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '400ms' }}>
+                {artist.artist_id && (
+                  <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-5 border border-gray-200/60 dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-0.5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Hash className="w-[18px] h-[18px] text-gray-600 dark:text-gray-400 stroke-[1.5]" aria-hidden="true" />
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider">Artist ID</span>
+                    </div>
+                    <div className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white font-mono">
+                      {artist.artist_id}
+                    </div>
+                  </div>
+                )}
+
                 {artist.total_votes !== undefined && artist.total_votes > 0 && (
                   <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-5 border border-gray-200/60 dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-0.5">
                     <div className="flex items-center gap-2 mb-2">
@@ -182,18 +189,6 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
                     </div>
                     <div className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
                       #{artist.rank}
-                    </div>
-                  </div>
-                )}
-
-                {artist.featured && (
-                  <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-5 border border-gray-200/60 dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-0.5">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users className="w-[18px] h-[18px] text-gray-600 dark:text-gray-400 stroke-[1.5]" aria-hidden="true" />
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider">Status</span>
-                    </div>
-                    <div className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                      Featured
                     </div>
                   </div>
                 )}

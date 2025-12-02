@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       admins: {
@@ -49,76 +74,70 @@ export type Database = {
       }
       artists: {
         Row: {
-          apple_music_url: string | null
+          artist_id: string | null
           bio: string | null
           cover_image_url: string | null
           created_at: string
           deleted_at: string | null
           deleted_by: string | null
-          featured: boolean
           genre: string[] | null
           id: string
           instagram: string | null
           is_active: boolean
+          location: string | null
           name: string
           photo_url: string | null
           rank: number | null
           slug: string
-          spotify_url: string | null
           stage_name: string | null
+          tiktok: string | null
           total_vote_amount: number
           total_votes: number
-          twitter: string | null
           updated_at: string
-          youtube_url: string | null
         }
         Insert: {
-          apple_music_url?: string | null
+          artist_id?: string | null
           bio?: string | null
           cover_image_url?: string | null
           created_at?: string
           deleted_at?: string | null
           deleted_by?: string | null
-          featured?: boolean
           genre?: string[] | null
           id?: string
           instagram?: string | null
           is_active?: boolean
+          location?: string | null
           name: string
           photo_url?: string | null
           rank?: number | null
           slug: string
-          spotify_url?: string | null
           stage_name?: string | null
+          tiktok?: string | null
           total_vote_amount?: number
           total_votes?: number
-          twitter?: string | null
           updated_at?: string
-          youtube_url?: string | null
         }
         Update: {
-          apple_music_url?: string | null
+          artist_id?: string | null
           bio?: string | null
           cover_image_url?: string | null
           created_at?: string
           deleted_at?: string | null
           deleted_by?: string | null
-          featured?: boolean
           genre?: string[] | null
           id?: string
           instagram?: string | null
           is_active?: boolean
+          location?: string | null
           name?: string
           photo_url?: string | null
           rank?: number | null
           slug?: string
-          spotify_url?: string | null
           stage_name?: string | null
+          tiktok?: string | null
           total_vote_amount?: number
           total_votes?: number
-          twitter?: string | null
           updated_at?: string
-          youtube_url?: string | null
         }
         Relationships: [
           {
@@ -769,6 +788,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "soldout"
+        | "published"
       message_status: "new" | "read" | "replied" | "archived"
       otp_method: "email" | "sms"
       payment_status:
@@ -902,6 +922,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       booking_status: ["pending", "confirmed", "cancelled", "checked_in"],
@@ -912,6 +935,7 @@ export const Constants = {
         "completed",
         "cancelled",
         "soldout",
+        "published",
       ],
       message_status: ["new", "read", "replied", "archived"],
       otp_method: ["email", "sms"],

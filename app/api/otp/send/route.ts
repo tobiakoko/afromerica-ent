@@ -81,26 +81,37 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to store verification code');
     }
 
-    // Send OTP
-    // FIXME: This block needs to be updated. how does the user receive OTP during production.
+    // Send OTP via email or SMS
     try {
       if (method === 'email') {
         await sendOTPEmail(email!, otp);
-        console.log('OTP sent to email:', email, 'Code:', otp); // For development
+        // Log for debugging (sanitized in production)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('OTP sent to email:', email, 'Code:', otp);
+        } else {
+          console.log('OTP sent successfully to email:', email);
+        }
       } else {
         await sendOTPSMS(phone!, otp);
-        console.log('OTP sent to phone:', phone, 'Code:', otp); // For development
+        // Log for debugging (sanitized in production)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('OTP sent to phone:', phone, 'Code:', otp);
+        } else {
+          console.log('OTP sent successfully to phone:', phone);
+        }
       }
     } catch (sendError: any) {
       console.error('Failed to send OTP:', sendError);
-      // Still return success since OTP is stored in database
-      // In development, the code is logged to console
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('Failed to send verification code');
-      }
+      // Clean up the database entry since we couldn't send the OTP
+      await supabase
+        .from('vote_validations')
+        .delete()
+        .eq('identifier', method === 'email' ? email : phone)
+        .eq('verification_code', hashedOTP);
+
+      throw new Error('Failed to send verification code. Please try again.');
     }
 
-    // This part is not needed. Delete this after the production email implementation
     return NextResponse.json({
       success: true,
       message: `Verification code sent to your ${method === 'email' ? 'email' : 'phone'}`,

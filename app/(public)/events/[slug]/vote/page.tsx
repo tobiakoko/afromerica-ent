@@ -9,18 +9,14 @@ import { TrendingUp, Award, Music, Users, Instagram, Twitter, Facebook, Youtube 
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 // Enable ISR with 30-second revalidation
 export const revalidate = 30
 
 const socialIcons = {
   instagram: Instagram,
-  twitter: Twitter,
-  facebook: Facebook,
-  youtube: Youtube,
-  spotify: Music,
-  appleMusic: Music,
+  tiktok: Music, // Using Music icon as placeholder for TikTok
 } as const
 
 interface VotePageProps {
@@ -32,12 +28,12 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
   const { slug: eventSlug } = await params
   const { artist: artistSlug } = await searchParams
   const supabase = createCachedClient()
-/*
-  // Redirect to events page if no artist is selected
+
+  // Redirect to leaderboard if no artist is selected
   if (!artistSlug) {
-    redirect(`/events/${eventSlug}`)
+    redirect(`/events/${eventSlug}/leaderboard`)
   }
-*/
+
   // Validate that the event exists and is active
   const { error: eventError } = await supabase
     .from('events')
@@ -81,14 +77,10 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
       photo_url,
       cover_image_url,
       instagram,
-      twitter,
-      spotify_url,
-      apple_music_url,
-      youtube_url,
+      tiktok,
       total_votes,
       rank,
-      is_active,
-      featured
+      is_active
     `)
     .eq('slug', artistSlug)
     .eq('is_active', true)
@@ -112,10 +104,7 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
   // Build social media object from individual columns
   const socialMedia: Record<string, string> = {}
   if (artist.instagram) socialMedia.instagram = artist.instagram
-  if (artist.twitter) socialMedia.twitter = artist.twitter
-  if (artist.spotify_url) socialMedia.spotify = artist.spotify_url
-  if (artist.apple_music_url) socialMedia.appleMusic = artist.apple_music_url
-  if (artist.youtube_url) socialMedia.youtube = artist.youtube_url
+  if (artist.tiktok) socialMedia.tiktok = artist.tiktok
 
   const genres = Array.isArray(artist.genre) ? artist.genre : []
 
@@ -230,18 +219,6 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
                     </div>
                     <div className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
                       #{artist.rank}
-                    </div>
-                  </div>
-                )}
-
-                {artist.featured && (
-                  <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl p-5 border border-gray-200/60 dark:border-gray-800 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-0.5">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users className="w-[18px] h-[18px] text-gray-600 dark:text-gray-400 stroke-[1.5]" aria-hidden="true" />
-                      <span className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider">Status</span>
-                    </div>
-                    <div className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                      Featured
                     </div>
                   </div>
                 )}

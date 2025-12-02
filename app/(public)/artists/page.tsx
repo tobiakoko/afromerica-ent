@@ -32,7 +32,6 @@ export default async function ArtistsPage() {
       photo_url,
       rank,
       total_votes,
-      featured,
       is_active
     `)
     .eq('is_active', true)

@@ -33,7 +33,7 @@ export async function sendTicketConfirmation(data: {
   );
 
   return resend.emails.send({
-    from: 'Afromerica Tickets <tickets@afromerica.com>',
+    from: 'Afromerica Tickets <support@afromericaent.com>',
     to: data.to,
     subject: `Ticket Confirmed: ${data.booking.event?.title}`,
     html: emailHtml,
@@ -58,7 +58,7 @@ export async function sendVoteConfirmation(data: {
   );
 
   return resend.emails.send({
-    from: 'Afromerica Votes <votes@afromerica.com>',
+    from: 'Afromerica Votes <support@afromericaent.com>',
     to: data.to,
     subject: `Vote Confirmed for ${data.artistName}!`,
     html: emailHtml,
@@ -78,7 +78,7 @@ export async function sendOTP(data: {
   );
 
   return resend.emails.send({
-    from: 'Afromerica <noreply@afromerica.com>',
+    from: 'Afromerica <support@afromericaent.com>',
     to: data.to,
     subject: `Your verification code: ${data.otp}`,
     html: emailHtml,

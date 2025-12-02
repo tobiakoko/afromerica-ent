@@ -228,7 +228,7 @@ export interface VoteStats {
 }
 
 // Type combining Artist with VoteStats for leaderboards and rankings
-export type ArtistWithVotes = Pick<Artist, 'id' | 'slug' | 'name' | 'stageName' | 'image' | 'profileImage' | 'featured'> & {
+export type ArtistWithVotes = Pick<Artist, 'id' | 'slug' | 'name' | 'stageName' | 'image' | 'profileImage'> & {
   voteStats: VoteStats
 }
 

@@ -13,7 +13,6 @@ interface ArtistCardProps {
       photo_url?: string;
       rank?: number;
       total_votes?: number;
-      featured?: boolean;
     };
 }
 

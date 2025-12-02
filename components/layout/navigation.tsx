@@ -67,7 +67,7 @@ export function HomeNavigation() {
       {/* Top Banner */}
       <AnnouncementBanner
           message="Welcome to AfroMerica Entertainment"
-          linkHref="events/december-showcase-2025"
+          linkHref="/events/december-showcase-2025/leaderboard"
           linkText="December Artist Discovery is open"
           onDismiss={() => setBannerDismissed(true)}
        />
@@ -141,12 +141,6 @@ export function HomeNavigation() {
 
           <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4 lg:items-center">
             <ThemeToggle />
-            <Button variant="ghost" asChild className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10">
-              <Link href="/signin">Sign in</Link>
-            </Button>
-            <Button asChild className="bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded-full">
-              <Link href="/signup">Get Started</Link>
-            </Button>
           </div>
         </nav>
 
@@ -177,12 +171,6 @@ export function HomeNavigation() {
                 <div className="flex justify-center py-2">
                   <ThemeToggle />
                 </div>
-                <Button variant="ghost" className="w-full text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10" asChild>
-                  <Link href="/signin" onClick={closeMobileMenu}>Sign in</Link>
-                </Button>
-                <Button className="w-full bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 rounded-full" asChild>
-                  <Link href="/signup" onClick={closeMobileMenu}>Get Started</Link>
-                </Button>
               </div>
             </nav>
           </div>
