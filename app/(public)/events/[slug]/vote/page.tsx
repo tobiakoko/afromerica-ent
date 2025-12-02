@@ -5,7 +5,9 @@
 
 import { createCachedClient } from '@/utils/supabase/server-cached'
 import { VotingForm } from '@/components/forms/VoteForm'
-import { TrendingUp, Award, Music, Users, Instagram, Twitter, Facebook, Youtube } from 'lucide-react'
+import { SiInstagram, SiTiktok } from 'react-icons/si'
+import type { IconType } from 'react-icons'
+import { TrendingUp, Award, Music } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -14,10 +16,10 @@ import { notFound, redirect } from 'next/navigation'
 // Enable ISR with 30-second revalidation
 export const revalidate = 30
 
-const socialIcons = {
-  instagram: Instagram,
-  tiktok: Music, // Using Music icon as placeholder for TikTok
-} as const
+const socialIcons: Record<string, IconType> = {
+  instagram: SiInstagram,
+  tiktok: SiTiktok,
+}
 
 interface VotePageProps {
   params: Promise<{ slug: string }>
@@ -228,7 +230,7 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
               {Object.keys(socialMedia).length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 [animation-delay:500ms]">
                   {Object.entries(socialMedia).map(([platform, url]) => {
-                    const Icon = socialIcons[platform as keyof typeof socialIcons] || Music
+                    const Icon = socialIcons[platform] ?? SiTiktok
                     return (
                       <Button
                         key={platform}
