@@ -18,7 +18,6 @@ import {
 import { type ArtistWithVotes } from "@/types";
 import { getArtistInitials, getRankChange, RankIndicator } from "./RankIndicator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Vote } from "lucide-react";
 
@@ -58,36 +57,31 @@ function LeaderboardRowContent({
 
   return (
     <>
-      <TableCell className="w-20">
+      <TableCell className="w-16 sm:w-20">
         {cellContent(<RankIndicator rank={voteStats.rank} change={rankChange} />)}
       </TableCell>
 
       <TableCell>
         {cellContent(
-          <div className="flex items-center gap-3">
-            <Avatar className="h-14 w-14 ring-2 ring-border">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Avatar className="h-10 w-10 sm:h-14 sm:w-14 ring-2 ring-border">
               <AvatarImage
                 src={imageUrl}
                 alt={displayName}
                 className="object-cover"
               />
-              <AvatarFallback className="text-sm font-semibold">
+              <AvatarFallback className="text-xs sm:text-sm font-semibold">
                 {getArtistInitials(displayName)}
               </AvatarFallback>
             </Avatar>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="font-semibold text-sm truncate">
+                <span className="font-semibold text-xs sm:text-sm truncate">
                   {displayName}
                 </span>
-                {artist.featured && (
-                  <Badge variant="secondary" className="text-[#00FFF0] bg-[#00FFF0]/10 h-5 px-1">
-                    ✦
-                  </Badge>
-                )}
               </div>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {artist.name}
               </p>
             </div>
@@ -97,7 +91,7 @@ function LeaderboardRowContent({
 
       <TableCell className="text-right tabular-nums">
         {cellContent(
-          <p className="font-bold text-base">
+          <p className="font-bold text-sm sm:text-base">
             {voteStats.totalVotes.toLocaleString()}
           </p>
         )}
@@ -105,16 +99,16 @@ function LeaderboardRowContent({
 
       <TableCell className="text-center">
         {eventSlug ? (
-          <Button size="sm" asChild>
+          <Button size="sm" asChild className="h-8 px-2 sm:px-4">
             <Link href={`/events/${eventSlug}/vote?artist=${artist.slug}`}>
-              <Vote className="w-4 h-4 mr-2" />
-              Vote
+              <Vote className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Vote</span>
             </Link>
           </Button>
         ) : (
-          <Button size="sm" disabled>
-            <Vote className="w-4 h-4 mr-2" />
-            Vote
+          <Button size="sm" disabled className="h-8 px-2 sm:px-4">
+            <Vote className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Vote</span>
           </Button>
         )}
       </TableCell>
@@ -165,20 +159,20 @@ export function Leaderboard({
         </CardHeader>
       )}
 
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead className="w-20 text-xs font-medium uppercase tracking-wider">
+              <TableHead className="w-16 sm:w-20 text-xs font-medium uppercase tracking-wider">
                 Rank
               </TableHead>
-              <TableHead className="text-xs font-medium uppercase tracking-wider">
+              <TableHead className="text-xs font-medium uppercase tracking-wider min-w-[180px]">
                 Artist
               </TableHead>
-              <TableHead className="text-right text-xs font-medium uppercase tracking-wider w-28">
+              <TableHead className="text-right text-xs font-medium uppercase tracking-wider w-20 sm:w-28">
                 Total
               </TableHead>
-              <TableHead className="text-center text-xs font-medium uppercase tracking-wider w-32">
+              <TableHead className="text-center text-xs font-medium uppercase tracking-wider w-24 sm:w-32">
                 Action
               </TableHead>
             </TableRow>

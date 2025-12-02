@@ -80,21 +80,21 @@ export default async function HomePage() {
           </div>
 
           {/* Centered content - Apple style clean and minimal */}
-          <div className="relative z-20 flex min-h-screen items-center justify-center px-6 py-20">
+          <div className="relative z-20 flex min-h-screen items-center justify-center px-4 sm:px-6 py-16 sm:py-20">
             <div className="w-full max-w-5xl text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
               {/* Live badge - Apple style pill */}
-              <div className="mb-8 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+              <div className="mb-6 sm:mb-8 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
                 <span className="flex h-2 w-2">
                   <span className="absolute inline-flex h-2 w-2 rounded-full bg-[#00FFF0] opacity-75 animate-ping" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#00FFF0]" />
                 </span>
-                <p className="text-xs md:text-sm text-gray-700 dark:text-[#00FFF0] font-medium tracking-wide uppercase">
+                <p className="text-[10px] sm:text-xs md:text-sm text-gray-700 dark:text-[#00FFF0] font-medium tracking-wide uppercase">
                   December Showcase 2025 — Live Now
                 </p>
               </div>
 
               {/* Headline - Apple style large and bold */}
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight leading-[1.05] mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300 px-2">
                 <span className="text-gray-900 dark:text-white">Welcome to </span>
                 <span className="bg-clip-text text-transparent bg-linear-to-r from-[#00FFF0] via-[#8B5CF6] to-[#FB7185]">
                   Afromerica
@@ -102,17 +102,17 @@ export default async function HomePage() {
               </h1>
 
               {/* Supporting text - Apple style light and spacious */}
-              <p className="mx-auto max-w-3xl text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 font-light leading-relaxed mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
+              <p className="mx-auto max-w-3xl text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 font-light leading-relaxed mb-8 sm:mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 px-4">
                 Celebrating African culture through music, live experiences and community.
                 Discover artists, events and the December showcase.
               </p>
 
               {/* CTA actions - Apple style improved buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 px-4">
                 <Button
                   asChild
                   size="lg"
-                  className="h-14 px-10 text-base bg-[#00FFF0] hover:bg-[#00E6D8] text-black font-semibold rounded-full shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(0,255,240,0.5)] hover:scale-105 active:scale-95 transition-all duration-300 border-0"
+                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base bg-[#00FFF0] hover:bg-[#00E6D8] text-black font-semibold rounded-full shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(0,255,240,0.5)] hover:scale-105 active:scale-95 transition-all duration-300 border-0"
                 >
                   <Link
                     href={
@@ -122,8 +122,8 @@ export default async function HomePage() {
                     }
                     aria-label="Vote for artists"
                   >
-                    <span className="inline-flex items-center gap-3">
-                      <TrendingUp className="w-5 h-5 stroke-2" />
+                    <span className="inline-flex items-center gap-2 sm:gap-3">
+                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" />
                       <span>Vote for Artists</span>
                     </span>
                   </Link>
@@ -133,11 +133,11 @@ export default async function HomePage() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-14 px-10 text-base border-2 border-white/30 bg-white/5 backdrop-blur-md text-white hover:bg-white/10 hover:border-white/50 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
+                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base border-2 border-white/30 bg-white/5 backdrop-blur-md text-white hover:bg-white/10 hover:border-white/50 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
                 >
                   <Link href="/events" aria-label="View events">
-                    <span className="inline-flex items-center gap-3">
-                      <Calendar className="w-5 h-5 stroke-2" />
+                    <span className="inline-flex items-center gap-2 sm:gap-3">
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" />
                       <span>Explore Events</span>
                     </span>
                   </Link>
@@ -147,22 +147,22 @@ export default async function HomePage() {
           </div>
 
           {/* Bottom Navigation - Apple style split layout */}
-          <div className="absolute bottom-8 inset-x-0 z-30">
-            <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
-              <div className="flex items-center justify-between">
+          <div className="absolute bottom-4 sm:bottom-8 inset-x-0 z-30">
+            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
                 {/* Social Links - Bottom Left */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   {socialIcons.map((social) => (
                     <Link
                       key={social.name}
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative p-2 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-300"
+                      className="group relative p-1.5 sm:p-2 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-300"
                       aria-label={`Follow us on ${social.name}`}
                     >
                       <svg
-                        className="w-4 h-4 text-white/80 group-hover:text-white transition-colors duration-300 group-hover:scale-110"
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/80 group-hover:text-white transition-colors duration-300 group-hover:scale-110"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                         aria-hidden="true"
@@ -177,31 +177,31 @@ export default async function HomePage() {
                 </div>
 
                 {/* Navigation Links - Bottom Right */}
-                <nav aria-label="Footer navigation" className="flex items-center gap-6">
+                <nav aria-label="Footer navigation" className="flex items-center gap-3 sm:gap-6">
                   <Link
                     href="/artists"
-                    className="group relative text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
+                    className="group relative text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
                   >
                     Artists
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#00FFF0] rounded-full group-hover:w-full transition-all duration-300" />
                   </Link>
                   <Link
                     href="/events"
-                    className="group relative text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
+                    className="group relative text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
                   >
                     Events
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#00FFF0] rounded-full group-hover:w-full transition-all duration-300" />
                   </Link>
                   <Link
                     href="/about"
-                    className="group relative text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
+                    className="group relative text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
                   >
                     About
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#00FFF0] rounded-full group-hover:w-full transition-all duration-300" />
                   </Link>
                   <Link
                     href="/contact"
-                    className="group relative text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
+                    className="group relative text-xs sm:text-sm font-medium text-white/80 hover:text-white transition-colors duration-300"
                   >
                     Contact
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#00FFF0] rounded-full group-hover:w-full transition-all duration-300" />
