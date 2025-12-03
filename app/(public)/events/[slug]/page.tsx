@@ -325,6 +325,8 @@ export async function generateMetadata({ params }: EventPageProps) {
     description,
     keywords: [
       'African music',
+      'Nigerian music',
+      'Afrobeat',
       'live event',
       'concert',
       event.city,
