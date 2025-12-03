@@ -159,7 +159,7 @@ export function VotingForm({ artists, preselectedArtistSlug, votePrice }: Voting
                     <SelectValue placeholder="Select number of votes" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 1000].map((count) => (
+                    {[2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 1000].map((count) => (
                       <SelectItem key={count} value={count.toString()}>
                         {count} {count === 1 ? 'vote' : 'votes'}
                       </SelectItem>
