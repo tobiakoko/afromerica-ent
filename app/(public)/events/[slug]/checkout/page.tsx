@@ -40,7 +40,7 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
               Complete Your Purchase
             </h1>
             <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-              You're one step away from attending {event.title}
+              You&apos;re one step away from attending {event.title}
             </p>
           </div>
         </div>
