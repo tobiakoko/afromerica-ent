@@ -36,7 +36,7 @@ export default async function EventsPage() {
         badge="Events"
       />
 
-      <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden" aria-label="Event listings">
+      <section className="relative pb-24 overflow-hidden" aria-label="Event listings">
         {/* Apple-style gradient background */}
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-gray-50/50 to-gray-50 dark:from-transparent dark:via-gray-900/30 dark:to-gray-900/50" />
 
