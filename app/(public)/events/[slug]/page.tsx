@@ -163,7 +163,7 @@ export default async function EventPage({ params }: EventPageProps) {
                       Sold Out
                     </>
                   ) : (
-                    <Link href={`/events/${event.slug}/checkout`}>
+                    <Link href={`/events/${event.slug}`}>
                       <Ticket className="w-5 h-5 mr-2 stroke-[1.5]" aria-hidden="true" />
                       Book Table Reservation
                     </Link>
@@ -267,7 +267,7 @@ export default async function EventPage({ params }: EventPageProps) {
                     Sold Out
                   </>
                 ) : (
-                  <Link href={`/events/${event.slug}/checkout`}>
+                  <Link href={`/events/${event.slug}`}>
                     <Ticket className="w-[18px] h-[18px] mr-2 stroke-[1.5]" aria-hidden="true" />
                     Book Table Reservation
                   </Link>
