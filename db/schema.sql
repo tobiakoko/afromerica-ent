@@ -1001,11 +1001,11 @@ ALTER TABLE public.votes ALTER COLUMN payment_status SET STATISTICS 1000;
 -- ==========================================
 
 INSERT INTO public.vote_packages (name, description, votes, price, discount, display_order, popular) VALUES
-  ('Starter Pack', '10 votes to support your artist', 10, 500, 0, 1, false),
-  ('Bronze Pack', '25 votes with 20% bonus', 25, 1000, 20, 2, false),
-  ('Silver Pack', '50 votes with 28% bonus', 50, 1800, 28, 3, true),
-  ('Gold Pack', '100 votes with 36% bonus', 100, 3200, 36, 4, false),
-  ('Platinum Pack', '250 votes with 40% bonus', 250, 7500, 40, 5, false)
+  ('Starter Pack', '10 votes to support your artist', 10, 50, 0, 1, false),
+  ('Bronze Pack', '25 votes with 20% bonus', 25, 100, 20, 2, false),
+  ('Silver Pack', '50 votes with 28% bonus', 50, 180, 28, 3, true),
+  ('Gold Pack', '100 votes with 36% bonus', 100, 320, 36, 4, false),
+  ('Platinum Pack', '250 votes with 40% bonus', 250, 750, 40, 5, false)
 ON CONFLICT DO NOTHING;
 
 -- ==========================================

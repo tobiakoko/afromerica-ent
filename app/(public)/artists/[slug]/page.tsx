@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Instagram, Twitter, Facebook, Youtube, Music, TrendingUp, Award, Video, Hash } from "lucide-react";
+import { Instagram, Twitter, Facebook, Youtube, Music, TrendingUp, Award, Video, Hash, Vote } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
 
@@ -194,9 +194,23 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
                 )}
               </div>
 
+              {/* Vote Button */}
+              <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '500ms' }}>
+                <Button
+                  size="lg"
+                  asChild
+                  className="w-full sm:w-auto bg-linear-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Link href={`/events/december-showcase-2025/vote?artist=${artist.slug}`}>
+                    <Vote className="w-5 h-5 mr-2" />
+                    Vote for {artist.stage_name || artist.name}
+                  </Link>
+                </Button>
+              </div>
+
               {/* Social Links with Enhanced Styling */}
               {Object.keys(socialMedia).length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '500ms' }}>
+                <div className="flex flex-wrap gap-3 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '600ms' }}>
                   {Object.entries(socialMedia).map(([platform, url], index) => {
                     const Icon = socialIcons[platform as keyof typeof socialIcons] || Music;
                     return (
@@ -206,7 +220,7 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
                         size="icon"
                         asChild
                         className="rounded-xl border-gray-200/60 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
-                        style={{ animationDelay: `${600 + index * 50}ms` }}
+                        style={{ animationDelay: `${700 + index * 50}ms` }}
                       >
                         <Link href={url} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${platform}`}>
                           <Icon className="w-[18px] h-[18px] stroke-[1.5]" aria-hidden="true" />

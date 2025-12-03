@@ -43,11 +43,11 @@ Production-ready PostgreSQL database schema for the Afromerica Entertainment Pla
 - Secure hashed code storage
 
 **Default Vote Packages:**
-- Starter: 10 votes @ ₦500 (0% discount)
-- Bronze: 25 votes @ ₦1,000 (20% discount)
-- Silver: 50 votes @ ₦1,800 (28% discount) - Most Popular
-- Gold: 100 votes @ ₦3,200 (36% discount)
-- Platinum: 250 votes @ ₦7,500 (40% discount)
+- Starter: 10 votes @ ₦50 (0% discount)
+- Bronze: 25 votes @ ₦100 (20% discount)
+- Silver: 50 votes @ ₦180 (28% discount) - Most Popular
+- Gold: 100 votes @ ₦320 (36% discount)
+- Platinum: 250 votes @ ₦750 (40% discount)
 
 ---
 

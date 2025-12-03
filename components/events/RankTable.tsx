@@ -101,14 +101,14 @@ function LeaderboardRowContent({
         {eventSlug ? (
           <Button size="sm" asChild className="h-8 px-2 sm:px-4">
             <Link href={`/events/${eventSlug}/vote?artist=${artist.slug}`}>
-              <Vote className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Vote</span>
+              <Vote className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span>Vote</span>
             </Link>
           </Button>
         ) : (
           <Button size="sm" disabled className="h-8 px-2 sm:px-4">
-            <Vote className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Vote</span>
+            <Vote className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span>Vote</span>
           </Button>
         )}
       </TableCell>

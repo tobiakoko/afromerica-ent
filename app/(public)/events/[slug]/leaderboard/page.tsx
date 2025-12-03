@@ -39,7 +39,7 @@ export async function getLeaderboardData(): Promise<{
           artistId: row.id!,
           totalVotes: row.total_votes ?? 0,
           totalVoteAmount: row.total_vote_amount ?? 0,
-          rank: 1, // Set all artists to rank 1
+          rank: row.rank ?? null,
           completedTransactions: row.completed_transactions ?? undefined,
           transactionCount: row.transaction_count ?? undefined,
           avgVotesPerTransaction: row.avg_votes_per_transaction ?? undefined,

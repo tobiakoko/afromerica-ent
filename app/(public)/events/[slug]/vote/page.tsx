@@ -63,8 +63,8 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
     .limit(1)
     .single()
 
-  // Calculate price per vote from the base package (default: ₦500 per vote)
-  const votePrice = basePackage ? basePackage.price / basePackage.votes : 500
+  // Calculate price per vote from the base package (default: ₦50 per vote)
+  const votePrice = basePackage ? basePackage.price / basePackage.votes : 50
 
   // Fetch the selected artist with full details
   const { data: artist, error: artistError } = await supabase
