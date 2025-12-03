@@ -165,7 +165,7 @@ export default async function EventPage({ params }: EventPageProps) {
                   ) : (
                     <Link href={`/events/${event.slug}/checkout`}>
                       <Ticket className="w-5 h-5 mr-2 stroke-[1.5]" aria-hidden="true" />
-                      Get Tickets
+                      Book Table Reservation
                     </Link>
                   )}
                 </Button>
@@ -258,7 +258,7 @@ export default async function EventPage({ params }: EventPageProps) {
                 ) : (
                   <Link href={`/events/${event.slug}/checkout`}>
                     <Ticket className="w-[18px] h-[18px] mr-2 stroke-[1.5]" aria-hidden="true" />
-                    Buy Tickets Now
+                    Book Table Reservation
                   </Link>
                 )}
               </Button>
