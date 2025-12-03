@@ -99,16 +99,22 @@ export function EventCard({ event, priority = false }: EventCardProps) {
           </div>
 
           {/* Price - Apple style clean pricing */}
-          {event.ticket_price !== null && event.ticket_price !== undefined && (
+          {(event.ticket_price !== null && event.ticket_price !== undefined) || (event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata) ? (
             <div className="mt-6 pt-5 border-t border-gray-200/60 dark:border-gray-800">
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider">From</span>
-                <span className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                  ₦{event.ticket_price.toLocaleString('en-NG')}
-                </span>
-              </div>
+              {event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata ? (
+                <div className="text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed">
+                  {String((event.metadata as Record<string, unknown>).pricing_note)}
+                </div>
+              ) : (
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider">From</span>
+                  <span className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+                    ₦{event.ticket_price!.toLocaleString('en-NG')}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </Link>

@@ -229,12 +229,23 @@ export default async function EventPage({ params }: EventPageProps) {
               </h3>
 
               {/* Price with Apple-style Large Number Display */}
-              {event.ticket_price !== null && event.ticket_price !== undefined && (
+              {((event.ticket_price !== null && event.ticket_price !== undefined) || (event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata)) && (
                 <div className="mb-8">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-3">Starting from</div>
-                  <div className="text-5xl md:text-6xl font-semibold tracking-tight text-gray-900 dark:text-white" aria-label={`Starting from ${event.ticket_price.toLocaleString()} Naira`}>
-                    ₦{event.ticket_price.toLocaleString('en-NG')}
-                  </div>
+                  {event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata ? (
+                    <>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-3">Pricing</div>
+                      <div className="text-lg text-gray-600 dark:text-gray-400 italic leading-relaxed">
+                        {String((event.metadata as Record<string, unknown>).pricing_note)}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-3">Starting from</div>
+                      <div className="text-5xl md:text-6xl font-semibold tracking-tight text-gray-900 dark:text-white" aria-label={`Starting from ${event.ticket_price!.toLocaleString()} Naira`}>
+                        ₦{event.ticket_price!.toLocaleString('en-NG')}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
