@@ -102,6 +102,12 @@ export async function POST(request: NextRequest) {
       }
     } catch (sendError: any) {
       console.error('Failed to send OTP:', sendError);
+      console.error('Send error details:', {
+        message: sendError.message,
+        stack: sendError.stack,
+        method,
+        identifier: method === 'email' ? email : phone,
+      });
       // Clean up the database entry since we couldn't send the OTP
       await supabase
         .from('vote_validations')

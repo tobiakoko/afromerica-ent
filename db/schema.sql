@@ -144,6 +144,7 @@ CREATE TABLE IF NOT EXISTS public.artists (
 
   -- Social Media
   instagram TEXT,
+  tiktok TEXT,
   twitter TEXT,
   spotify_url TEXT,
   apple_music_url TEXT,

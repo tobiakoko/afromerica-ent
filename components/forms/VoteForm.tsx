@@ -235,7 +235,7 @@ export function VotingForm({ artists, preselectedArtistSlug, votePrice, eventId 
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="phone">Phone (SMS)</SelectItem>
+                    <SelectItem value="sms">Phone (SMS)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

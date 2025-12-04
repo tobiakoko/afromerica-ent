@@ -1,9 +1,21 @@
 export async function sendOTPEmail(email: string, otp: string) {
   const TERMII_API_KEY = process.env.TERMII_API_KEY;
   const TERMII_BASE_URL = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com';
+  const SKIP_ACTUAL_SEND = process.env.SKIP_OTP_SENDING === 'true';
+
+  // Development mode: Just log the OTP instead of sending
+  if (process.env.NODE_ENV === 'development' && (SKIP_ACTUAL_SEND || !TERMII_API_KEY)) {
+    console.log('='.repeat(50));
+    console.log('📧 DEVELOPMENT MODE - OTP Email');
+    console.log(`To: ${email}`);
+    console.log(`Code: ${otp}`);
+    console.log('='.repeat(50));
+    return { success: true };
+  }
 
   if (!TERMII_API_KEY) {
-    throw new Error('Email service not configured');
+    console.error('TERMII_API_KEY is not configured');
+    throw new Error('Email service not configured. Please contact support.');
   }
 
   try {
@@ -23,14 +35,22 @@ export async function sendOTPEmail(email: string, otp: string) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Termii email error:', data);
-      throw new Error(data.message || 'Failed to send email');
+      console.error('Termii email error:', {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+      });
+      throw new Error(data.message || `Failed to send email: ${response.status} ${response.statusText}`);
     }
 
     return { success: true };
-  } catch (error) {
-    console.error('Email sending error:', error);
-    throw new Error('Failed to send verification code');
+  } catch (error: any) {
+    console.error('Email sending error:', {
+      message: error.message,
+      name: error.name,
+      cause: error.cause,
+    });
+    throw new Error(`Failed to send verification code: ${error.message}`);
   }
 }
 
@@ -40,9 +60,21 @@ export async function sendOTPSMS(phone: string, otp: string) {
   const TERMII_API_KEY = process.env.TERMII_API_KEY;
   const TERMII_BASE_URL = process.env.TERMII_BASE_URL || 'https://v3.api.termii.com';
   const TERMII_SENDER_ID = process.env.TERMII_SENDER_ID || 'Afromerica';
+  const SKIP_ACTUAL_SEND = process.env.SKIP_OTP_SENDING === 'true';
+
+  // Development mode: Just log the OTP instead of sending
+  if (process.env.NODE_ENV === 'development' && (SKIP_ACTUAL_SEND || !TERMII_API_KEY)) {
+    console.log('='.repeat(50));
+    console.log('📱 DEVELOPMENT MODE - OTP SMS');
+    console.log(`To: ${phone}`);
+    console.log(`Code: ${otp}`);
+    console.log('='.repeat(50));
+    return { success: true };
+  }
 
   if (!TERMII_API_KEY) {
-    throw new Error('SMS service not configured');
+    console.error('TERMII_API_KEY is not configured');
+    throw new Error('SMS service not configured. Please contact support.');
   }
 
   try {
@@ -64,13 +96,22 @@ export async function sendOTPSMS(phone: string, otp: string) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to send SMS');
+      console.error('Termii SMS error:', {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+      });
+      throw new Error(data.message || `Failed to send SMS: ${response.status} ${response.statusText}`);
     }
 
     return { success: true };
-  } catch (error) {
-    console.error('SMS sending error:', error);
-    throw new Error('Failed to send verification code via SMS');
+  } catch (error: any) {
+    console.error('SMS sending error:', {
+      message: error.message,
+      name: error.name,
+      cause: error.cause,
+    });
+    throw new Error(`Failed to send verification code via SMS: ${error.message}`);
   }
 }
 
