@@ -20,7 +20,7 @@ import { getArtistInitials, getRankChange, RankIndicator } from "./RankIndicator
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Vote } from "lucide-react";
-
+import { track } from '@vercel/analytics'
 
 interface LeaderboardProps {
   artists: ArtistWithVotes[];
@@ -100,7 +100,12 @@ function LeaderboardRowContent({
       <TableCell className="text-center">
         {eventSlug ? (
           <Button size="sm" asChild className="h-8 px-2 sm:px-4">
-            <Link href={`/events/${eventSlug}/vote?artist=${artist.slug}`}>
+            <Link 
+              href={`/events/${eventSlug}/vote?artist=${artist.slug}`}
+              onClick={() => (
+                track('Vote Button Clicked', { artist: artist.slug })
+              )}
+            >
               <Vote className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               <span>Vote</span>
             </Link>

@@ -11,6 +11,7 @@ import { Calendar, MapPin, Clock, Ticket, Music, Users, TrendingUp, AlertCircle 
 import { format } from 'date-fns'
 import { getEventBySlug, hasAvailableTickets } from '@/lib/services/events'
 import { EventTicketProgress } from '@/components/events/EventTicketProgress'
+import { EventViewTracker } from '@/components/analytics/EventViewTracker'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +45,14 @@ export default async function EventPage({ params }: EventPageProps) {
 
   return (
     <div className="min-h-screen">
+      <EventViewTracker
+        eventId={event.id}
+        eventSlug={event.slug}
+        eventTitle={event.title}
+        eventDate={event.event_date}
+        eventPrice={event.ticket_price}
+        eventStatus={event.status}
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         {/* Background Gradient */}
