@@ -40,6 +40,7 @@ export async function getLeaderboardData(): Promise<{
           totalVotes: row.total_votes ?? 0,
           totalVoteAmount: row.total_vote_amount ?? 0,
           rank: row.rank ?? null,
+          previousRank: row.previous_rank ?? undefined,
           completedTransactions: row.completed_transactions ?? undefined,
           transactionCount: row.transaction_count ?? undefined,
           avgVotesPerTransaction: row.avg_votes_per_transaction ?? undefined,
