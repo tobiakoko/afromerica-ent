@@ -3,6 +3,8 @@
  * Displays event summary in list/grid views
  */
 
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calendar, MapPin, Music, TrendingUp } from 'lucide-react'
