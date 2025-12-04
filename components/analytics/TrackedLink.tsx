@@ -14,7 +14,9 @@ interface TrackedLinkProps {
   children: ReactNode
   className?: string
   event: AnalyticsEvent
-  eventProperties?: Record<string, unknown>
+  eventProperties?: {
+    [key: string]: string | number | boolean | undefined
+  }
   [key: string]: unknown
 }
 
@@ -27,7 +29,11 @@ export function TrackedLink({
   ...props
 }: TrackedLinkProps) {
   const handleClick = () => {
-    analytics.track(event, eventProperties)
+    if (eventProperties) {
+      analytics.track(event, eventProperties as { [key: string]: string | number | boolean | undefined })
+    } else {
+      analytics.track(event)
+    }
   }
 
   return (

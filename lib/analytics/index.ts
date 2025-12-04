@@ -82,6 +82,7 @@ interface BaseEventProperties {
   page_url?: string
   page_title?: string
   referrer?: string
+  [key: string]: string | number | boolean | undefined
 }
 
 interface EventViewProperties extends BaseEventProperties {
@@ -113,15 +114,16 @@ interface VoteProperties extends BaseEventProperties {
 }
 
 interface NavigationProperties extends BaseEventProperties {
-  link_text: string
-  link_url: string
-  link_location: 'header' | 'footer' | 'sidebar' | 'content' | 'cta'
+  link_text?: string
+  link_url?: string
+  link_location?: 'header' | 'footer' | 'sidebar' | 'content' | 'cta' | string
 }
 
 interface FormProperties extends BaseEventProperties {
   form_name: string
   form_location?: string
   field_count?: number
+  success?: boolean
 }
 
 interface ErrorProperties extends BaseEventProperties {
@@ -151,7 +153,6 @@ class AnalyticsService {
   private constructor() {
     // Check if analytics should be enabled (respect DNT, etc.)
     if (typeof window !== 'undefined') {
-      // @ts-ignore - DNT header
       this.enabled = !navigator.doNotTrack || navigator.doNotTrack !== '1'
     }
   }
@@ -171,7 +172,9 @@ class AnalyticsService {
 
     try {
       const enrichedProperties = this.enrichProperties(properties)
-      track(event, enrichedProperties)
+
+      // Track with Vercel Analytics
+      track(event, enrichedProperties as Record<string, string | number | boolean>)
 
       // Log in development
       if (process.env.NODE_ENV === 'development') {
@@ -185,11 +188,14 @@ class AnalyticsService {
   /**
    * Enrich event properties with standard metadata
    */
-  private enrichProperties(properties?: EventProperties): Record<string, unknown> {
-    if (typeof window === 'undefined') return properties || {}
+  private enrichProperties(properties?: EventProperties): Record<string, string | number | boolean | undefined> {
+    if (typeof window === 'undefined') {
+      return (properties || {}) as Record<string, string | number | boolean | undefined>
+    }
 
+    const baseProps = properties || {}
     return {
-      ...properties,
+      ...(baseProps as Record<string, string | number | boolean | undefined>),
       timestamp: new Date().toISOString(),
       page_url: window.location.href,
       page_title: document.title,
