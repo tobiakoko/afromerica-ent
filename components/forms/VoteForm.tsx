@@ -12,9 +12,10 @@ interface VotingFormProps {
   artists: any[];
   preselectedArtistSlug?: string;
   votePrice: number;
+  eventId: string;
 }
 
-export function VotingForm({ artists, preselectedArtistSlug, votePrice }: VotingFormProps) {
+export function VotingForm({ artists, preselectedArtistSlug, votePrice, eventId }: VotingFormProps) {
   const [step, setStep] = useState<'select' | 'validate' | 'payment'>('select');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -54,7 +55,7 @@ export function VotingForm({ artists, preselectedArtistSlug, votePrice }: Voting
   const handleSendCode = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/votes/validate', {
+      const response = await fetch('/api/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -82,7 +83,7 @@ export function VotingForm({ artists, preselectedArtistSlug, votePrice }: Voting
   const handleVerifyCode = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/votes/verify', {
+      const response = await fetch('/api/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,6 +119,7 @@ export function VotingForm({ artists, preselectedArtistSlug, votePrice }: Voting
         body: JSON.stringify({
           type: 'vote',
           artistId: formData.artistId,
+          eventId: eventId,
           voteCount: parseInt(formData.voteCount),
           email: formData.email,
           amount: parseFloat(formData.amount),
@@ -145,6 +147,36 @@ export function VotingForm({ artists, preselectedArtistSlug, votePrice }: Voting
       {/* Step 1: Select Artist & Package */}
       {step === 'select' && (
         <div className="space-y-6">
+          {/* Artist Selection - Only show if multiple artists */}
+          {artists.length > 1 && (
+            <Card className="p-6">
+              <h2 className="text-2xl font-semibold mb-4">Select Artist</h2>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="artist">Artist</Label>
+                  <Select
+                    value={formData.artistId}
+                    onValueChange={(value) => setFormData({ ...formData, artistId: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an artist" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {artists.map((artist) => (
+                        <SelectItem key={artist.id} value={artist.id}>
+                          {artist.stage_name || artist.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Choose the artist you want to support
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Vote Details */}
           <Card className="p-6">
             <h2 className="text-2xl font-semibold mb-4">Enter Vote Details</h2>

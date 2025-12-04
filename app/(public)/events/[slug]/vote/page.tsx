@@ -37,19 +37,19 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
   }
 
   // Validate that the event exists and is active
-  const { error: eventError } = await supabase
+  const { data: event, error: eventError } = await supabase
     .from('events')
     .select('id')
     .eq('slug', eventSlug)
     .eq('is_active', true)
     .single()
 
-  if (eventError) {
+  if (eventError || !event) {
     console.error('Error fetching event:', {
-      message: eventError.message,
-      details: eventError.details,
-      hint: eventError.hint,
-      code: eventError.code,
+      message: eventError?.message,
+      details: eventError?.details,
+      hint: eventError?.hint,
+      code: eventError?.code,
     })
     notFound()
   }
@@ -284,6 +284,7 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
               artists={[artist]}
               preselectedArtistSlug={artistSlug}
               votePrice={votePrice}
+              eventId={event.id}
             />
           </div>
 
