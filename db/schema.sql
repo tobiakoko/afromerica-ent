@@ -153,6 +153,7 @@ CREATE TABLE IF NOT EXISTS public.artists (
   total_votes INTEGER DEFAULT 0 NOT NULL,
   total_vote_amount DECIMAL(10,2) DEFAULT 0 NOT NULL,
   rank INTEGER,
+  previous_rank INTEGER,
 
   -- Flags
   is_active BOOLEAN DEFAULT true NOT NULL,
@@ -176,6 +177,7 @@ CREATE INDEX idx_artists_slug ON public.artists(slug);
 CREATE INDEX idx_artists_is_active ON public.artists(is_active) WHERE is_active = true;
 CREATE INDEX idx_artists_featured ON public.artists(featured) WHERE featured = true;
 CREATE INDEX idx_artists_rank ON public.artists(rank) WHERE rank IS NOT NULL;
+CREATE INDEX idx_artists_previous_rank ON public.artists(previous_rank) WHERE previous_rank IS NOT NULL;
 CREATE INDEX idx_artists_votes ON public.artists(total_votes DESC);
 CREATE INDEX idx_artists_name_trgm ON public.artists USING gin(name gin_trgm_ops);
 CREATE UNIQUE INDEX idx_artists_slug_active ON public.artists(slug) WHERE is_active = true AND deleted_at IS NULL;
@@ -661,6 +663,14 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE FUNCTION recalculate_artist_rankings()
 RETURNS VOID AS $$
 BEGIN
+  -- First, save current ranks as previous ranks
+  UPDATE public.artists
+  SET previous_rank = rank
+  WHERE is_active = true
+    AND deleted_at IS NULL
+    AND rank IS NOT NULL;
+
+  -- Then calculate new ranks
   WITH ranked_artists AS (
     SELECT
       id,
@@ -1044,13 +1054,14 @@ SELECT
   a.total_votes,
   a.total_vote_amount,
   a.rank,
+  a.previous_rank,
   COUNT(v.id) as transaction_count,
   COUNT(v.id) FILTER (WHERE v.payment_status = 'completed') as completed_transactions,
   COALESCE(AVG(v.vote_count) FILTER (WHERE v.payment_status = 'completed'), 0) as avg_votes_per_transaction
 FROM public.artists a
 LEFT JOIN public.votes v ON v.artist_id = a.id
 WHERE a.is_active = true AND a.deleted_at IS NULL
-GROUP BY a.id, a.name, a.slug, a.stage_name, a.photo_url, a.total_votes, a.total_vote_amount, a.rank
+GROUP BY a.id, a.name, a.slug, a.stage_name, a.photo_url, a.total_votes, a.total_vote_amount, a.rank, a.previous_rank
 ORDER BY a.rank NULLS LAST, a.total_votes DESC;
 
 COMMENT ON SCHEMA public IS 'Afromerica Entertainment Platform - Corrected Schema v2.1';

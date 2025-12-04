@@ -88,6 +88,7 @@ export type Database = {
           name: string
           photo_url: string | null
           rank: number | null
+          previous_rank: number | null
           slug: string
           stage_name: string | null
           tiktok: string | null
@@ -110,6 +111,7 @@ export type Database = {
           name: string
           photo_url?: string | null
           rank?: number | null
+          previous_rank?: number | null
           slug: string
           stage_name?: string | null
           tiktok?: string | null
@@ -132,6 +134,7 @@ export type Database = {
           name?: string
           photo_url?: string | null
           rank?: number | null
+          previous_rank?: number | null
           slug?: string
           stage_name?: string | null
           tiktok?: string | null
@@ -742,6 +745,7 @@ export type Database = {
           name: string | null
           photo_url: string | null
           rank: number | null
+          previous_rank: number | null
           slug: string | null
           stage_name: string | null
           total_vote_amount: number | null
