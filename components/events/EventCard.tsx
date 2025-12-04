@@ -9,6 +9,7 @@ import { Calendar, MapPin, Music, TrendingUp } from 'lucide-react'
 import { format } from 'date-fns'
 import { type PublicEvent } from '@/lib/validations/event'
 import { PUBLIC_ROUTES } from '@/lib/constants'
+import { AnalyticsEvent, analytics } from '@/lib/analytics'
 
 interface EventCardProps {
   event: PublicEvent
@@ -22,6 +23,16 @@ export function EventCard({ event, priority = false }: EventCardProps) {
     <Link
       href={PUBLIC_ROUTES.EVENT_DETAIL(event.slug)}
       className="group block h-full"
+      onClick={() =>
+        analytics.track(AnalyticsEvent.EVENT_CARD_CLICK, {
+          event_id: event.id,
+          event_slug: event.slug,
+          event_title: event.title,
+          event_date: event.event_date,
+          event_price: event.ticket_price || undefined,
+          event_status: event.status,
+        })
+      }
     >
       {/* Apple-style card with minimal border and subtle shadow */}
       <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200/60 dark:border-gray-800 transition-all duration-500 hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-black/40 hover:-translate-y-1">

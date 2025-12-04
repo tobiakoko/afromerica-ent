@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import AnnouncementBanner from "@/components/banner";
 import { APP_METADATA, NAVIGATION } from "@/lib/constants";
+import { trackNavClick, analytics } from "@/lib/analytics";
 
 export function HomeNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -69,7 +70,10 @@ export function HomeNavigation() {
           message="Welcome to AfroMerica Entertainment"
           linkHref="/events/december-showcase-2025/leaderboard"
           linkText="December Artist Discovery is open"
-          onDismiss={() => setBannerDismissed(true)}
+          onDismiss={() => {
+            analytics.ctaClick('Dismiss Banner', 'top-banner')
+            setBannerDismissed(true)
+          }}
        />
 
       {/* Navigation - Apple style */}
@@ -84,6 +88,7 @@ export function HomeNavigation() {
               href="/"
               className="group flex items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:focus-visible:outline-white transition-all duration-200"
               aria-label={`${APP_METADATA.NAME} home page`}
+              onClick={() => trackNavClick('Logo', '/', 'header')}
             >
               <div className="rounded-xl bg-gray-100 dark:bg-white/10 p-1.5 flex items-center group-hover:bg-gray-200 dark:group-hover:bg-white/20 transition-colors">
                 <Image
@@ -132,6 +137,7 @@ export function HomeNavigation() {
                 <Link
                   href={item.href}
                   className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  onClick={() => trackNavClick(item.label, item.href, 'header')}
                 >
                   {item.label}
                 </Link>
@@ -160,7 +166,10 @@ export function HomeNavigation() {
                     <Link
                       href={item.href}
                       className="block rounded-lg px-3 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-200"
-                      onClick={closeMobileMenu}
+                      onClick={() => {
+                        trackNavClick(item.label, item.href, 'header')
+                        closeMobileMenu()
+                      }}
                     >
                       {item.label}
                     </Link>

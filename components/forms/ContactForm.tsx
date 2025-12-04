@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { analytics } from "@/lib/analytics";
 
 export function ContactForm() {
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,9 @@ export function ContactForm() {
     e.preventDefault();
     setLoading(true);
 
+    // Track form submission start
+    analytics.formStart('contact_form', 'contact_page');
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -29,12 +33,14 @@ export function ContactForm() {
 
       if (response.ok) {
         toast.success('Message sent successfully!');
+        analytics.formSubmit('contact_form', true);
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
         throw new Error('Failed to send message');
       }
     } catch (error) {
       toast.error('Failed to send message');
+      analytics.formSubmit('contact_form', false);
     } finally {
       setLoading(false);
     }
