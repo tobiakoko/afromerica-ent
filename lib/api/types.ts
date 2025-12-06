@@ -62,10 +62,10 @@ export enum ErrorCodes {
 }
 
 // Base Response Types
-export interface ApiSuccessResponse<T = any> {
+export interface ApiSuccessResponse<T = unknown> {
   success: true
   data: T
-  meta?: Record<string, any>
+  meta?: Record<string, unknown>
 }
 
 export interface ApiErrorResponse {
@@ -73,12 +73,12 @@ export interface ApiErrorResponse {
   error: {
     code: ErrorCodes
     message: string
-    details?: any
+    details?: unknown
     timestamp?: string
   }
 }
 
-export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse
+export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse
 
 // Pagination
 export interface PaginationMetadata {

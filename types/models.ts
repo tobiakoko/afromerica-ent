@@ -185,7 +185,7 @@ export interface PaymentIntent {
   amount: number
   currency: string
   email: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 // ============================================================================
@@ -257,6 +257,6 @@ export interface ApiError {
   message: string
   code: string
   statusCode: number
-  details?: any
+  details?: unknown
 }
   

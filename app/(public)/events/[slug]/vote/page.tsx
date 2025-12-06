@@ -110,6 +110,22 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
 
   const genres = Array.isArray(artist.genre) ? artist.genre : []
 
+  // Transform database artist to Artist type for VotingForm
+  const artistForForm = {
+    id: artist.id,
+    slug: artist.slug,
+    name: artist.name,
+    stageName: artist.stage_name,
+    bio: artist.bio || '',
+    genre: genres,
+    image: artist.photo_url,
+    profileImage: artist.photo_url,
+    coverImage: artist.cover_image_url,
+    socialMedia: socialMedia,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+
   return (
     <div className="min-h-screen">
       {/* Artist Profile Section */}
@@ -281,7 +297,7 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
 
           <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl border border-gray-200/60 dark:border-gray-800 p-8 md:p-10 shadow-2xl shadow-black/10 dark:shadow-black/40 animate-in fade-in slide-in-from-bottom-4 duration-1000 [animation-delay:200ms]">
             <VotingForm
-              artists={[artist]}
+              artists={[artistForForm]}
               preselectedArtistSlug={artistSlug}
               votePrice={votePrice}
               eventId={event.id}

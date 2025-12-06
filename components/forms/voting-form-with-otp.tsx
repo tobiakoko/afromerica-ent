@@ -9,10 +9,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import Image from "next/image";
 import { Loader2, ArrowLeft, Shield } from "lucide-react";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
+import { Artist } from "@/types/models";
+
+interface VotePackage {
+  id: string;
+  votes: number;
+  price: number;
+  name: string;
+  description?: string;
+  is_active: boolean;
+  popular?: boolean;
+  discount?: number;
+}
 
 interface VotingFormWithOTPProps {
-  artists: any[];
-  packages: any[];
+  artists: Artist[];
+  packages: VotePackage[];
 }
 
 type Step = 'selection' | 'contact' | 'otp' | 'payment';
@@ -60,6 +84,10 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -69,8 +97,9 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
       } else {
         throw new Error(data.message || 'Failed to send code');
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to send verification code';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -96,6 +125,10 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -107,8 +140,9 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
         }
         throw new Error(data.message || 'Invalid code');
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Verification failed';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -127,6 +161,10 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -134,10 +172,11 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
         setFormData({ ...formData, otpCode: '' });
         setAttemptsLeft(3);
       } else {
-        throw new Error(data.message);
+        throw new Error(data.message || 'Failed to resend code');
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to resend code';
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -148,14 +187,19 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
     try {
       const selectedPackage = packages.find(p => p.id === formData.packageId);
       const selectedArtist = artists.find(a => a.id === formData.artistId);
-      
+
+      if (!selectedPackage || !selectedArtist) {
+        toast.error('Invalid selection');
+        return;
+      }
+
       const response = await fetch('/api/payments/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'vote',
           artistId: formData.artistId,
-          artistName: selectedArtist.stage_name,
+          artistName: selectedArtist.stageName || selectedArtist.name,
           packageId: formData.packageId,
           votes: selectedPackage.votes,
           email: formData.email || formData.phone,
@@ -163,6 +207,10 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
           verificationToken,
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -172,8 +220,9 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
       } else {
         throw new Error(data.message || 'Payment initialization failed');
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Payment initialization failed';
+      toast.error(message);
     }
   };
 
@@ -230,17 +279,17 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
                 >
                   <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
                     <Image
-                      src={artist.image_url || '/images/default-artist.svg'}
+                      src={artist.image || artist.profileImage || '/images/default-artist.svg'}
                       alt={artist.name}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <p className="font-semibold text-sm text-center truncate">
-                    {artist.stage_name}
+                    {artist.stageName || artist.name}
                   </p>
                   <p className="text-xs text-muted-foreground text-center">
-                    {artist.total_votes} votes
+                    {artist.stats?.followers || 0} followers
                   </p>
                 </button>
               ))}
@@ -272,7 +321,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
                   <p className="text-muted-foreground text-sm mb-2">
                     {pkg.votes} votes
                   </p>
-                  {pkg.discount > 0 && (
+                  {pkg.discount && pkg.discount > 0 && (
                     <p className="text-xs text-green-600 font-semibold">
                       Save {pkg.discount}%
                     </p>
@@ -307,7 +356,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
           </Button>
 
           <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">Contact Information</h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light mb-8">We'll send a verification code to confirm your identity</p>
+          <p className="text-gray-600 dark:text-gray-400 font-light mb-8">We&apos;ll send a verification code to confirm your identity</p>
 
           <div className="space-y-6">
             <div className="space-y-2">
@@ -391,49 +440,71 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
           </Button>
 
           <h2 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">Verify Your {formData.validationMethod === 'email' ? 'Email' : 'Phone'}</h2>
-          <p className="text-gray-600 dark:text-gray-400 font-light mb-8">
-            Enter the 6-digit code we sent to{' '}
-            <strong className="font-semibold text-gray-900 dark:text-white">{formData.validationMethod === 'email' ? formData.email : formData.phone}</strong>
-          </p>
+          
+          <FieldGroup>
+            <Field>
+              <FieldDescription className="text-gray-600 dark:text-gray-400 font-light mb-8">
+                We sent a 6-digit verification code to{' '}
+                <strong className="font-semibold text-gray-900 dark:text-white">
+                  {formData.validationMethod === 'email' ? formData.email : formData.phone}
+                </strong>
+              </FieldDescription>
 
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="otp" className="text-sm font-medium text-gray-700 dark:text-gray-300">Verification Code</Label>
-              <Input
-                id="otp"
-                value={formData.otpCode}
-                onChange={(e) => setFormData({ ...formData, otpCode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                placeholder="000000"
+              <FieldLabel htmlFor="otp" className="sr-only">
+                Verification Code
+              </FieldLabel>
+
+              <InputOTP
                 maxLength={6}
-                className="h-16 text-center text-3xl tracking-[0.5em] font-semibold bg-white dark:bg-gray-900 border-gray-200/60 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all duration-300"
-                required
-              />
+                value={formData.otpCode}
+                onChange={(value) => setFormData({ ...formData, otpCode: value })}
+              >
+                <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:h-16 *:data-[slot=input-otp-slot]:w-12 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border *:data-[slot=input-otp-slot]:text-xl">
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup className="gap-2.5 *:data-[slot=input-otp-slot]:h-16 *:data-[slot=input-otp-slot]:w-12 *:data-[slot=input-otp-slot]:rounded-md *:data-[slot=input-otp-slot]:border *:data-[slot=input-otp-slot]:text-xl">
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+
               {attemptsLeft < 3 && (
-                <p className="text-sm text-amber-600 dark:text-amber-500 mt-2 font-medium">
+                <p className="text-sm text-amber-600 dark:text-amber-500 mt-4 font-medium text-center">
                   {attemptsLeft} {attemptsLeft === 1 ? 'attempt' : 'attempts'} remaining
                 </p>
               )}
-            </div>
 
-            <Button
-              size="lg"
-              className="w-full h-12 rounded-xl text-base font-semibold bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-              onClick={handleVerifyOTP}
-              disabled={loading || formData.otpCode.length !== 6}
-            >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Verify & Continue
-            </Button>
+              <FieldDescription className="text-center mt-6">
+                Didn&apos;t receive the code?{' '}
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="p-0 h-auto font-medium"
+                  onClick={handleResendOTP}
+                  disabled={loading}
+                >
+                  Resend Code
+                </Button>
+              </FieldDescription>
+            </Field>
 
-            <Button
-              variant="ghost"
-              className="w-full h-12 rounded-xl text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={handleResendOTP}
-              disabled={loading}
-            >
-              Resend Code
-            </Button>
-          </div>
+            <Field className="mt-6">
+              <Button
+                type="button"
+                size="lg"
+                className="w-full h-12 rounded-xl text-base font-semibold bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                onClick={handleVerifyOTP}
+                disabled={loading || formData.otpCode.length !== 6}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Verify & Continue
+              </Button>
+            </Field>
+          </FieldGroup>
         </Card>
       )}
 
@@ -444,7 +515,7 @@ export function VotingFormWithOTP({ artists, packages }: VotingFormWithOTPProps)
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>Artist:</span>
-              <span className="font-semibold">{selectedArtist.stage_name}</span>
+              <span className="font-semibold">{selectedArtist.stageName || selectedArtist.name}</span>
             </div>
             <div className="flex justify-between">
               <span>Package:</span>

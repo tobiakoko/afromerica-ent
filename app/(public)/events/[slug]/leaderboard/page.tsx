@@ -6,37 +6,68 @@ import { LeaderboardWithRankTracking } from '@/components/events/LeaderboardWith
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent } from '@/components/ui/card'
 
-// Enable ISR with 30-second revalidation
-export const revalidate = 30 // Revalidate every 30 seconds
+// Enable ISR with 10-second revalidation for near real-time updates
+// This ensures the leaderboard updates quickly when votes are cast
+export const revalidate = 10
 
 interface LeaderboardPageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function getLeaderboardData(): Promise<{
+export async function getLeaderboardData(eventSlug: string): Promise<{
   artists: ArtistWithVotes[];
   error: string | null;
+  eventTitle?: string;
 }> {
   try {
     const supabase = createCachedClient()
 
-    // Fetch artists from leaderboard view with rankings
-    const { data: leaderboardData } = await supabase
-        .from('artist_leaderboard')
-        .select('*')
-        .order('rank', { ascending: true, nullsFirst: false })
+    // First, get the event to validate it exists
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .select('id, title')
+      .eq('slug', eventSlug)
+      .eq('is_active', true)
+      .single()
 
+    if (eventError || !event) {
+      console.error('Error fetching event:', eventError)
+      return {
+        artists: [],
+        error: 'Event not found',
+        eventTitle: undefined,
+      }
+    }
+
+    // Fetch leaderboard data from the view
+    // This view has global vote totals, ranks, and previous ranks that are
+    // automatically updated by database triggers when votes are completed
+    const { data: leaderboardData, error: leaderboardError } = await supabase
+      .from('artist_leaderboard')
+      .select('*')
+      .order('rank', { ascending: true, nullsFirst: false })
+
+    if (leaderboardError) {
+      console.error('Error fetching leaderboard:', leaderboardError)
+      return {
+        artists: [],
+        error: 'Failed to load leaderboard data',
+        eventTitle: event.title,
+      }
+    }
+
+    // Transform leaderboard data to ArtistWithVotes format
     const artists: ArtistWithVotes[] = (leaderboardData || [])
-      .filter((row: any) => row.id && row.slug && row.name) // Filter out incomplete records
-      .map((row: any) => ({
-        id: row.id!,
-        slug: row.slug!,
-        name: row.name!,
+      .filter((row) => row.id && row.slug && row.name)
+      .map((row) => ({
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
         stageName: row.stage_name ?? undefined,
         image: row.photo_url ?? undefined,
         profileImage: row.photo_url ?? undefined,
         voteStats: {
-          artistId: row.id!,
+          artistId: row.id,
           totalVotes: row.total_votes ?? 0,
           totalVoteAmount: row.total_vote_amount ?? 0,
           rank: row.rank ?? null,
@@ -47,18 +78,19 @@ export async function getLeaderboardData(): Promise<{
         },
       }))
 
-    return { artists, error: null };
+    return { artists, error: null, eventTitle: event.title }
   } catch (err) {
-    console.error("Unexpected error fetching leaderboard:", err);
+    console.error('Unexpected error fetching leaderboard:', err)
     return {
       artists: [],
-      error: "Failed to load leaderboard data",
-    };
+      error: 'Failed to load leaderboard data',
+      eventTitle: undefined,
+    }
   }
 }
 
 async function LeaderboardContent({ eventSlug }: { eventSlug: string }) {
-  const { artists, error } = await getLeaderboardData();
+  const { artists, error } = await getLeaderboardData(eventSlug);
 
   if (error) {
     return (
@@ -98,6 +130,17 @@ async function LeaderboardContent({ eventSlug }: { eventSlug: string }) {
 export default async function LeaderboardPage({ params }: LeaderboardPageProps) {
   const { slug } = await params
 
+  // Fetch event title for the badge
+  const supabase = createCachedClient()
+  const { data: event } = await supabase
+    .from('events')
+    .select('title')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .single()
+
+  const eventTitle = event?.title || 'Event'
+
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-4 sm:space-y-8">
       <PageHero
@@ -108,7 +151,7 @@ export default async function LeaderboardPage({ params }: LeaderboardPageProps) 
           </span>
         }
         description="Live rankings updated in real-time"
-        badge="December Showcase"
+        badge={eventTitle}
         badgeHref={`/events/${slug}`}
       />
 

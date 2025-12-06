@@ -14,7 +14,7 @@ import {
 export function successResponse<T>(
   data: T,
   status: HttpStatus = HttpStatus.OK,
-  meta?: Record<string, any>
+  meta?: Record<string, unknown>
 ): NextResponse<ApiSuccessResponse<T>> {
   return NextResponse.json(
     {
@@ -50,7 +50,7 @@ export function paginatedResponse<T>(
 export function errorResponse(
   code: ErrorCodes,
   message: string,
-  details?: any,
+  details?: unknown,
   status?: HttpStatus
 ): NextResponse<ApiErrorResponse> {
   // Map error codes to HTTP status if not provided
@@ -62,7 +62,7 @@ export function errorResponse(
       error: {
         code,
         message,
-        ...(details && { details }),
+        ...(details !== undefined && { details }),
         timestamp: new Date().toISOString(),
       },
     },
@@ -73,11 +73,11 @@ export function errorResponse(
 /**
  * Generic Error Handler
  */
-export function handleApiError(error: any): NextResponse<ApiErrorResponse> {
+export function handleApiError(error: unknown): NextResponse<ApiErrorResponse> {
   console.error('API Error:', error)
 
   // Supabase error
-  if (error?.code === 'PGRST116') {
+  if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'PGRST116') {
     return errorResponse(
       ErrorCodes.NOT_FOUND,
       'Resource not found',
@@ -87,22 +87,23 @@ export function handleApiError(error: any): NextResponse<ApiErrorResponse> {
   }
 
   // Validation error (Zod)
-  if (error?.name === 'ZodError') {
+  if (typeof error === 'object' && error !== null && 'name' in error && error.name === 'ZodError') {
     return errorResponse(
       ErrorCodes.VALIDATION_ERROR,
       'Validation failed',
-      error.errors,
+      'errors' in error ? error.errors : undefined,
       HttpStatus.BAD_REQUEST
     )
   }
 
   // Default error
+  const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+  const stack = error instanceof Error ? error.stack : undefined;
+
   return errorResponse(
     ErrorCodes.INTERNAL_ERROR,
-    process.env.NODE_ENV === 'development'
-      ? error.message
-      : 'An unexpected error occurred',
-    process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    process.env.NODE_ENV === 'development' ? message : 'An unexpected error occurred',
+    process.env.NODE_ENV === 'development' ? stack : undefined,
     HttpStatus.INTERNAL_SERVER_ERROR
   )
 }

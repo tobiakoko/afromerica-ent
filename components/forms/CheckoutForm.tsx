@@ -52,6 +52,10 @@ export function CheckoutForm({ event }: CheckoutFormProps) {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success && data.authorizationUrl) {
@@ -59,8 +63,9 @@ export function CheckoutForm({ event }: CheckoutFormProps) {
       } else {
         throw new Error(data.message || 'Payment initialization failed');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'An error occurred';
+      toast.error(message);
       setLoading(false);
     }
   };
