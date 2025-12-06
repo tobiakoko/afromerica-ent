@@ -46,10 +46,10 @@ export async function GET(request: NextRequest) {
     const { data } = response;
  
     // Map Paystack status to our status
-    let paymentStatus: 'pending' | 'processing' | 'success' | 'failed' | 'refunded';
+    let paymentStatus: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded';
     switch (data.status) {
       case 'success':
-        paymentStatus = PAYMENT_STATUS.SUCCESS;
+        paymentStatus = PAYMENT_STATUS.COMPLETED;
         break;
       case 'failed':
         paymentStatus = PAYMENT_STATUS.FAILED;
@@ -57,19 +57,17 @@ export async function GET(request: NextRequest) {
       default:
         paymentStatus = PAYMENT_STATUS.PENDING;
     }
- 
+
     // Process payment using shared handler
     const metadata = data.metadata;
     const paymentType = metadata?.type as PaymentType;
 
-    if (paymentStatus === PAYMENT_STATUS.SUCCESS || paymentStatus === PAYMENT_STATUS.FAILED) {
+    if (paymentStatus === PAYMENT_STATUS.COMPLETED || paymentStatus === PAYMENT_STATUS.FAILED) {
       try {
-        // Map our payment status ('success') to processPayment's expected status ('completed')
-        const processStatus: 'completed' | 'failed' = paymentStatus === PAYMENT_STATUS.SUCCESS ? 'completed' : 'failed';
         await processPayment(
           reference,
           paymentType,
-          processStatus,
+          paymentStatus,
           data.paid_at
         );
       } catch (error) {

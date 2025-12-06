@@ -66,7 +66,7 @@ export const BOOKING_STATUS_VALUES = Object.values(BOOKING_STATUS) as [
 
 export const PAYMENT_STATUS = {
   PENDING: 'pending',
-  SUCCESS: 'success',
+  COMPLETED: 'completed',
   FAILED: 'failed',
   REFUNDED: 'refunded',
 } as const;
@@ -248,7 +248,7 @@ export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   [PAYMENT_STATUS.PENDING]: 'Pending',
-  [PAYMENT_STATUS.SUCCESS]: 'Successful',
+  [PAYMENT_STATUS.COMPLETED]: 'Completed',
   [PAYMENT_STATUS.FAILED]: 'Failed',
   [PAYMENT_STATUS.REFUNDED]: 'Refunded',
 };
@@ -289,7 +289,7 @@ export const BOOKING_STATUS_COLORS: Record<BookingStatus, string> = {
 
 export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
   [PAYMENT_STATUS.PENDING]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  [PAYMENT_STATUS.SUCCESS]: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  [PAYMENT_STATUS.COMPLETED]: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
   [PAYMENT_STATUS.FAILED]: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
   [PAYMENT_STATUS.REFUNDED]: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
 };

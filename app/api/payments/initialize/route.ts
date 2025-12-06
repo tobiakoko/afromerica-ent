@@ -3,11 +3,20 @@ import { createAdminClient } from '@/utils/supabase/admin';
 import { paystackClient } from '@/lib/paystack/client';
 import crypto from 'crypto';
 import { CURRENCY, PAYMENT_STATUS, APP_METADATA } from '@/lib/constants';
+import { jwtVerify } from 'jose';
+
+const JWT_SECRET = (() => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return new TextEncoder().encode(secret);
+})();
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { type, email, amount, ...metadata } = body;
+    const { type, email, amount, validationToken, ...metadata } = body;
 
     // Validate required fields
     if (!type || !email || !amount) {
@@ -15,6 +24,51 @@ export async function POST(request: NextRequest) {
         { success: false, message: 'Missing required fields' },
         { status: 400 }
       );
+    }
+
+    // For vote payments, verify OTP token
+    if (type === 'vote') {
+      if (!validationToken) {
+        return NextResponse.json(
+          { success: false, message: 'Verification required. Please verify your email or phone first.' },
+          { status: 401 }
+        );
+      }
+
+      try {
+        // Verify the JWT token
+        const { payload } = await jwtVerify(validationToken, JWT_SECRET);
+
+        // Check if the token contains verified status
+        if (!payload.verified) {
+          return NextResponse.json(
+            { success: false, message: 'Invalid verification token' },
+            { status: 401 }
+          );
+        }
+
+        // Check if the email/phone in token matches the payment email
+        const tokenEmail = payload.email as string | null;
+        const tokenPhone = payload.phone as string | null;
+
+        if (tokenEmail && tokenEmail !== email) {
+          return NextResponse.json(
+            { success: false, message: 'Email mismatch. Please use the verified email address.' },
+            { status: 401 }
+          );
+        }
+
+        // If phone was verified, store it in metadata for audit
+        if (tokenPhone) {
+          metadata.verifiedPhone = tokenPhone;
+        }
+      } catch (error) {
+        console.error('Token verification error:', error);
+        return NextResponse.json(
+          { success: false, message: 'Invalid or expired verification token. Please verify again.' },
+          { status: 401 }
+        );
+      }
     }
 
     // Validate amount (Paystack minimum is ₦100 = 10,000 kobo)
@@ -107,6 +161,8 @@ export async function POST(request: NextRequest) {
         amount_paid: amount,
         currency: CURRENCY.CODE,
         payment_status: PAYMENT_STATUS.PENDING,
+        validation_token: validationToken, // Store token for audit
+        otp_verified: true, // Mark as OTP verified
         items: metadata,
         metadata: metadata,
       });
