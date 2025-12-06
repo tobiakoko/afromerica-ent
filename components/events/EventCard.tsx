@@ -39,7 +39,7 @@ export function EventCard({ event, priority = false }: EventCardProps) {
       {/* Apple-style card with minimal border and subtle shadow */}
       <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200/60 dark:border-gray-800 transition-all duration-500 hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-black/40 hover:-translate-y-1">
         {/* Image */}
-        <div className="relative bg-gray-100 dark:bg-gray-800 aspect-[4/3] overflow-hidden">
+        <div className="relative bg-gray-100 dark:bg-gray-800 aspect-4/3 overflow-hidden">
           {(event.image_url || event.cover_image_url) ? (
             <Image
               src={event.image_url || event.cover_image_url!}
