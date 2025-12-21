@@ -5,7 +5,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const SUPPORT_EMAIL = process.env.RESEND_SUPPORT_EMAIL || 'support@afromericaent.com';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Afromerica Entertainment <noreply@afromericaent.com>';
-const CONTACT_EMAIL = process.env.RESEND_CONTACT_EMAIL || 'info@afromericaent.com';
 
 export async function POST(request: NextRequest) {
   try {
