@@ -92,6 +92,9 @@ export async function getLeaderboardData(eventSlug: string): Promise<{
 async function LeaderboardContent({ eventSlug }: { eventSlug: string }) {
   const { artists, error } = await getLeaderboardData(eventSlug);
 
+  // Check if voting is closed for this event
+  const isVotingClosed = eventSlug === 'december-showcase-2025';
+
   if (error) {
     return (
       <Alert variant="destructive">
@@ -118,12 +121,23 @@ async function LeaderboardContent({ eventSlug }: { eventSlug: string }) {
   }
 
   return (
-    <LeaderboardWithRankTracking
-      artists={artists}
-      lastUpdated={new Date().toISOString()}
-      enableNavigation={true}
-      eventSlug={eventSlug}
-    />
+    <>
+      {isVotingClosed && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Voting Closed</AlertTitle>
+          <AlertDescription>
+            Voting is closed for this time.
+          </AlertDescription>
+        </Alert>
+      )}
+      <LeaderboardWithRankTracking
+        artists={artists}
+        lastUpdated={new Date().toISOString()}
+        enableNavigation={true}
+        eventSlug={isVotingClosed ? undefined : eventSlug}
+      />
+    </>
   );
 }
 
