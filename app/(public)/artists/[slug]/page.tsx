@@ -198,13 +198,11 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
               <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '500ms' }}>
                 <Button
                   size="lg"
-                  asChild
-                  className="w-full sm:w-auto bg-linear-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  disabled
+                  className="w-full sm:w-auto bg-linear-to-r from-blue-500 to-purple-500 text-white font-semibold shadow-lg opacity-50 cursor-not-allowed"
                 >
-                  <Link href={`/events/december-showcase-2025/vote?artist=${artist.slug}`}>
-                    <Vote className="w-5 h-5 mr-2" />
-                    Vote for {artist.stage_name || artist.name}
-                  </Link>
+                  <Vote className="w-5 h-5 mr-2" />
+                  Voting Closed
                 </Button>
               </div>
 

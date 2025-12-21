@@ -31,6 +31,14 @@ export default async function VotePage({ params, searchParams }: VotePageProps) 
   const { artist: artistSlug } = await searchParams
   const supabase = createCachedClient()
 
+  // Check if voting is closed for this event
+  const isVotingClosed = eventSlug === 'december-showcase-2025'
+
+  // Redirect to leaderboard if voting is closed
+  if (isVotingClosed) {
+    redirect(`/events/${eventSlug}/leaderboard`)
+  }
+
   // Redirect to leaderboard if no artist is selected
   if (!artistSlug) {
     redirect(`/events/${eventSlug}/leaderboard`)
