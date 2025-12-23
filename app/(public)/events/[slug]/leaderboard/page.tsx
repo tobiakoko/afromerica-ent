@@ -3,6 +3,7 @@ import { PageHero } from '@/components/layout/page-hero'
 import { AlertCircle, Medal, Trophy } from 'lucide-react'
 import { type ArtistWithVotes } from '@/types'
 import { LeaderboardWithRankTracking } from '@/components/events/LeaderboardWithRankTracking'
+import { FinalScoringTable } from '@/components/events/FinalScoringTable'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -204,12 +205,20 @@ async function LeaderboardContent({ eventSlug }: { eventSlug: string }) {
       )}
 
       {/* Main Leaderboard */}
-      <LeaderboardWithRankTracking
-        artists={artists}
-        lastUpdated={new Date().toISOString()}
-        enableNavigation={true}
-        eventSlug={isVotingClosed ? undefined : eventSlug}
-      />
+      {isFinalScoring ? (
+        <FinalScoringTable
+          artists={artists}
+          lastUpdated={new Date().toISOString()}
+          enableNavigation={true}
+        />
+      ) : (
+        <LeaderboardWithRankTracking
+          artists={artists}
+          lastUpdated={new Date().toISOString()}
+          enableNavigation={true}
+          eventSlug={isVotingClosed ? undefined : eventSlug}
+        />
+      )}
 
       {/* Scoring Breakdown Legend */}
       {isFinalScoring && (
