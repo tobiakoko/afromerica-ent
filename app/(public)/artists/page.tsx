@@ -19,7 +19,15 @@ export const metadata: Metadata = {
 export default async function ArtistsPage() {
   try {
     const supabase = createCachedClient();
-    
+
+    // Fetch artists with final scoring data
+    const { data: finalScores } = await supabase
+      .from('artist_final_leaderboard')
+      .select('id, is_top_10')
+      .eq('is_top_10', true);
+
+    const top10Ids = new Set(finalScores?.map(a => a.id) || []);
+
     const { data: artists, error } = await supabase
     .from('artists')
     .select(`
@@ -59,7 +67,11 @@ export default async function ArtistsPage() {
         <section className="container-wide py-16">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {artists?.map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} />
+              <ArtistCard
+                key={artist.id}
+                artist={artist}
+                isTop10={top10Ids.has(artist.id)}
+              />
             ))}
           </div>
 

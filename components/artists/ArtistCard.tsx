@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Music } from "lucide-react";
+import { Music, Trophy } from "lucide-react";
 
 interface ArtistCardProps {
     artist: {
@@ -14,15 +14,20 @@ interface ArtistCardProps {
       rank?: number;
       total_votes?: number;
     };
+    isTop10?: boolean;
 }
 
-export function ArtistCard({ artist }: ArtistCardProps) {
+export function ArtistCard({ artist, isTop10 = false }: ArtistCardProps) {
   const genres = (artist.genre as string[]) || [];
 
   return (
     <Link href={`/artists/${artist.slug}`} className="group block h-full">
       {/* Apple-style card with minimal border and subtle shadow */}
-      <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200/60 dark:border-gray-800 transition-all duration-500 hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-black/40 hover:-translate-y-1">
+      <div className={`h-full flex flex-col bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border transition-all duration-500 hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-black/40 hover:-translate-y-1 ${
+        isTop10
+          ? 'border-yellow-400 dark:border-yellow-600 ring-2 ring-yellow-400/20 dark:ring-yellow-600/20'
+          : 'border-gray-200/60 dark:border-gray-800'
+      }`}>
         {/* Image - reduced height */}
         <div className="relative bg-gray-100 dark:bg-gray-800 aspect-4/3 overflow-hidden">
           {artist.photo_url ? (
@@ -37,6 +42,14 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900">
               <Music className="w-16 h-16 text-gray-300 dark:text-gray-700 stroke-[1.5]" aria-hidden="true" />
+            </div>
+          )}
+
+          {/* Top 10 Badge */}
+          {isTop10 && (
+            <div className="absolute top-2 right-2 bg-gradient-to-br from-yellow-400 to-yellow-600 text-white px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5">
+              <Trophy className="w-3 h-3" />
+              <span className="text-xs font-bold">Top 10</span>
             </div>
           )}
         </div>

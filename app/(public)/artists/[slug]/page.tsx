@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Instagram, Twitter, Facebook, Youtube, Music, TrendingUp, Award, Video, Hash, Vote } from "lucide-react";
+import { Instagram, Twitter, Facebook, Youtube, Music, TrendingUp, Award, Video, Hash, Vote, Trophy, Medal } from "lucide-react";
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +48,19 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
     .eq('is_active', true) // Only show active artists
     .is('deleted_at', null) // Only show non-deleted artists
     .maybeSingle();
+
+  // Check if artist is in top 10
+  let isTop10 = false;
+  if (artist) {
+    const { data: finalScore } = await supabase
+      .from('artist_final_leaderboard')
+      .select('is_top_10')
+      .eq('id', artist.id)
+      .eq('is_top_10', true)
+      .maybeSingle();
+
+    isTop10 = !!finalScore?.is_top_10;
+  }
 
   if (error) {
     console.error('Error fetching artist:', error);
@@ -100,7 +113,11 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start -mt-24 lg:-mt-32">
             {/* Profile Image with Enhanced Shadow */}
             <div className="relative shrink-0 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '100ms' }}>
-              <div className="relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-950 shadow-2xl shadow-black/20 dark:shadow-black/60 transition-transform duration-500 hover:scale-105">
+              <div className={`relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-2xl overflow-hidden border-4 shadow-2xl transition-transform duration-500 hover:scale-105 ${
+                isTop10
+                  ? 'border-yellow-400 dark:border-yellow-500 shadow-yellow-500/50 ring-4 ring-yellow-400/20'
+                  : 'border-white dark:border-gray-950 shadow-black/20 dark:shadow-black/60'
+              }`}>
                 {artist.photo_url ? (
                   <Image
                     src={artist.photo_url}
@@ -115,19 +132,45 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
                 )}
               </div>
 
-              {/* Rank Badge */}
-              {artist.rank && artist.rank <= 10 && (
+              {/* Top 10 Badge or Rank Badge */}
+              {isTop10 ? (
+                <div className="absolute -top-3 -right-3 px-4 py-2 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full shadow-lg backdrop-blur-md">
+                  <div className="flex items-center gap-1.5">
+                    <Trophy className="w-4 h-4 text-white stroke-2" aria-hidden="true" />
+                    <span className="text-white font-bold text-sm">Top 10</span>
+                  </div>
+                </div>
+              ) : artist.rank && artist.rank <= 10 ? (
                 <div className="absolute -top-3 -right-3 px-4 py-2 bg-linear-to-br from-blue-500 to-purple-500 rounded-full shadow-lg backdrop-blur-md">
                   <div className="flex items-center gap-1.5">
                     <Award className="w-4 h-4 text-white stroke-2" aria-hidden="true" />
                     <span className="text-white font-bold text-sm">#{artist.rank}</span>
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* Details with Staggered Animation */}
             <div className="flex-1 pt-0 lg:pt-20 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '200ms' }}>
+              {/* Top 10 Finalist Badge */}
+              {isTop10 && (
+                <div className="mb-6 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border-2 border-yellow-400 dark:border-yellow-600 rounded-2xl p-4 shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <Medal className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-yellow-900 dark:text-yellow-100 text-lg">
+                        Grand Finale Contestant
+                      </h3>
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                        This artist is one of the Top 10 finalists competing in the December Showcase 2025
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Name and Stage Name */}
               <div className="mb-6">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-gray-900 dark:text-white mb-3 leading-tight">
