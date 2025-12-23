@@ -161,13 +161,13 @@ export function FinalScoringTable({
     return rankA - rankB;
   });
 
-  // Determine top 10 based on public score
-  const artistsWithPublicScores = sortedArtists
-    .filter(a => (a.finalScores?.public_score ?? 0) > 0)
-    .sort((a, b) => (b.finalScores?.public_score ?? 0) - (a.finalScores?.public_score ?? 0))
+  // Determine top 10 based on total score
+  const artistsWithTotalScores = sortedArtists
+    .filter(a => (a.finalScores?.total_score ?? 0) > 0)
+    .sort((a, b) => (b.finalScores?.total_score ?? 0) - (a.finalScores?.total_score ?? 0))
     .slice(0, 10);
 
-  const top10Ids = new Set(artistsWithPublicScores.map(a => a.id));
+  const top10Ids = new Set(artistsWithTotalScores.map(a => a.id));
 
   return (
     <Card>
