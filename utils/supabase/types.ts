@@ -737,6 +737,30 @@ export type Database = {
       }
     }
     Views: {
+      artist_final_leaderboard: {
+        Row: {
+          avg_votes_per_transaction: number | null
+          completed_transactions: number | null
+          final_rank: number | null
+          id: string | null
+          is_top_10: boolean | null
+          judges_score: number | null
+          name: string | null
+          paid_score: number | null
+          performance_score: number | null
+          photo_url: string | null
+          previous_rank: number | null
+          public_score: number | null
+          rank: number | null
+          slug: string | null
+          stage_name: string | null
+          total_score: number | null
+          total_vote_amount: number | null
+          total_votes: number | null
+          transaction_count: number | null
+        }
+        Relationships: []
+      }
       artist_leaderboard: {
         Row: {
           avg_votes_per_transaction: number | null
@@ -953,3 +977,87 @@ export const Constants = {
     },
   },
 } as const
+
+// ==========================================
+// Updated TypeScript Types for Composite Scoring
+// ==========================================
+
+// Add to your existing types file (utils/supabase.types.ts)
+
+export interface ArtistScoring {
+  paid_score: number;           // 35% - from votes
+  public_score: number;          // 10% - social media
+  judges_score: number;          // 30% - judges evaluation
+  performance_score: number;     // 25% - live performance
+  total_score: number;           // 100% - composite
+  final_rank: number | null;     // Final ranking
+  is_top_10: boolean;            // Top 10 indicator
+}
+
+// Extended Artist type with scoring
+export interface ArtistWithFinalScores extends Artist {
+  paid_score: number;
+  public_score: number;
+  judges_score: number;
+  performance_score: number;
+  total_score: number;
+  final_rank: number | null;
+  is_top_10: boolean;
+}
+
+// Score history type
+export interface ArtistScoreHistory {
+  id: string;
+  artist_id: string;
+  paid_score: number;
+  public_score: number;
+  judges_score: number;
+  performance_score: number;
+  total_score: number;
+  rank: number | null;
+  notes: string | null;
+  created_at: string;
+  created_by: string | null;
+}
+
+// For the final leaderboard view
+export interface FinalLeaderboardEntry {
+  id: string;
+  artist_id: string;
+  slug: string;
+  name: string;
+  stage_name: string | null;
+  photo_url: string | null;
+  cover_image_url: string | null;
+  genre: string[] | null;
+  location: string | null;
+  // Scoring breakdown
+  paid_score: number;
+  public_score: number;
+  judges_score: number;
+  performance_score: number;
+  total_score: number;
+  // Rankings
+  final_rank: number;
+  is_top_10: boolean;
+  // Original vote data
+  total_votes: number;
+  total_vote_amount: number;
+  leaderboard_rank: number | null;
+  // Metadata
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Update your existing Artist type in the Row interface
+export interface Artist {
+  // ... existing fields ...
+  paid_score: number;
+  public_score: number;
+  judges_score: number;
+  performance_score: number;
+  total_score: number;
+  final_rank: number | null;
+  is_top_10: boolean;
+}

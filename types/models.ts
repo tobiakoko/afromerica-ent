@@ -227,9 +227,20 @@ export interface VoteStats {
   previousRank?: number | null
 }
 
+export interface FinalScores {
+  paid_score: number
+  public_score: number
+  judges_score: number
+  performance_score: number
+  total_score: number
+  final_rank: number | null
+  is_top_10: boolean
+}
+
 // Type combining Artist with VoteStats for leaderboards and rankings
 export type ArtistWithVotes = Pick<Artist, 'id' | 'slug' | 'name' | 'stageName' | 'image' | 'profileImage'> & {
   voteStats: VoteStats
+  finalScores?: FinalScores
 }
 
 // ============================================================================
