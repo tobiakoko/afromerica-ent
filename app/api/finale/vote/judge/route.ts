@@ -4,7 +4,6 @@ import { jwtVerify } from 'jose'
 import type {
   JudgeVoteRequest,
   VoteResponse,
-  FinaleStage,
   StageCriteria,
 } from '@/types/finale'
 import {

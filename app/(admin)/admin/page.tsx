@@ -5,7 +5,7 @@ import { Users, Calendar, TrendingUp, DollarSign, Ticket as TicketIcon } from "l
 import { formatDistanceToNow } from "date-fns";
 
 export default async function AdminDashboard() {
-  const supabase = await createClient();
+  await createClient();
   const adminClient = createAdminClient();
 
   // Fetch statistics using admin client

@@ -84,20 +84,20 @@ export async function PUT(request: NextRequest) {
     // Update timestamp fields based on current stage
     if (current_stage) {
       const stageStartedField = `${current_stage}_started_at` as keyof FinaleConfig
-      const { data: existingConfig } = await supabase
+      const { data: existingConfig } = await adminClient
         .from('finale_configs')
         .select(stageStartedField as string)
         .eq('event_id', event_id)
         .single()
 
       // If stage started_at is null, set it to now
-      if (existingConfig && !existingConfig[stageStartedField]) {
+      if (existingConfig && !(existingConfig as any)[stageStartedField]) {
         ;(updates as any)[stageStartedField] = new Date().toISOString()
       }
     }
 
     // Update config
-    const { data: config, error } = await supabase
+    const { data: config, error } = await adminClient
       .from('finale_configs')
       .update(updates as any)
       .eq('event_id', event_id)
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'calculate_top_5') {
       // Call the stored procedure to calculate Top 5
-      const { error } = await supabase.rpc('calculate_top_5_finalists', {
+      const { error } = await adminClient.rpc('calculate_top_5_finalists', {
         p_event_id: event_id,
       })
 
@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      const { error } = await supabase.rpc('calculate_finale_leaderboard', {
+      const { error } = await adminClient.rpc('calculate_finale_leaderboard', {
         p_event_id: event_id,
         p_stage: stage,
       })

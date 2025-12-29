@@ -11,7 +11,8 @@
     "create-admin": "tsx scripts/create-admin.ts",
     "setup-finale": "tsx scripts/setup-finale.ts",
     "get-finale-codes": "tsx scripts/get-event-codes.ts",
-    "test-voter-auth": "tsx scripts/test-voter-auth.ts"
+    "test-voter-auth": "tsx scripts/test-voter-auth.ts",
+    "test-finale-auth": "tsx scripts/test-finale-auth.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

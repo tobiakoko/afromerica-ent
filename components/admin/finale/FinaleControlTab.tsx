@@ -10,9 +10,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import {
   Play,
-  Pause,
   Eye,
-  EyeOff,
   RefreshCw,
   Calculator,
   Loader2,

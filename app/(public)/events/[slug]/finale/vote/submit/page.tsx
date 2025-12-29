@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { jwtVerify } from 'jose'
 import { PageHero } from '@/components/layout/page-hero'
 import { JudgeVotingInterface } from '@/components/finale/JudgeVotingInterface'
 import { AudienceVotingInterface } from '@/components/finale/AudienceVotingInterface'
@@ -10,69 +9,65 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
 import type { FinaleVoter, FinaleConfig } from '@/types/finale'
 
-export default function VoteSubmitPage({ params }: { params: { slug: string } }) {
+export default function VoteSubmitPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const token = searchParams.get('token')
+  const urlToken = searchParams.get('token')
 
   const [loading, setLoading] = useState(true)
   const [voter, setVoter] = useState<FinaleVoter | null>(null)
   const [config, setConfig] = useState<FinaleConfig | null>(null)
+  const [token, setToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function validateToken() {
-      if (!token) {
-        // Try to get from sessionStorage
-        const storedToken = sessionStorage.getItem('finale_voter_token')
-        const storedVoter = sessionStorage.getItem('finale_voter_data')
-        const storedConfig = sessionStorage.getItem('finale_config')
+    function loadAuthData() {
+      try {
+        // Get token from localStorage (URL tokens deprecated for security)
+        const storedToken = localStorage.getItem('finale_voter_token') || urlToken
+        const storedVoter = localStorage.getItem('finale_voter_data')
+        const storedConfig = localStorage.getItem('finale_config')
 
         if (!storedToken || !storedVoter || !storedConfig) {
           setError('No authentication token found. Please authenticate first.')
           setLoading(false)
           setTimeout(() => {
-            router.push(`/events/${params.slug}/finale/vote`)
+            router.push(`/events/${slug}/finale/vote`)
           }, 2000)
           return
         }
 
-        setVoter(JSON.parse(storedVoter))
-        setConfig(JSON.parse(storedConfig))
-        setLoading(false)
-        return
-      }
+        // Parse stored data
+        const voterData = JSON.parse(storedVoter) as FinaleVoter
+        const configData = JSON.parse(storedConfig) as FinaleConfig
 
-      try {
-        // Verify token structure (basic check, full verification happens on API)
-        const JWT_SECRET = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET || '')
-        const verified = await jwtVerify(token, JWT_SECRET)
-
-        const voterData = sessionStorage.getItem('finale_voter_data')
-        const configData = sessionStorage.getItem('finale_config')
-
-        if (voterData && configData) {
-          setVoter(JSON.parse(voterData))
-          setConfig(JSON.parse(configData))
-        } else {
-          setError('Voter data not found. Please authenticate again.')
+        // Basic validation - check if token is a non-empty string
+        if (!storedToken || storedToken.split('.').length !== 3) {
+          setError('Invalid authentication token. Please authenticate again.')
+          setLoading(false)
           setTimeout(() => {
-            router.push(`/events/${params.slug}/finale/vote`)
+            router.push(`/events/${slug}/finale/vote`)
           }, 2000)
+          return
         }
-      } catch (err) {
-        console.error('Token validation error:', err)
-        setError('Invalid or expired token. Please authenticate again.')
-        setTimeout(() => {
-          router.push(`/events/${params.slug}/finale/vote`)
-        }, 2000)
-      } finally {
+
+        setToken(storedToken)
+        setVoter(voterData)
+        setConfig(configData)
         setLoading(false)
+      } catch (err) {
+        console.error('Error loading auth data:', err)
+        setError('Failed to load authentication data. Please authenticate again.')
+        setLoading(false)
+        setTimeout(() => {
+          router.push(`/events/${slug}/finale/vote`)
+        }, 2000)
       }
     }
 
-    validateToken()
-  }, [token, params.slug, router])
+    loadAuthData()
+  }, [urlToken, slug, router])
 
   if (loading) {
     return (
@@ -126,15 +121,15 @@ export default function VoteSubmitPage({ params }: { params: { slug: string } })
           <JudgeVotingInterface
             voter={voter}
             config={config}
-            eventSlug={params.slug}
-            token={token || sessionStorage.getItem('finale_voter_token') || ''}
+            eventSlug={slug}
+            token={token || ''}
           />
         ) : (
           <AudienceVotingInterface
             voter={voter}
             config={config}
-            eventSlug={params.slug}
-            token={token || sessionStorage.getItem('finale_voter_token') || ''}
+            eventSlug={slug}
+            token={token || ''}
           />
         )}
       </div>

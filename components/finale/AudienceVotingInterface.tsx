@@ -55,9 +55,12 @@ export function AudienceVotingInterface({
   useEffect(() => {
     async function fetchContestants() {
       try {
+        console.log('Fetching contestants for event:', voter.event_id)
+        console.log('Current stage:', currentStage)
+
         let query = supabase
           .from('finale_contestants')
-          .select('*, artists:artist_id(id, name, stage_name, photo_url)')
+          .select('*, artists!finale_contestants_artist_id_fkey(id, name, stage_name, photo_url)')
           .eq('event_id', voter.event_id)
           .eq('is_active', true)
           .order('contestant_number')
@@ -69,12 +72,34 @@ export function AudienceVotingInterface({
 
         const { data, error } = await query
 
-        if (error) throw error
+        console.log('Query result - Data count:', data?.length || 0)
+        console.log('Query result - Error:', error)
+
+        if (error) {
+          console.error('Supabase error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code,
+          })
+          toast.error(`Failed to load contestants: ${error.message || 'Unknown error'}`)
+          setLoading(false)
+          return
+        }
+
+        if (!data || data.length === 0) {
+          console.warn('No contestants found for event:', voter.event_id)
+          toast.error('No contestants found for this event')
+        }
 
         setContestants((data || []) as ContestantWithArtist[])
       } catch (error) {
-        console.error('Error fetching contestants:', error)
-        toast.error('Failed to load contestants')
+        const err = error as { message?: string }
+        console.error('Error fetching contestants:', {
+          message: err?.message || 'Unknown error',
+          error: error,
+        })
+        toast.error(`Failed to load contestants: ${err?.message || 'Please try again'}`)
       } finally {
         setLoading(false)
       }
@@ -91,6 +116,12 @@ export function AudienceVotingInterface({
 
     if (!currentStage) {
       toast.error('No active stage')
+      return
+    }
+
+    // Validate token exists
+    if (!token) {
+      toast.error('Authentication token missing. Please log in again.')
       return
     }
 

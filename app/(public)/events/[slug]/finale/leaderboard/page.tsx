@@ -30,11 +30,20 @@ export default async function FinaleLeaderboardPage({
   }
 
   // Check if finale is configured for this event
-  const { data: finaleConfig } = await supabase
+  const { data: finaleConfig, error: finaleError } = await supabase
     .from('finale_configs')
     .select('*')
     .eq('event_id', event.id)
     .single()
+
+  if (finaleError) {
+    console.error('Error fetching finale config:', {
+      eventId: event.id,
+      message: finaleError.message,
+      code: finaleError.code,
+      details: finaleError.details,
+    })
+  }
 
   if (!finaleConfig) {
     return (
@@ -73,7 +82,7 @@ export default async function FinaleLeaderboardPage({
       />
 
       <div className="container mx-auto px-4 py-8">
-        <FinaleLeaderboard eventId={event.id} eventSlug={slug} />
+        <FinaleLeaderboard eventId={event.id} />
       </div>
     </div>
   )

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import type {
-  LeaderboardRequest,
   LeaderboardResponse,
   DetailedLeaderboardEntry,
 } from '@/types/finale'
@@ -44,25 +43,27 @@ export async function GET(request: NextRequest) {
 
     // Check if leaderboard is visible
     if (!config.leaderboard_visible) {
-      return NextResponse.json<LeaderboardResponse>(
-        {
-          success: false,
-          message: 'Leaderboard is currently hidden',
-        },
-        { status: 403 }
-      )
+      // Return empty leaderboard instead of error, so frontend can show "not started" message
+      return NextResponse.json<LeaderboardResponse>({
+        success: true,
+        message: 'Leaderboard is currently hidden',
+        config,
+        leaderboard: [],
+        last_updated: new Date().toISOString(),
+      })
     }
 
     const currentStage = stage || config.current_stage
 
     if (!currentStage) {
-      return NextResponse.json<LeaderboardResponse>(
-        {
-          success: false,
-          message: 'No active stage',
-        },
-        { status: 400 }
-      )
+      // Return empty leaderboard with config, voting hasn't started yet
+      return NextResponse.json<LeaderboardResponse>({
+        success: true,
+        message: 'No active stage yet',
+        config,
+        leaderboard: [],
+        last_updated: new Date().toISOString(),
+      })
     }
 
     // Determine which leaderboard to fetch
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
         .select(
           `
           *,
-          artists:artist_id (
+          artists!finale_contestants_artist_id_fkey (
             id,
             name,
             stage_name,
@@ -102,11 +103,16 @@ export async function GET(request: NextRequest) {
         .order('finale_leaderboard_snapshots.rank', { ascending: true })
 
       if (error) {
-        console.error('Error fetching Stage 4 leaderboard:', error)
+        console.error('Error fetching Stage 4 leaderboard:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        })
         return NextResponse.json<LeaderboardResponse>(
           {
             success: false,
-            message: 'Failed to fetch leaderboard data',
+            message: `Failed to fetch leaderboard data: ${error.message || 'Unknown error'}`,
           },
           { status: 500 }
         )
@@ -153,7 +159,7 @@ export async function GET(request: NextRequest) {
         .select(
           `
           *,
-          artists:artist_id (
+          artists!finale_contestants_artist_id_fkey (
             id,
             name,
             stage_name,
@@ -166,11 +172,16 @@ export async function GET(request: NextRequest) {
         .eq('is_active', true)
 
       if (error) {
-        console.error('Error fetching contestants:', error)
+        console.error('Error fetching contestants:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        })
         return NextResponse.json<LeaderboardResponse>(
           {
             success: false,
-            message: 'Failed to fetch leaderboard data',
+            message: `Failed to fetch contestants: ${error.message || 'Unknown error'}`,
           },
           { status: 500 }
         )
@@ -190,7 +201,15 @@ export async function GET(request: NextRequest) {
         .in('stage', stages)
 
       if (snapshotError) {
-        console.error('Error fetching snapshots:', error)
+        console.error('Error fetching snapshots:', snapshotError)
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Failed to fetch leaderboard data',
+            error: snapshotError.message,
+          },
+          { status: 500 }
+        )
       }
 
       // Calculate cumulative scores
@@ -250,7 +269,7 @@ export async function GET(request: NextRequest) {
             entry.stage_breakdown = {}
             contestantSnapshots.forEach((snap: any) => {
               if (entry.stage_breakdown) {
-                entry.stage_breakdown[snap.stage] = snap
+                ;(entry.stage_breakdown as any)[snap.stage] = snap
               }
             })
           }

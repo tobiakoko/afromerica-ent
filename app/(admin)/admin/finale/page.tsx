@@ -2,6 +2,15 @@ import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
 import { FinaleAdminPanel } from '@/components/admin/FinaleAdminPanel'
+import type { FinaleConfig } from '@/types/finale'
+
+interface EventWithFinale {
+  id: string
+  title: string
+  slug: string
+  event_date: string
+  finale_configs: FinaleConfig[] | null
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -30,8 +39,9 @@ export default async function FinaleAdminPage() {
     redirect('/signin')
   }
 
-  // Fetch all events with finale configs
-  const { data: events } = await supabase
+  // Fetch all active events with finale configs using admin client
+  // Note: Using explicit foreign key relationship for PostgREST join
+  const { data: events, error: eventsError } = await adminClient
     .from('events')
     .select(
       `
@@ -39,22 +49,39 @@ export default async function FinaleAdminPage() {
       title,
       slug,
       event_date,
-      finale_configs (
+      finale_configs!finale_configs_event_id_fkey (
         id,
+        event_id,
         current_status,
         current_stage,
         voting_enabled,
         leaderboard_visible,
-        top_5_calculated_at,
         stage_1_started_at,
+        stage_1_ended_at,
         stage_2_started_at,
+        stage_2_ended_at,
         stage_3_started_at,
-        stage_4_started_at
+        stage_3_ended_at,
+        stage_4_started_at,
+        stage_4_ended_at,
+        top_5_calculated_at,
+        top_5_contestant_ids,
+        settings,
+        created_at,
+        updated_at
       )
     `
     )
     .eq('is_active', true)
     .order('event_date', { ascending: false })
+
+  if (eventsError) {
+    console.error('Error fetching events:', eventsError)
+    console.error('Error details:', JSON.stringify(eventsError, null, 2))
+  }
+
+  console.log('Fetched events:', events?.length || 0)
+  console.log('Events data:', JSON.stringify(events, null, 2))
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -65,7 +92,15 @@ export default async function FinaleAdminPage() {
         </p>
       </div>
 
-      <FinaleAdminPanel events={events || []} />
+      {eventsError && (
+        <div className="mb-4 p-4 bg-destructive/10 text-destructive rounded-lg">
+          <p className="font-semibold">Error loading events:</p>
+          <p className="text-sm">{eventsError.message}</p>
+          <pre className="mt-2 text-xs overflow-auto">{JSON.stringify(eventsError, null, 2)}</pre>
+        </div>
+      )}
+
+      <FinaleAdminPanel events={(events as EventWithFinale[]) || []} />
     </div>
   )
 }

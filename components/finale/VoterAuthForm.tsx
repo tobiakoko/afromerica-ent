@@ -54,16 +54,16 @@ export function VoterAuthForm({ eventId, eventSlug }: VoterAuthFormProps) {
         return
       }
 
-      // Store token in sessionStorage
-      sessionStorage.setItem('finale_voter_token', data.token)
-      sessionStorage.setItem('finale_voter_data', JSON.stringify(data.voter))
-      sessionStorage.setItem('finale_config', JSON.stringify(data.config))
+      // Store token in localStorage for persistence
+      localStorage.setItem('finale_voter_token', data.token)
+      localStorage.setItem('finale_voter_data', JSON.stringify(data.voter))
+      localStorage.setItem('finale_config', JSON.stringify(data.config))
 
       toast.success('Authentication successful! Redirecting...')
 
-      // Redirect to voting page based on voter type
+      // Redirect to voting page - token is read from localStorage, not URL
       setTimeout(() => {
-        router.push(`/events/${eventSlug}/finale/vote/submit?token=${data.token}`)
+        router.push(`/events/${eventSlug}/finale/vote/submit`)
       }, 500)
     } catch (error) {
       console.error('Authentication error:', error)

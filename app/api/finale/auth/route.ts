@@ -72,20 +72,42 @@ export async function POST(request: NextRequest) {
       voter = judgeVoter
     } else {
       // In-house and online voters share codes - create or find voter
-      // First verify the code is valid for this event
-      const { data: expectedCode } = await supabase.rpc('generate_finale_voter_code', {
-        p_voter_type: voterType,
-        p_event_id: event_id,
-      })
+      // First verify the code is valid by checking if any voter with this code exists for this event
+      const { data: codeCheck } = await supabase
+        .from('finale_voters')
+        .select('voter_code, voter_type')
+        .eq('event_id', event_id)
+        .eq('voter_type', voterType)
+        .limit(1)
+        .maybeSingle()
 
-      if (upperCode !== expectedCode) {
-        return NextResponse.json<VoterAuthResponse>(
-          {
-            success: false,
-            message: 'Invalid voter code for this event',
-          },
-          { status: 404 }
-        )
+      // If no voters exist yet for this type, generate and verify the expected code
+      if (!codeCheck) {
+        const { data: expectedCode } = await supabase.rpc('generate_finale_voter_code', {
+          p_voter_type: voterType,
+          p_event_id: event_id,
+        })
+
+        if (upperCode !== expectedCode) {
+          return NextResponse.json<VoterAuthResponse>(
+            {
+              success: false,
+              message: 'Invalid voter code for this event',
+            },
+            { status: 404 }
+          )
+        }
+      } else {
+        // Voters exist - verify the code matches the existing shared code
+        if (upperCode !== codeCheck.voter_code) {
+          return NextResponse.json<VoterAuthResponse>(
+            {
+              success: false,
+              message: 'Invalid voter code for this event',
+            },
+            { status: 404 }
+          )
+        }
       }
 
       // Try to find existing voter by name and type

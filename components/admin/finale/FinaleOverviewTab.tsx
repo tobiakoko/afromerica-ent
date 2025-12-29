@@ -187,6 +187,37 @@ export function FinaleOverviewTab({ config, stats }: FinaleOverviewTabProps) {
         </Card>
       )}
 
+      {/* Overall Voter Participation */}
+      {stats?.voter_stats && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Voter Participation Summary</CardTitle>
+            <CardDescription>Track voter engagement across all categories</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Judges</p>
+                  <p className="text-2xl font-bold">{stats.voter_stats.judges?.total || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">60% weight</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">In-House</p>
+                  <p className="text-2xl font-bold">{stats.voter_stats.in_house?.total || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">25% weight</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Online</p>
+                  <p className="text-2xl font-bold">{stats.voter_stats.online?.total || 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">15% weight</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Important Timestamps */}
       <Card>
         <CardHeader>

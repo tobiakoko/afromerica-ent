@@ -5,8 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -16,7 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { toast } from 'sonner'
-import { Loader2, Trophy, Medal, Crown, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { Loader2, Trophy, Medal, Crown } from 'lucide-react'
 import type {
   FinaleConfig,
   DetailedLeaderboardEntry,
@@ -27,10 +26,9 @@ import { getStageDisplayName } from '@/types/finale'
 
 interface FinaleLeaderboardProps {
   eventId: string
-  eventSlug: string
 }
 
-export function FinaleLeaderboard({ eventId, eventSlug }: FinaleLeaderboardProps) {
+export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
   const supabase = createClient()
 
   const [loading, setLoading] = useState(true)
@@ -83,10 +81,11 @@ export function FinaleLeaderboard({ eventId, eventSlug }: FinaleLeaderboardProps
     init()
   }, [eventId])
 
-  // Set up real-time subscription
+  // Set up real-time subscription with fallback polling
   useEffect(() => {
-    if (!config) return
+    if (!config || !autoRefresh) return
 
+    // Real-time subscription for instant updates
     const channel = supabase
       .channel(`finale-${eventId}`)
       .on(
@@ -98,28 +97,21 @@ export function FinaleLeaderboard({ eventId, eventSlug }: FinaleLeaderboardProps
           filter: `event_id=eq.${eventId}`,
         },
         () => {
-          if (autoRefresh) {
-            fetchLeaderboard(selectedStage || undefined)
-          }
+          fetchLeaderboard(selectedStage || undefined)
         }
       )
       .subscribe()
 
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [eventId, config, autoRefresh, selectedStage])
-
-  // Auto-refresh every 5 seconds
-  useEffect(() => {
-    if (!autoRefresh) return
-
+    // Fallback polling every 30 seconds (in case real-time fails)
     const interval = setInterval(() => {
       fetchLeaderboard(selectedStage || undefined)
-    }, 5000)
+    }, 30000)
 
-    return () => clearInterval(interval)
-  }, [autoRefresh, selectedStage])
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+    }
+  }, [eventId, config, autoRefresh, selectedStage])
 
   const handleStageChange = (stage: FinaleStage) => {
     setSelectedStage(stage)
@@ -260,7 +252,7 @@ export function FinaleLeaderboard({ eventId, eventSlug }: FinaleLeaderboardProps
                     </TableCell>
                   </TableRow>
                 ) : (
-                  leaderboard.map((entry, index) => (
+                  leaderboard.map((entry) => (
                     <TableRow
                       key={entry.contestant.id}
                       className={
@@ -278,19 +270,19 @@ export function FinaleLeaderboard({ eventId, eventSlug }: FinaleLeaderboardProps
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          {entry.artist.photo_url && (
+                          {entry.artist?.photo_url && (
                             <img
                               src={entry.artist.photo_url}
-                              alt={entry.artist.name}
+                              alt={entry.artist.name || 'Contestant'}
                               className="w-10 h-10 rounded-full object-cover"
                             />
                           )}
                           <div>
                             <p className="font-semibold">
                               #{entry.contestant.contestant_number}{' '}
-                              {entry.artist.stage_name || entry.artist.name}
+                              {entry.artist?.stage_name || entry.artist?.name || 'Unknown Artist'}
                             </p>
-                            {entry.artist.stage_name && (
+                            {entry.artist?.stage_name && (
                               <p className="text-xs text-muted-foreground">
                                 {entry.artist.name}
                               </p>

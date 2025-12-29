@@ -69,7 +69,7 @@ export function JudgeVotingInterface({
       try {
         let query = supabase
           .from('finale_contestants')
-          .select('*, artists:artist_id(id, name, stage_name, photo_url)')
+          .select('*, artists!finale_contestants_artist_id_fkey(id, name, stage_name, photo_url)')
           .eq('event_id', voter.event_id)
           .eq('is_active', true)
           .order('contestant_number')
@@ -81,12 +81,26 @@ export function JudgeVotingInterface({
 
         const { data, error } = await query
 
-        if (error) throw error
+        if (error) {
+          console.error('Supabase error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code,
+          })
+          toast.error(`Failed to load contestants: ${error.message || 'Unknown error'}`)
+          setLoading(false)
+          return
+        }
 
         setContestants((data || []) as ContestantWithArtist[])
       } catch (error) {
-        console.error('Error fetching contestants:', error)
-        toast.error('Failed to load contestants')
+        const err = error as { message?: string }
+        console.error('Error fetching contestants:', {
+          message: err?.message || 'Unknown error',
+          error: error,
+        })
+        toast.error(`Failed to load contestants: ${err?.message || 'Please try again'}`)
       } finally {
         setLoading(false)
       }
@@ -136,11 +150,17 @@ export function JudgeVotingInterface({
       return
     }
 
-    const totalScore = calculateTotalScore(scores as StageCriteria)
+    const totalScore = calculateTotalScore(scores as unknown as StageCriteria)
     const maxScore = stageConfig?.max_score || 0
 
     if (totalScore > maxScore) {
       toast.error(`Total score (${totalScore}) exceeds maximum (${maxScore})`)
+      return
+    }
+
+    // Validate token exists
+    if (!token) {
+      toast.error('Authentication token missing. Please log in again.')
       return
     }
 
@@ -244,7 +264,7 @@ export function JudgeVotingInterface({
     )
   }
 
-  const totalScore = calculateTotalScore(scores as StageCriteria)
+  const totalScore = calculateTotalScore(scores as unknown as StageCriteria)
 
   return (
     <div className="space-y-6">
