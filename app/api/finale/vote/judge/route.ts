@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
-import { jwtVerify } from 'jose'
+import { createAdminClient } from '@/utils/supabase/admin'
+import { jwtVerify, type JWTPayload } from 'jose'
 import type {
   JudgeVoteRequest,
   VoteResponse,
@@ -20,6 +20,14 @@ const JWT_SECRET = (() => {
   return new TextEncoder().encode(secret)
 })()
 
+interface VoterTokenPayload extends JWTPayload {
+  voter_id: string
+  event_id: string
+  voter_type: 'judge' | 'in_house' | 'online'
+  judge_number?: number | null
+  name?: string
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Verify JWT token
@@ -35,12 +43,12 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7)
-    let payload: any
+    let payload: VoterTokenPayload
 
     try {
-      const verified = await jwtVerify(token, JWT_SECRET)
+      const verified = await jwtVerify<VoterTokenPayload>(token, JWT_SECRET)
       payload = verified.payload
-    } catch (err) {
+    } catch {
       return NextResponse.json<VoteResponse>(
         {
           success: false,
@@ -97,7 +105,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = await createClient()
+    // Use service role client so RLS on vote tables doesn't block inserts
+    const supabase = createAdminClient()
 
     // Check if voting is enabled and correct stage
     const { data: config, error: configError } = await supabase
@@ -252,14 +261,16 @@ export async function POST(request: NextRequest) {
       message: 'Vote recorded successfully',
       vote_id: vote.id,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Judge voting error:', error)
 
     return NextResponse.json<VoteResponse>(
       {
         success: false,
         message: 'An error occurred while recording your vote',
-        ...(process.env.NODE_ENV === 'development' && { debug: error.message }),
+        ...(process.env.NODE_ENV === 'development' && {
+          debug: (error as Error).message,
+        }),
       },
       { status: 500 }
     )

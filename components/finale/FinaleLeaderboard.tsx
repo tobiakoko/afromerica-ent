@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table'
 import { toast } from 'sonner'
 import { Loader2, Trophy, Medal, Crown } from 'lucide-react'
+import Image from 'next/image'
 import type {
   FinaleConfig,
   DetailedLeaderboardEntry,
@@ -34,52 +35,69 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
   const [loading, setLoading] = useState(true)
   const [config, setConfig] = useState<FinaleConfig | null>(null)
   const [leaderboard, setLeaderboard] = useState<DetailedLeaderboardEntry[]>([])
-  const [selectedStage, setSelectedStage] = useState<FinaleStage | null>(null)
+  const [selectedStage, setSelectedStage] = useState<FinaleStage | 'cumulative' | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string>('')
   const [autoRefresh, setAutoRefresh] = useState(true)
 
-  const fetchLeaderboard = async (stage?: FinaleStage) => {
-    try {
-      const stageParam = stage || config?.current_stage || ''
-      const response = await fetch(
-        `/api/finale/leaderboard?event_id=${eventId}&stage=${stageParam}&include_breakdown=true`
-      )
+  const fetchLeaderboard = useCallback(
+    async (stage?: FinaleStage | 'cumulative' | null) => {
+      try {
+        const params = new URLSearchParams({
+          event_id: eventId,
+          include_breakdown: 'true',
+        })
 
-      const data: LeaderboardResponse = await response.json()
-
-      if (!response.ok || !data.success) {
-        toast.error(data.message || 'Failed to fetch leaderboard')
-        return
-      }
-
-      if (data.config) {
-        setConfig(data.config)
-        if (!selectedStage && data.config.current_stage) {
-          setSelectedStage(data.config.current_stage)
+        if (stage && stage !== 'cumulative') {
+          params.set('stage', stage)
         }
-      }
 
-      if (data.leaderboard) {
-        setLeaderboard(data.leaderboard)
-      }
+        const response = await fetch(`/api/finale/leaderboard?${params.toString()}`)
 
-      if (data.last_updated) {
-        setLastUpdated(data.last_updated)
+        const data: LeaderboardResponse = await response.json()
+
+        if (!response.ok || !data.success) {
+          toast.error(data.message || 'Failed to fetch leaderboard')
+          return
+        }
+
+        if (data.config) {
+          setConfig(data.config)
+          if (selectedStage === null && data.config.current_stage) {
+            setSelectedStage(data.config.current_stage)
+          }
+        }
+
+        if (data.leaderboard) {
+          setLeaderboard(data.leaderboard)
+        }
+
+        if (data.last_updated) {
+          setLastUpdated(data.last_updated)
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error)
+        toast.error('Failed to fetch leaderboard data')
       }
-    } catch (error) {
-      console.error('Error fetching leaderboard:', error)
-      toast.error('Failed to fetch leaderboard data')
-    }
-  }
+    },
+    [eventId, selectedStage]
+  )
 
   useEffect(() => {
-    const init = async () => {
+    let isMounted = true
+
+    const load = async () => {
       await fetchLeaderboard()
-      setLoading(false)
+      if (isMounted) {
+        setLoading(false)
+      }
     }
 
-    init()
-  }, [eventId])
+    load()
+
+    return () => {
+      isMounted = false
+    }
+  }, [eventId, fetchLeaderboard])
 
   // Set up real-time subscription with fallback polling
   useEffect(() => {
@@ -97,25 +115,30 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
           filter: `event_id=eq.${eventId}`,
         },
         () => {
-          fetchLeaderboard(selectedStage || undefined)
+          const stageParam =
+            selectedStage && selectedStage !== 'cumulative' ? selectedStage : undefined
+          fetchLeaderboard(stageParam || null)
         }
       )
       .subscribe()
 
     // Fallback polling every 30 seconds (in case real-time fails)
     const interval = setInterval(() => {
-      fetchLeaderboard(selectedStage || undefined)
+      const stageParam =
+        selectedStage && selectedStage !== 'cumulative' ? selectedStage : undefined
+      fetchLeaderboard(stageParam || null)
     }, 30000)
 
     return () => {
       supabase.removeChannel(channel)
       clearInterval(interval)
     }
-  }, [eventId, config, autoRefresh, selectedStage])
+  }, [eventId, config, autoRefresh, selectedStage, supabase, fetchLeaderboard])
 
-  const handleStageChange = (stage: FinaleStage) => {
+  const handleStageChange = (stage: FinaleStage | 'cumulative') => {
     setSelectedStage(stage)
-    fetchLeaderboard(stage)
+    const stageParam = stage === 'cumulative' ? null : stage
+    fetchLeaderboard(stageParam)
   }
 
   if (loading) {
@@ -138,7 +161,8 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
     )
   }
 
-  const currentStage = selectedStage || config.current_stage
+  const currentStage =
+    selectedStage === 'cumulative' ? config.current_stage : selectedStage || config.current_stage
   const isStage4 = currentStage === 'stage_4'
 
   const getRankIcon = (rank: number) => {
@@ -203,9 +227,9 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
           </CardHeader>
           <CardContent>
             <Tabs
-              value={selectedStage || 'cumulative'}
+              value={(selectedStage || config.current_stage || 'cumulative') as string}
               onValueChange={(value) =>
-                handleStageChange(value as FinaleStage)
+                handleStageChange(value as FinaleStage | 'cumulative')
               }
             >
               <TabsList className="grid grid-cols-4 w-full">
@@ -271,10 +295,12 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           {entry.artist?.photo_url && (
-                            <img
+                            <Image
                               src={entry.artist.photo_url}
                               alt={entry.artist.name || 'Contestant'}
                               className="w-10 h-10 rounded-full object-cover"
+                              width={40}
+                              height={40}
                             />
                           )}
                           <div>

@@ -17,16 +17,17 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from 'lucide-react'
-import type { FinaleConfig, FinaleStage } from '@/types/finale'
+import type { FinaleConfig, FinaleStage, FinaleStatus } from '@/types/finale'
 import { getStageDisplayName } from '@/types/finale'
 
 interface FinaleControlTabProps {
   eventId: string
+  eventSlug: string
   config: FinaleConfig
   onUpdate: () => void
 }
 
-export function FinaleControlTab({ eventId, config, onUpdate }: FinaleControlTabProps) {
+export function FinaleControlTab({ eventId, eventSlug, config, onUpdate }: FinaleControlTabProps) {
   const [loading, setLoading] = useState<string | null>(null)
 
   const updateConfig = async (updates: Partial<FinaleConfig>) => {
@@ -59,7 +60,7 @@ export function FinaleControlTab({ eventId, config, onUpdate }: FinaleControlTab
   }
 
   const activateStage = async (stage: FinaleStage) => {
-    const stageStatus = `${stage}_active` as any
+    const stageStatus = `${stage}_active` as FinaleStatus
     await updateConfig({
       current_status: stageStatus,
       current_stage: stage,
@@ -336,13 +337,21 @@ export function FinaleControlTab({ eventId, config, onUpdate }: FinaleControlTab
         <CardContent>
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="outline">
-              <a href={`/events/${eventId}/finale/vote`} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`/events/${eventSlug}/finale/vote`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 Voting Page
               </a>
             </Button>
             <Button asChild variant="outline">
-              <a href={`/events/${eventId}/finale/leaderboard`} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`/events/${eventSlug}/finale/leaderboard`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 Leaderboard
               </a>

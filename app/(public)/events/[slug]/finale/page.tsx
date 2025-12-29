@@ -138,7 +138,7 @@ export default async function FinalePage({ params }: FinalePageProps) {
 
                 <div className="flex flex-wrap gap-4 justify-center pt-4">
                   <Button asChild size="lg" className="bg-yellow-600 hover:bg-yellow-700">
-                    <Link href={`/events/${slug}/leaderboard`}>
+                    <Link href={`/events/${slug}/finale/leaderboard`}>
                       <Trophy className="w-5 h-5 mr-2" />
                       View Leaderboard
                     </Link>
@@ -254,7 +254,7 @@ export default async function FinalePage({ params }: FinalePageProps) {
               Follow us on social media and check the leaderboard regularly to stay updated on the latest developments for the grand finale!
             </p>
             <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700">
-              <Link href={`/events/${slug}/leaderboard`}>
+              <Link href={`/events/${slug}/finale/leaderboard`}>
                 <Trophy className="w-5 h-5 mr-2" />
                 Check Current Rankings
               </Link>

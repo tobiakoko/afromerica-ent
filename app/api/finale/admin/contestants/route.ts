@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
+import type { FinaleContestant } from '@/types/finale'
 
 export async function GET(request: NextRequest) {
   try {
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       .select(
         `
         *,
-        artist:artists(
+        artist:artists!finale_contestants_artist_id_fkey(
           id,
           name,
           stage_name,
@@ -75,13 +76,15 @@ export async function GET(request: NextRequest) {
       success: true,
       contestants,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Contestants fetch error:', error)
     return NextResponse.json(
       {
         success: false,
         message: 'An error occurred while fetching contestants',
-        ...(process.env.NODE_ENV === 'development' && { debug: error.message }),
+        ...(process.env.NODE_ENV === 'development' && {
+          debug: (error as Error).message,
+        }),
       },
       { status: 500 }
     )
@@ -90,7 +93,12 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = (await request.json()) as {
+      contestant_id: string
+      is_finalist?: boolean
+      is_eliminated?: boolean
+      eliminated_at_stage?: FinaleContestant['eliminated_at_stage']
+    }
     const { contestant_id, is_finalist, is_eliminated, eliminated_at_stage } = body
 
     if (!contestant_id) {
@@ -131,7 +139,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update contestant
-    const updates: any = {
+    const updates: Partial<FinaleContestant> & { updated_at: string } = {
       updated_at: new Date().toISOString(),
     }
 
@@ -159,13 +167,15 @@ export async function PATCH(request: NextRequest) {
       message: 'Contestant updated successfully',
       contestant,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Contestant update error:', error)
     return NextResponse.json(
       {
         success: false,
         message: 'An error occurred while updating contestant',
-        ...(process.env.NODE_ENV === 'development' && { debug: error.message }),
+        ...(process.env.NODE_ENV === 'development' && {
+          debug: (error as Error).message,
+        }),
       },
       { status: 500 }
     )

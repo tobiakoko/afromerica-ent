@@ -3,7 +3,36 @@ import { createClient } from '@/utils/supabase/server'
 import type {
   LeaderboardResponse,
   DetailedLeaderboardEntry,
+  FinaleContestant,
+  FinaleLeaderboardSnapshot,
 } from '@/types/finale'
+
+interface ContestantWithArtist extends FinaleContestant {
+  artists: {
+    id: string
+    name: string
+    stage_name: string | null
+    photo_url: string | null
+    slug: string
+  }
+}
+
+interface Stage4ContestantRow extends ContestantWithArtist {
+  finale_leaderboard_snapshots: Array<
+    Pick<
+      FinaleLeaderboardSnapshot,
+      | 'judge_score_raw'
+      | 'judge_score_weighted'
+      | 'in_house_votes'
+      | 'in_house_score_weighted'
+      | 'online_votes'
+      | 'online_score_weighted'
+      | 'total_score'
+      | 'rank'
+      | 'calculated_at'
+    >
+  >
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -53,7 +82,13 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    const currentStage = stage || config.current_stage
+    const validStages = new Set(['stage_1', 'stage_2', 'stage_3', 'stage_4'])
+    const requestedStage =
+      stage && stage !== 'cumulative' && validStages.has(stage)
+        ? (stage as string)
+        : null
+
+    const currentStage = requestedStage || config.current_stage
 
     if (!currentStage) {
       // Return empty leaderboard with config, voting hasn't started yet
@@ -118,7 +153,9 @@ export async function GET(request: NextRequest) {
         )
       }
 
-      leaderboardData = data.map((item: any) => {
+      const stage4Rows = (data || []) as Stage4ContestantRow[]
+
+      leaderboardData = stage4Rows.map((item) => {
         const snapshot = item.finale_leaderboard_snapshots[0] || {}
         return {
           contestant: {
@@ -189,8 +226,8 @@ export async function GET(request: NextRequest) {
 
       // Get snapshots for all stages up to current
       const stages = ['stage_1', 'stage_2', 'stage_3'].filter((s) => {
-        const stageNum = parseInt(s.split('_')[1])
-        const currentNum = parseInt(currentStage.split('_')[1])
+        const stageNum = parseInt(s.split('_')[1], 10)
+        const currentNum = parseInt(currentStage.split('_')[1], 10)
         return stageNum <= currentNum
       })
 
@@ -213,23 +250,28 @@ export async function GET(request: NextRequest) {
       }
 
       // Calculate cumulative scores
-      leaderboardData = data
-        .map((contestant: any) => {
-          const contestantSnapshots = (snapshots || []).filter(
-            (s: any) => s.contestant_id === contestant.id
+      const contestantRows = (data || []) as ContestantWithArtist[]
+      const snapshotRows = (snapshots || []) as FinaleLeaderboardSnapshot[]
+
+      leaderboardData = contestantRows
+        .map((contestant) => {
+          const contestantSnapshots = snapshotRows.filter(
+            (s) => s.contestant_id === contestant.id
           )
 
           const cumulativeScores = contestantSnapshots.reduce(
-            (acc: any, snap: any) => {
-              acc.judge_score_raw += snap.judge_score_raw || 0
-              acc.judge_score_weighted += snap.judge_score_weighted || 0
-              acc.in_house_votes += snap.in_house_votes || 0
-              acc.in_house_score_weighted += snap.in_house_score_weighted || 0
-              acc.online_votes += snap.online_votes || 0
-              acc.online_score_weighted += snap.online_score_weighted || 0
-              acc.total_score += snap.total_score || 0
-              return acc
-            },
+            (acc, snap) => ({
+              judge_score_raw: acc.judge_score_raw + (snap.judge_score_raw || 0),
+              judge_score_weighted:
+                acc.judge_score_weighted + (snap.judge_score_weighted || 0),
+              in_house_votes: acc.in_house_votes + (snap.in_house_votes || 0),
+              in_house_score_weighted:
+                acc.in_house_score_weighted + (snap.in_house_score_weighted || 0),
+              online_votes: acc.online_votes + (snap.online_votes || 0),
+              online_score_weighted:
+                acc.online_score_weighted + (snap.online_score_weighted || 0),
+              total_score: acc.total_score + (snap.total_score || 0),
+            }),
             {
               judge_score_raw: 0,
               judge_score_weighted: 0,
@@ -266,12 +308,15 @@ export async function GET(request: NextRequest) {
           }
 
           if (include_breakdown) {
-            entry.stage_breakdown = {}
-            contestantSnapshots.forEach((snap: any) => {
-              if (entry.stage_breakdown) {
-                ;(entry.stage_breakdown as any)[snap.stage] = snap
-              }
+            const stageBreakdown: Partial<
+              Record<FinaleLeaderboardSnapshot['stage'], FinaleLeaderboardSnapshot>
+            > = {}
+
+            contestantSnapshots.forEach((snap) => {
+              stageBreakdown[snap.stage] = snap
             })
+
+            entry.stage_breakdown = stageBreakdown
           }
 
           return entry
@@ -290,14 +335,16 @@ export async function GET(request: NextRequest) {
       leaderboard: leaderboardData,
       last_updated: new Date().toISOString(),
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Leaderboard fetch error:', error)
 
     return NextResponse.json<LeaderboardResponse>(
       {
         success: false,
         message: 'An error occurred while fetching the leaderboard',
-        ...(process.env.NODE_ENV === 'development' && { debug: error.message }),
+        ...(process.env.NODE_ENV === 'development' && {
+          debug: (error as Error).message,
+        }),
       },
       { status: 500 }
     )

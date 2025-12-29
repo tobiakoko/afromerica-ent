@@ -203,6 +203,7 @@ export function FinaleAdminPanel({ events }: FinaleAdminPanelProps) {
           <TabsContent value="stages" className="mt-6">
             <FinaleControlTab
               eventId={selectedEvent!.id}
+              eventSlug={selectedEvent!.slug}
               config={config}
               onUpdate={() => {
                 fetchStats()
