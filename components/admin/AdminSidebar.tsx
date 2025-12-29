@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Calendar, 
-  Ticket, 
+import {
+  LayoutDashboard,
+  Trophy,
+  Calendar,
+  Ticket,
   TrendingUp,
   Music,
   Settings
@@ -19,7 +19,7 @@ const navigation = [
   { name: 'Artists', href: '/admin/artists', icon: Music },
   { name: 'Tickets', href: '/admin/tickets', icon: Ticket },
   { name: 'Votes', href: '/admin/votes', icon: TrendingUp },
-  { name: 'Users', href: '/admin/users', icon: Users },
+  { name: 'Finale', href: '/admin/finale', icon: Trophy },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

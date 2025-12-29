@@ -4,6 +4,11 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { config } from 'dotenv'
+import { resolve } from 'path'
+
+// Load environment variables from .env.local
+config({ path: resolve(process.cwd(), '.env.local') })
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -17,9 +22,9 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 // Admin user credentials
 const TEST_ADMIN = {
-  email: 'admin@afromerica.com',
-  password: 'Admin123!Test',
-  fullName: 'Admin User',
+  email: 'admin@afromericaent.com',
+  password: 'Get_Gingered@123#',
+  fullName: 'Super Admin',
   role: 'admin'
 }
 

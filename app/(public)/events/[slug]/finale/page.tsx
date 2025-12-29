@@ -2,9 +2,10 @@ import { createCachedClient } from '@/utils/supabase/server-cached'
 import { PageHero } from '@/components/layout/page-hero'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Trophy, Calendar, MapPin, Sparkles, Music, Star } from 'lucide-react'
+import { Trophy, Calendar, MapPin, Sparkles, Music, Star, Vote } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { VoterAuthForm } from '@/components/finale/VoterAuthForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +29,13 @@ export default async function FinalePage({ params }: FinalePageProps) {
     notFound()
   }
 
+  // Check if finale is configured for this event
+  const { data: finaleConfig } = await supabase
+    .from('finale_configs')
+    .select('*')
+    .eq('event_id', event.id)
+    .single()
+
   return (
     <div className="min-h-screen">
       <PageHero
@@ -43,42 +51,108 @@ export default async function FinalePage({ params }: FinalePageProps) {
       />
 
       <div className="container mx-auto px-4 py-12 space-y-8">
-        {/* Coming Soon Banner */}
-        <Card className="border-2 border-yellow-400 bg-linear-to-br from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950">
-          <CardContent className="py-12">
-            <div className="text-center space-y-6">
-              <div className="flex justify-center">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 animate-pulse" />
-                  <Sparkles className="relative w-20 h-20 text-yellow-600 dark:text-yellow-400" />
+        {/* Voter Authentication Section */}
+        {finaleConfig ? (
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Voter Auth Form - Takes 2 columns on large screens */}
+            <div className="lg:col-span-2">
+              <VoterAuthForm eventId={event.id} eventSlug={slug} />
+            </div>
+
+            {/* Quick Actions - Takes 1 column on large screens */}
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Trophy className="w-5 h-5 text-yellow-500" />
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button asChild className="w-full" size="lg">
+                    <Link href={`/events/${slug}/finale/leaderboard`}>
+                      <Trophy className="w-4 h-4 mr-2" />
+                      View Leaderboard
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full" size="lg">
+                    <Link href={`/events/${slug}`}>
+                      View Event Details
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Status Card */}
+              {finaleConfig.current_stage && (
+                <Card className="border-primary">
+                  <CardContent className="pt-6">
+                    <div className="text-center space-y-2">
+                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-2">
+                        <Vote className="w-6 h-6 text-primary" />
+                      </div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Current Stage
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {finaleConfig.current_stage.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                      </p>
+                      <div className="pt-2">
+                        {finaleConfig.voting_enabled ? (
+                          <div className="inline-flex items-center gap-2 text-green-600 dark:text-green-400">
+                            <div className="w-2 h-2 rounded-full bg-green-600 dark:bg-green-400 animate-pulse" />
+                            <span className="text-sm font-medium">Voting Active</span>
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-2 text-muted-foreground">
+                            <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+                            <span className="text-sm font-medium">Voting Closed</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        ) : (
+          <Card className="border-2 border-yellow-400 bg-linear-to-br from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950">
+            <CardContent className="py-12">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 animate-pulse" />
+                    <Sparkles className="relative w-20 h-20 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h2 className="text-4xl md:text-5xl font-bold text-yellow-900 dark:text-yellow-100">
+                    Finale Not Configured
+                  </h2>
+                  <p className="text-xl text-yellow-800 dark:text-yellow-200 max-w-2xl mx-auto">
+                    The Grand Finale voting system has not been set up for this event yet. Check back soon!
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-4 justify-center pt-4">
+                  <Button asChild size="lg" className="bg-yellow-600 hover:bg-yellow-700">
+                    <Link href={`/events/${slug}/leaderboard`}>
+                      <Trophy className="w-5 h-5 mr-2" />
+                      View Leaderboard
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg">
+                    <Link href={`/events/${slug}`}>
+                      View Event Details
+                    </Link>
+                  </Button>
                 </div>
               </div>
-
-              <div className="space-y-3">
-                <h2 className="text-4xl md:text-5xl font-bold text-yellow-900 dark:text-yellow-100">
-                  Coming Soon
-                </h2>
-                <p className="text-xl text-yellow-800 dark:text-yellow-200 max-w-2xl mx-auto">
-                  The Grand Finale page is currently under construction. Check back soon for exclusive content, live updates, and more!
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-4 justify-center pt-4">
-                <Button asChild size="lg" className="bg-yellow-600 hover:bg-yellow-700">
-                  <Link href={`/events/${slug}/leaderboard`}>
-                    <Trophy className="w-5 h-5 mr-2" />
-                    View Leaderboard
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link href={`/events/${slug}`}>
-                    View Event Details
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* What to Expect */}
         <div className="grid md:grid-cols-3 gap-6">

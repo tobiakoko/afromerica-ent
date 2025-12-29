@@ -154,8 +154,9 @@ export async function signIn(formData: FormData) {
       return { error: 'Sign in failed. Please try again.' }
     }
 
-    // Check if user is an active admin
-    const { data: admin, error: adminError } = await supabase
+    // Check if user is an active admin using admin client to bypass RLS
+    const adminClient = createAdminClient()
+    const { data: admin, error: adminError } = await adminClient
       .from('admins')
       .select('id, is_active, full_name, role')
       .eq('id', authData.user.id)
@@ -172,7 +173,6 @@ export async function signIn(formData: FormData) {
     }
 
     // Update last login timestamp
-    const adminClient = createAdminClient()
     await adminClient
       .from('admins')
       .update({ last_login_at: new Date().toISOString() })

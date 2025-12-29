@@ -13,6 +13,7 @@ import {
 import { LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "@/lib/auth/actions";
 
 interface AdminHeaderProps {
   user: {
@@ -24,8 +25,9 @@ export function AdminHeader({ user }: AdminHeaderProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await fetch('/auth/signout', { method: 'POST' });
-    router.push('/auth/signin');
+    await signOut();
+    // The signOut action handles the redirect, but just in case:
+    router.push('/signin');
   };
 
   return (

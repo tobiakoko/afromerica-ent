@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
@@ -16,17 +17,18 @@ export default async function AdminLayout({
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/auth/signin?redirect=/admin');
+    redirect('/signin?redirect=/admin');
   }
 
-  // Check if user is admin
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
+  // Check if user is admin using admin client to bypass RLS
+  const adminClient = createAdminClient();
+  const { data: admin } = await adminClient
+    .from('admins')
+    .select('id, role, is_active')
     .eq('id', user.id)
     .single();
 
-  if (profile?.role !== 'admin') {
+  if (!admin || !admin.is_active) {
     redirect('/');
   }
 
