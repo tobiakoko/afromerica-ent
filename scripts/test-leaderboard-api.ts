@@ -81,7 +81,7 @@ async function testLeaderboardAPI() {
 // Check if server is running
 async function checkServer() {
   try {
-    const response = await fetch(`${baseUrl}/api/health`, { method: 'HEAD' })
+    await fetch(`${baseUrl}/api/health`, { method: 'HEAD' })
     return true
   } catch {
     console.log('⚠️  Server not running at', baseUrl)

@@ -16,7 +16,7 @@ interface LeaderboardPageProps {
   params: Promise<{ slug: string }>
 }
 
-export async function getLeaderboardData(eventSlug: string): Promise<{
+async function getLeaderboardData(eventSlug: string): Promise<{
   artists: ArtistWithVotes[];
   error: string | null;
   eventTitle?: string;

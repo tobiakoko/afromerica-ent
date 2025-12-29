@@ -98,6 +98,8 @@
   /* Afromerica Design System - Modern Entertainment Theme */
 
   /* Font Variables - Professional and clean */
+  --font-geist-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-geist-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-display: 'Inter', system-ui, -apple-system, sans-serif;
   --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
