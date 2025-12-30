@@ -34,7 +34,14 @@ export async function POST(request: NextRequest) {
     if (upperCode.startsWith('AFR-J')) {
       voterType = 'judge'
     } else if (upperCode.startsWith('AFR-I')) {
-      voterType = 'in_house'
+      // In-house codes are disabled
+      return NextResponse.json<VoterAuthResponse>(
+        {
+          success: false,
+          message: 'In-house voting codes are currently disabled. Use online voting codes only. Please use online voting codes.',
+        },
+        { status: 403 }
+      )
     } else if (upperCode.startsWith('AFR-O')) {
       voterType = 'online'
     } else {
