@@ -85,22 +85,26 @@ export default async function FinaleAdminPage() {
   // Fetch artist counts per event
   const { data: artistCounts } = await adminClient
     .from('artists')
-    .select('event_id, count:id', { group: 'event_id' })
+    .select('event_id')
 
   // Fetch voter counts per event
   const { data: voterCounts } = await adminClient
     .from('finale_voters')
-    .select('event_id, count:id', { group: 'event_id' })
+    .select('event_id')
 
   const artistCountMap =
     artistCounts?.reduce<Record<string, number>>((acc, row) => {
-      acc[row.event_id] = Number(row.count) || 0
+      if (row.event_id) {
+        acc[row.event_id] = (acc[row.event_id] || 0) + 1
+      }
       return acc
     }, {}) || {}
 
   const voterCountMap =
     voterCounts?.reduce<Record<string, number>>((acc, row) => {
-      acc[row.event_id] = Number(row.count) || 0
+      if (row.event_id) {
+        acc[row.event_id] = (acc[row.event_id] || 0) + 1
+      }
       return acc
     }, {}) || {}
 

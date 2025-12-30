@@ -13,9 +13,7 @@ export default async function AdminDashboard() {
     { count: totalEvents },
     { count: totalArtists },
     { count: totalBookings },
-    { count: totalVotePurchases },
     { data: ticketRevenue },
-    { data: voteRevenue },
     { data: artistStats },
     { data: recentTickets },
     { data: recentVotes }
@@ -23,9 +21,7 @@ export default async function AdminDashboard() {
     adminClient.from('events').select('*', { count: 'exact', head: true }).eq('is_active', true),
     adminClient.from('artists').select('*', { count: 'exact', head: true }).eq('is_active', true),
     adminClient.from('tickets').select('*', { count: 'exact', head: true }).eq('payment_status', 'completed'),
-    adminClient.from('votes').select('*', { count: 'exact', head: true }).eq('payment_status', 'completed'),
     adminClient.from('tickets').select('total_amount').eq('payment_status', 'completed'),
-    adminClient.from('votes').select('amount_paid').eq('payment_status', 'completed'),
     adminClient
       .from('artists')
       .select('total_votes, total_vote_amount')
