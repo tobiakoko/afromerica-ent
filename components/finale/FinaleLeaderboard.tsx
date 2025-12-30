@@ -24,6 +24,7 @@ import type {
   FinaleStage,
 } from '@/types/finale'
 import { getStageDisplayName } from '@/types/finale'
+import { WinnersCelebration } from './WinnersCelebration'
 
 interface FinaleLeaderboardProps {
   eventId: string
@@ -164,6 +165,7 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
   const currentStage =
     selectedStage === 'cumulative' ? config.current_stage : selectedStage || config.current_stage
   const isStage4 = currentStage === 'stage_4'
+  const isCompleted = config.current_status === 'completed'
 
   const getRankIcon = (rank: number) => {
     if (rank === 1)
@@ -218,6 +220,11 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
           </div>
         </CardHeader>
       </Card>
+
+      {/* Winners Celebration - Show when finale is completed */}
+      {isCompleted && isStage4 && (
+        <WinnersCelebration winners={leaderboard.filter(w => w.rank <= 3)} />
+      )}
 
       {/* Stage Selector (for Stages 1-3) */}
       {!isStage4 && (
