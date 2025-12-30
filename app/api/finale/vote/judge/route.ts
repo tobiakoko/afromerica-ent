@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify voter exists and hasn't voted for this stage
+    // Verify voter exists and is active
     const { data: voter, error: voterError } = await supabase
       .from('finale_voters')
       .select('*')
@@ -164,12 +164,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const hasVotedField = `has_voted_${stage}` as keyof typeof voter
-    if (voter[hasVotedField]) {
+    // Check if judge has already voted for THIS specific contestant in this stage
+    // (Judges need to vote for ALL contestants, not just one per stage)
+    const { data: existingVote } = await supabase
+      .from('finale_judge_votes')
+      .select('id')
+      .eq('voter_id', voter_id)
+      .eq('contestant_id', contestant_id)
+      .eq('stage', stage)
+      .maybeSingle()
+
+    if (existingVote) {
       return NextResponse.json<VoteResponse>(
         {
           success: false,
-          message: 'You have already voted for this stage',
+          message: 'You have already voted for this contestant in this stage',
         },
         { status: 409 }
       )
@@ -254,6 +263,38 @@ export async function POST(request: NextRequest) {
     if (calcError) {
       console.error('Error calculating leaderboard:', calcError)
       // Don't fail the vote if leaderboard calculation fails
+    }
+
+    // Check if judge has now voted for ALL contestants in this stage
+    // If so, mark the stage as complete
+    const { count: votedCount } = await supabase
+      .from('finale_judge_votes')
+      .select('contestant_id', { count: 'exact', head: true })
+      .eq('voter_id', voter_id)
+      .eq('event_id', event_id)
+      .eq('stage', stage)
+
+    // Get total number of required contestants for this stage
+    let contestantQuery = supabase
+      .from('finale_contestants')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', event_id)
+      .eq('is_active', true)
+
+    // For stage 4, only count finalists (top 5)
+    if (stage === 'stage_4') {
+      contestantQuery = contestantQuery.eq('is_finalist', true)
+    }
+
+    const { count: totalContestants } = await contestantQuery
+
+    // If judge has voted for all contestants, mark stage as complete
+    if (votedCount && totalContestants && votedCount >= totalContestants) {
+      const hasVotedField = `has_voted_${stage}`
+      await supabase
+        .from('finale_voters')
+        .update({ [hasVotedField]: true })
+        .eq('id', voter_id)
     }
 
     return NextResponse.json<VoteResponse>({

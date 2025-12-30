@@ -61,8 +61,8 @@ export function JudgeVotingInterface({
   const currentStage = config.current_stage
   const stageConfig = currentStage ? STAGE_CONFIGS[currentStage] : null
 
-  // Check if judge has already voted for this stage
-  const alreadyVoted = currentStage ? hasVotedForStage(voter, currentStage) : false
+  // Check if judge has completed voting for ALL contestants in this stage
+  const completedStageVoting = currentStage ? hasVotedForStage(voter, currentStage) : false
 
   useEffect(() => {
     async function fetchContestants() {
@@ -191,17 +191,16 @@ export function JudgeVotingInterface({
         return
       }
 
-      toast.success('Vote submitted successfully!')
+      toast.success('Vote submitted successfully! You can now vote for the next contestant.')
 
-      // Clear form
+      // Clear form to allow voting for next contestant
       setSelectedContestant(null)
       setScores({})
       setNotes('')
+      setSubmitting(false)
 
-      // Redirect to leaderboard after a delay
-      setTimeout(() => {
-        router.push(`/events/${eventSlug}/finale/leaderboard`)
-      }, 1500)
+      // Note: Do NOT redirect - judges need to vote for ALL contestants
+      // They will see completion message when has_voted_stage_X becomes true
     } catch (error) {
       console.error('Error submitting vote:', error)
       toast.error('An error occurred while submitting your vote')
@@ -233,15 +232,15 @@ export function JudgeVotingInterface({
     )
   }
 
-  if (alreadyVoted) {
+  if (completedStageVoting) {
     return (
       <Card>
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
             <CheckCircle2 className="w-12 h-12 mx-auto text-green-500" />
-            <h3 className="text-lg font-semibold">Vote Already Submitted</h3>
+            <h3 className="text-lg font-semibold">All Votes Submitted for This Stage</h3>
             <p className="text-muted-foreground">
-              You have already voted for {currentStage && getStageDisplayName(currentStage)}.
+              You have completed voting for all contestants in {currentStage && getStageDisplayName(currentStage)}.
             </p>
             <Button onClick={() => router.push(`/events/${eventSlug}/finale/leaderboard`)}>
               View Leaderboard
