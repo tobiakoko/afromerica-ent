@@ -3,6 +3,84 @@ import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import type { FinaleConfig, FinaleStage, FinaleStatus } from '@/types/finale'
 
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const event_id = searchParams.get('event_id')
+
+    if (!event_id) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Event ID is required',
+        },
+        { status: 400 }
+      )
+    }
+
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Unauthorized',
+        },
+        { status: 401 }
+      )
+    }
+
+    const adminClient = createAdminClient()
+    const { data: admin } = await adminClient
+      .from('admins')
+      .select('*')
+      .eq('id', user.id)
+      .eq('is_active', true)
+      .single()
+
+    if (!admin) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Admin access required',
+        },
+        { status: 403 }
+      )
+    }
+
+    const { data: config, error } = await adminClient
+      .from('finale_configs')
+      .select('*')
+      .eq('event_id', event_id)
+      .single()
+
+    if (error || !config) {
+      return NextResponse.json(
+        { success: false, message: 'Finale configuration not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      config,
+    })
+  } catch (error: any) {
+    console.error('Admin config fetch error:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'An error occurred while fetching configuration',
+        ...(process.env.NODE_ENV === 'development' && { debug: error.message }),
+      },
+      { status: 500 }
+    )
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()

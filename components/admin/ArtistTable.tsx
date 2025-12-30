@@ -22,8 +22,20 @@ import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
+interface Artist {
+  id: string
+  name: string
+  stage_name?: string | null
+  genre?: string[] | string | null
+  photo_url?: string | null
+  image_url?: string | null
+  is_top_10?: boolean
+  final_rank?: number | null
+  created_at: string
+}
+
 interface ArtistTableProps {
-  artists: any[];
+  artists: Artist[];
 }
 
 export function ArtistTable({ artists }: ArtistTableProps) {
@@ -45,7 +57,7 @@ export function ArtistTable({ artists }: ArtistTableProps) {
       } else {
         throw new Error('Failed to delete artist');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete artist');
     } finally {
       setLoading(null);
@@ -60,7 +72,7 @@ export function ArtistTable({ artists }: ArtistTableProps) {
             <TableHead>Artist</TableHead>
             <TableHead>Stage Name</TableHead>
             <TableHead>Genre</TableHead>
-            <TableHead>Featured</TableHead>
+            <TableHead>Finale</TableHead>
             <TableHead>Created</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -72,7 +84,7 @@ export function ArtistTable({ artists }: ArtistTableProps) {
                 <div className="flex items-center gap-3">
                   <div className="relative w-10 h-10 rounded-full overflow-hidden">
                     <Image
-                      src={artist.image_url || '/images/default-artist.svg'}
+                      src={artist.photo_url || artist.image_url || '/images/default-artist.svg'}
                       alt={artist.name}
                       fill
                       className="object-cover"
@@ -86,12 +98,16 @@ export function ArtistTable({ artists }: ArtistTableProps) {
                 {Array.isArray(artist.genre) ? artist.genre.join(', ') : '-'}
               </TableCell>
               <TableCell>
-                {artist.featured ? (
-                  <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs">
-                    Featured
+                {artist.is_top_10 ? (
+                  <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-semibold">
+                    Finale Top 10
+                  </span>
+                ) : artist.final_rank ? (
+                  <span className="px-2 py-1 bg-muted text-xs rounded">
+                    Rank #{artist.final_rank}
                   </span>
                 ) : (
-                  '-'
+                  <span className="text-muted-foreground text-xs">Not in finale</span>
                 )}
               </TableCell>
               <TableCell>

@@ -10,6 +10,8 @@ interface EventWithFinale {
   slug: string
   event_date: string
   finale_configs: FinaleConfig[] | null
+  artist_count?: number
+  voter_count?: number
 }
 
 export const dynamic = 'force-dynamic'
@@ -80,8 +82,34 @@ export default async function FinaleAdminPage() {
     console.error('Error details:', JSON.stringify(eventsError, null, 2))
   }
 
-  console.log('Fetched events:', events?.length || 0)
-  console.log('Events data:', JSON.stringify(events, null, 2))
+  // Fetch artist counts per event
+  const { data: artistCounts } = await adminClient
+    .from('artists')
+    .select('event_id, count:id', { group: 'event_id' })
+
+  // Fetch voter counts per event
+  const { data: voterCounts } = await adminClient
+    .from('finale_voters')
+    .select('event_id, count:id', { group: 'event_id' })
+
+  const artistCountMap =
+    artistCounts?.reduce<Record<string, number>>((acc, row) => {
+      acc[row.event_id] = Number(row.count) || 0
+      return acc
+    }, {}) || {}
+
+  const voterCountMap =
+    voterCounts?.reduce<Record<string, number>>((acc, row) => {
+      acc[row.event_id] = Number(row.count) || 0
+      return acc
+    }, {}) || {}
+
+  const eventsWithCounts =
+    (events as EventWithFinale[] | null)?.map((event) => ({
+      ...event,
+      artist_count: artistCountMap[event.id] ?? 0,
+      voter_count: voterCountMap[event.id] ?? 0,
+    })) || []
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,7 +128,7 @@ export default async function FinaleAdminPage() {
         </div>
       )}
 
-      <FinaleAdminPanel events={(events as EventWithFinale[]) || []} />
+      <FinaleAdminPanel events={eventsWithCounts} />
     </div>
   )
 }

@@ -24,8 +24,21 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { EVENT_STATUS, EVENT_STATUS_LABELS, DATE_FORMATS } from '@/lib/constants';
 
+interface EventRow {
+  id: string
+  title: string
+  slug: string
+  status: string
+  event_date?: string | null
+  capacity?: number | null
+  tickets_sold?: number | null
+  image_url?: string | null
+  cover_image_url?: string | null
+  venue?: string | null
+}
+
 interface EventTableProps {
-  events: any[];
+  events: EventRow[];
 }
 
 export function EventTable({ events }: EventTableProps) {
@@ -47,7 +60,7 @@ export function EventTable({ events }: EventTableProps) {
       } else {
         throw new Error('Failed to delete event');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete event');
     } finally {
       setLoading(null);
@@ -73,7 +86,7 @@ export function EventTable({ events }: EventTableProps) {
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 rounded overflow-hidden">
                     <Image
-                      src={event.image_url || '/images/default-event.svg'}
+                      src={event.cover_image_url || event.image_url || '/images/default-event.svg'}
                       alt={event.title}
                       fill
                       className="object-cover"
@@ -81,12 +94,14 @@ export function EventTable({ events }: EventTableProps) {
                   </div>
                   <div>
                     <p className="font-medium">{event.title}</p>
-                    <p className="text-sm text-muted-foreground">{event.category}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {event.venue || event.slug}
+                    </p>
                   </div>
                 </div>
               </TableCell>
               <TableCell>
-                {format(new Date(event.date), DATE_FORMATS.SHORT)}
+                {event.event_date ? format(new Date(event.event_date), DATE_FORMATS.SHORT) : '—'}
               </TableCell>
               <TableCell>
                 <span className={`px-2 py-1 rounded text-xs font-semibold ${

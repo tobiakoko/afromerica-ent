@@ -117,14 +117,14 @@ export default async function HomePage() {
                   <Link
                     href={
                       decemberShowcase?.slug
-                        ? `/events/${decemberShowcase.slug}/leaderboard`
+                        ? `/events/${decemberShowcase.slug}/finale/vote`
                         : "/events"
                     }
-                    aria-label="Vote for artists"
+                    aria-label="Authenticate to vote in the finale"
                   >
                     <span className="inline-flex items-center gap-2 sm:gap-3">
                       <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" />
-                      <span>Vote for Artists</span>
+                      <span>Finale Voting — Get In</span>
                     </span>
                   </Link>
                 </Button>
@@ -135,10 +135,17 @@ export default async function HomePage() {
                   variant="outline"
                   className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base border-2 border-white/30 bg-white/5 backdrop-blur-md text-white hover:bg-white/10 hover:border-white/50 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
                 >
-                  <Link href="/events" aria-label="View events">
+                  <Link
+                    href={
+                      decemberShowcase?.slug
+                        ? `/events/${decemberShowcase.slug}/finale/leaderboard`
+                        : "/events"
+                    }
+                    aria-label="View finale leaderboard"
+                  >
                     <span className="inline-flex items-center gap-2 sm:gap-3">
                       <Calendar className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" />
-                      <span>Explore Events</span>
+                      <span>See Finale Leaderboard</span>
                     </span>
                   </Link>
                 </Button>

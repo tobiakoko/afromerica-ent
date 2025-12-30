@@ -24,9 +24,11 @@ import {
   UserCheck,
   Globe,
   Gavel,
+  Share2,
+  Megaphone,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import type { FinaleVoter } from '@/types/finale'
+import type { FinaleConfig, FinaleVoter } from '@/types/finale'
 
 interface FinaleJudgesTabProps {
   eventId: string
@@ -39,11 +41,13 @@ export function FinaleJudgesTab({ eventId }: FinaleJudgesTabProps) {
     online: FinaleVoter[]
     total: number
   } | null>(null)
+  const [config, setConfig] = useState<FinaleConfig | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     fetchVoters()
+    fetchConfig()
   }, [eventId])
 
   const fetchVoters = async () => {
@@ -61,6 +65,18 @@ export function FinaleJudgesTab({ eventId }: FinaleJudgesTabProps) {
       toast.error('Failed to load voters')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchConfig = async () => {
+    try {
+      const response = await fetch(`/api/finale/admin/config?event_id=${eventId}`)
+      const data = await response.json()
+      if (data.success) {
+        setConfig(data.config)
+      }
+    } catch (error) {
+      console.error('Error fetching finale config:', error)
     }
   }
 
@@ -232,7 +248,7 @@ export function FinaleJudgesTab({ eventId }: FinaleJudgesTabProps) {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -286,6 +302,87 @@ export function FinaleJudgesTab({ eventId }: FinaleJudgesTabProps) {
         </Card>
       </div>
 
+      {/* Quick Codes */}
+      {voters && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Share2 className="w-4 h-4" />
+              Finale Voter Codes
+            </CardTitle>
+            <CardDescription>Share these codes with your judges and audience groups</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 lg:grid-cols-3">
+            <div className="p-4 rounded-lg border flex items-center justify-between gap-2">
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">Judges</p>
+                <p className="text-sm font-semibold">{voters.judges.length} codes</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  copyToClipboard(
+                    config?.settings?.judge_codes?.join('\n') ||
+                      voters.judges.map((v) => `${v.judge_number}: ${v.voter_code}`).join('\n'),
+                    'Judge codes'
+                  )
+                }
+              >
+                <Copy className="w-4 h-4 mr-1" />
+                Copy All
+              </Button>
+            </div>
+            <div className="p-4 rounded-lg border flex items-center justify-between gap-2">
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">In-house Audience</p>
+                <p className="text-sm font-semibold">
+                  {config?.settings?.in_house_code || voters.in_house[0]?.voter_code || 'Not generated'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  (config?.settings?.in_house_code || voters.in_house[0]?.voter_code) &&
+                  copyToClipboard(
+                    config?.settings?.in_house_code || voters.in_house[0].voter_code,
+                    'In-house code'
+                  )
+                }
+                disabled={!config?.settings?.in_house_code && !voters.in_house[0]?.voter_code}
+              >
+                <Megaphone className="w-4 h-4 mr-1" />
+                Copy
+              </Button>
+            </div>
+            <div className="p-4 rounded-lg border flex items-center justify-between gap-2">
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">Online Audience</p>
+                <p className="text-sm font-semibold">
+                  {config?.settings?.online_code || voters.online[0]?.voter_code || 'Not generated'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  (config?.settings?.online_code || voters.online[0]?.voter_code) &&
+                  copyToClipboard(
+                    config?.settings?.online_code || voters.online[0].voter_code,
+                    'Online code'
+                  )
+                }
+                disabled={!config?.settings?.online_code && !voters.online[0]?.voter_code}
+              >
+                <Megaphone className="w-4 h-4 mr-1" />
+                Copy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Search */}
       <Card>
         <CardHeader>
@@ -307,14 +404,14 @@ export function FinaleJudgesTab({ eventId }: FinaleJudgesTabProps) {
 
       {/* Voter Tables */}
       <Tabs defaultValue="judges">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="judges">
+        <TabsList className="flex flex-wrap w-full gap-2">
+          <TabsTrigger className="flex-1 min-w-[140px]" value="judges">
             Judges ({voters.judges.length})
           </TabsTrigger>
-          <TabsTrigger value="in-house">
+          <TabsTrigger className="flex-1 min-w-[140px]" value="in-house">
             In-House ({voters.in_house.length})
           </TabsTrigger>
-          <TabsTrigger value="online">
+          <TabsTrigger className="flex-1 min-w-[140px]" value="online">
             Online ({voters.online.length})
           </TabsTrigger>
         </TabsList>

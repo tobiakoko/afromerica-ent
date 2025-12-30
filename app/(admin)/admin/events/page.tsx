@@ -1,16 +1,19 @@
-import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { EventTable } from "@/components/admin/EventTable";
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminEventsPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   
-  const { data: events } = await supabase
+  const { data: events, error } = await supabase
     .from('events')
-    .select('*')
-    .order('date', { ascending: false });
+    .select('id, title, slug, status, event_date, capacity, tickets_sold, image_url, cover_image_url, venue')
+    .eq('is_active', true)
+    .order('event_date', { ascending: false });
 
   return (
     <div className="space-y-6">
@@ -26,6 +29,12 @@ export default async function AdminEventsPage() {
           </Link>
         </Button>
       </div>
+
+      {error && (
+        <div className="p-3 rounded border border-destructive text-destructive text-sm">
+          Failed to load events: {error.message}
+        </div>
+      )}
 
       <EventTable events={events || []} />
     </div>

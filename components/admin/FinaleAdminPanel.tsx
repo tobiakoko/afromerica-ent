@@ -16,6 +16,8 @@ interface EventWithFinale {
   slug: string
   event_date: string
   finale_configs: FinaleConfig[] | null
+  artist_count?: number
+  voter_count?: number
 }
 
 interface FinaleAdminPanelProps {
@@ -105,8 +107,48 @@ export function FinaleAdminPanel({ events }: FinaleAdminPanelProps) {
 
   return (
     <div className="space-y-6">
+      {/* Quick stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Events with Finale</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{eventsWithFinale.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Events</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">{normalizedEvents.length}</p>
+          </CardContent>
+        </Card>
+        <Card className="hidden lg:block">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Artists (selected event)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">
+              {selectedEvent?.artist_count ?? '—'}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="hidden lg:block">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Voters (selected event)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">
+              {selectedEvent?.voter_count ?? '—'}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Event Selector */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle>Select Event</CardTitle>
           <CardDescription>
@@ -174,25 +216,27 @@ export function FinaleAdminPanel({ events }: FinaleAdminPanelProps) {
       </Card>
 
       {config && (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">
-              <LayoutDashboard className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="stages">
-              <Settings className="w-4 h-4 mr-2" />
-              Stages & Controls
-            </TabsTrigger>
-            <TabsTrigger value="contestants">
-              <Trophy className="w-4 h-4 mr-2" />
-              Contestants
-            </TabsTrigger>
-            <TabsTrigger value="voters">
-              <Gavel className="w-4 h-4 mr-2" />
-              Judges & Voters
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="w-full overflow-x-auto">
+            <TabsList className="grid min-w-[520px] w-full grid-cols-4">
+              <TabsTrigger value="overview">
+                <LayoutDashboard className="w-4 h-4 mr-2" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="stages">
+                <Settings className="w-4 h-4 mr-2" />
+                Stages & Controls
+              </TabsTrigger>
+              <TabsTrigger value="contestants">
+                <Trophy className="w-4 h-4 mr-2" />
+                Contestants
+              </TabsTrigger>
+              <TabsTrigger value="voters">
+                <Gavel className="w-4 h-4 mr-2" />
+                Judges & Voters
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="mt-6">
