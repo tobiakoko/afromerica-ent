@@ -128,12 +128,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get snapshots for all stages up to current (including stage_4)
-    const stages = ['stage_1', 'stage_2', 'stage_3', 'stage_4'].filter((s) => {
-      const stageNum = parseInt(s.split('_')[1], 10)
-      const currentNum = parseInt(currentStage.split('_')[1], 10)
-      return stageNum <= currentNum
-    })
+    // Get snapshots for all stages up to current
+    // For stage_4, only show stage_4 scores (not cumulative)
+    // For stages 1-3, show cumulative scores up to that stage
+    const stages =
+      currentStage === 'stage_4'
+        ? ['stage_4']
+        : ['stage_1', 'stage_2', 'stage_3'].filter((s) => {
+            const stageNum = parseInt(s.split('_')[1], 10)
+            const currentNum = parseInt(currentStage.split('_')[1], 10)
+            return stageNum <= currentNum
+          })
 
     const { data: snapshots, error: snapshotError } = await supabase
       .from('finale_leaderboard_snapshots')
