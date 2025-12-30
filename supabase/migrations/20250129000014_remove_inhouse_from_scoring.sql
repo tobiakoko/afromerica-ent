@@ -12,6 +12,9 @@
 -- In-house votes will still be recorded in the database for reference,
 -- but will not contribute to the final score.
 
+-- Drop the existing function first to avoid signature conflicts
+DROP FUNCTION IF EXISTS calculate_finale_leaderboard(UUID, TEXT);
+
 CREATE OR REPLACE FUNCTION calculate_finale_leaderboard(
   p_event_id UUID,
   p_stage TEXT

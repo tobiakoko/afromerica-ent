@@ -262,7 +262,6 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
                   <TableHead className="w-16">Rank</TableHead>
                   <TableHead>Contestant</TableHead>
                   <TableHead className="text-right">Judge Score</TableHead>
-                  <TableHead className="text-right">Audience Votes</TableHead>
                   <TableHead className="text-right">Online Votes</TableHead>
                   <TableHead className="text-right">Total Score</TableHead>
                   <TableHead className="w-24">Status</TableHead>
@@ -271,7 +270,7 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
               <TableBody>
                 {leaderboard.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
                       No data available yet. Voting may not have started.
                     </TableCell>
                   </TableRow>
@@ -333,25 +332,11 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
                       <TableCell className="text-right">
                         <div>
                           <p className="font-medium">
-                            {entry.scores.in_house_score_weighted.toFixed(2)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {entry.scores.in_house_votes} votes (
-                            {((entry.scores.in_house_score_weighted / 25) * 100).toFixed(
-                              1
-                            )}
-                            %)
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div>
-                          <p className="font-medium">
                             {entry.scores.online_score_weighted.toFixed(2)}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {entry.scores.online_votes} votes (
-                            {((entry.scores.online_score_weighted / 15) * 100).toFixed(
+                            {((entry.scores.online_score_weighted / 40) * 100).toFixed(
                               1
                             )}
                             %)
@@ -389,7 +374,7 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
           <CardTitle>Scoring Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20">
               <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
                 Judges (60%)
@@ -399,20 +384,11 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
                 3 judges × {isStage4 ? '20' : 'stage-specific'} points
               </p>
             </div>
-            <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20">
-              <p className="text-sm font-medium text-green-700 dark:text-green-300">
-                In-house Audience (25%)
-              </p>
-              <p className="text-2xl font-bold">25 pts</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Proportional to votes received
-              </p>
-            </div>
             <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-950/20">
               <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
-                Online Viewers (15%)
+                Online Viewers (40%)
               </p>
-              <p className="text-2xl font-bold">15 pts</p>
+              <p className="text-2xl font-bold">40 pts</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Proportional to votes received
               </p>
