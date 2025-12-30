@@ -93,33 +93,49 @@ BEGIN
       AND stage = p_stage
       AND contestant_id = v_contestant.id;
 
-    -- Normalize and weight judge score: (raw / max) * 100 * 0.60
-    v_judge_score_weighted := (v_judge_score_raw / v_max_judge_score) * 100 * 0.60;
+    -- Stage 4: Judges are 100%, no audience votes
+    -- Stages 1-3: Judges 60%, Online 40%
+    IF p_stage = 'stage_4' THEN
+      -- Normalize and weight judge score: (raw / max) * 100 * 1.00 (100%)
+      v_judge_score_weighted := (v_judge_score_raw / v_max_judge_score) * 100;
 
-    -- Count in-house votes (kept for reference)
-    SELECT COUNT(*) INTO v_in_house_votes
-    FROM finale_audience_votes
-    WHERE event_id = p_event_id
-      AND stage = p_stage
-      AND contestant_id = v_contestant.id
-      AND voter_type = 'in_house';
+      -- In-house and online votes not counted for stage 4
+      v_in_house_votes := 0;
+      v_in_house_score_weighted := 0;
+      v_online_votes := 0;
+      v_online_score_weighted := 0;
 
-    -- In-house weight is now 0% (removed from scoring)
-    v_in_house_score_weighted := 0;
+      -- Total is 100% judges
+      v_total_score := v_judge_score_weighted;
+    ELSE
+      -- Normalize and weight judge score: (raw / max) * 100 * 0.60
+      v_judge_score_weighted := (v_judge_score_raw / v_max_judge_score) * 100 * 0.60;
 
-    -- Count online votes
-    SELECT COUNT(*) INTO v_online_votes
-    FROM finale_audience_votes
-    WHERE event_id = p_event_id
-      AND stage = p_stage
-      AND contestant_id = v_contestant.id
-      AND voter_type = 'online';
+      -- Count in-house votes (kept for reference)
+      SELECT COUNT(*) INTO v_in_house_votes
+      FROM finale_audience_votes
+      WHERE event_id = p_event_id
+        AND stage = p_stage
+        AND contestant_id = v_contestant.id
+        AND voter_type = 'in_house';
 
-    -- Normalize and weight online score: (votes / max) * 100 * 0.40
-    v_online_score_weighted := (v_online_votes::DECIMAL / v_max_online_votes) * 100 * 0.40;
+      -- In-house weight is now 0% (removed from scoring)
+      v_in_house_score_weighted := 0;
 
-    -- Calculate total score (judges 60% + online 40%)
-    v_total_score := v_judge_score_weighted + v_online_score_weighted;
+      -- Count online votes
+      SELECT COUNT(*) INTO v_online_votes
+      FROM finale_audience_votes
+      WHERE event_id = p_event_id
+        AND stage = p_stage
+        AND contestant_id = v_contestant.id
+        AND voter_type = 'online';
+
+      -- Normalize and weight online score: (votes / max) * 100 * 0.40
+      v_online_score_weighted := (v_online_votes::DECIMAL / v_max_online_votes) * 100 * 0.40;
+
+      -- Calculate total score (judges 60% + online 40%)
+      v_total_score := v_judge_score_weighted + v_online_score_weighted;
+    END IF;
 
     -- Insert snapshot
     INSERT INTO finale_leaderboard_snapshots (
@@ -173,4 +189,4 @@ $$;
 
 -- Add comment to document the change
 COMMENT ON FUNCTION calculate_finale_leaderboard IS
-'Calculates finale leaderboard scores with judges (60%) and online votes (40%). In-house votes are recorded but not weighted (0%).';
+'Calculates finale leaderboard scores. Stage 4: Judges 100%. Stages 1-3: Judges 60%, Online 40%. In-house votes recorded but not weighted (0%).';
