@@ -42,8 +42,6 @@ npm run dev
 
 Access app at `http://localhost:3000`
 
-See [Quick Start Guide](./docs/QUICK_START.md) for detailed setup instructions.
-
 #### 3. Database Setup
 
 The project uses Supabase for authentication and database:
@@ -58,8 +56,6 @@ open http://localhost:54323
 # Reset database (if needed)
 npx supabase db reset
 ```
-
-See [Supabase Setup Guide](./docs/SUPABASE_SETUP.md) for production deployment.
 
 ---
 
