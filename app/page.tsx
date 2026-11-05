@@ -88,21 +88,21 @@ export default async function HomePage() {
                   <span className="absolute inline-flex h-2 w-2 rounded-full bg-[#00FFF0] opacity-75 animate-ping" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#00FFF0]" />
                 </span>
-                <p className="text-[10px] sm:text-xs md:text-sm text-gray-700 dark:text-[#00FFF0] font-medium tracking-wide uppercase">
+                <p className="text-xs md:text-sm text-[#00FFF0] font-medium tracking-wide uppercase">
                   December Showcase 2025 — Live Now
                 </p>
               </div>
 
               {/* Headline - Apple style large and bold */}
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300 px-2">
-                <span className="text-gray-900 dark:text-white">Welcome to </span>
+                <span className="text-white">Welcome to </span>
                 <span className="bg-clip-text text-transparent bg-linear-to-r from-[#00FFF0] via-[#8B5CF6] to-[#FB7185]">
                   Afromerica
                 </span>
               </h1>
 
               {/* Supporting text - Apple style light and spacious */}
-              <p className="mx-auto max-w-3xl text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-400 font-light leading-relaxed mb-8 sm:mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 px-4">
+              <p className="mx-auto max-w-3xl text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 font-light leading-relaxed mb-8 sm:mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 px-4">
                 Celebrating African culture through music, live experiences and community.
                 Discover artists, events and the December showcase.
               </p>

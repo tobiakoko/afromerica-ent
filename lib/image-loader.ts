@@ -3,6 +3,12 @@
  * Handles multiple image sources: Supabase Storage, CDN, external URLs, and local assets
  */
 
+// Widths generated for each carousel crop in public/images/carousel
+const RESPONSIVE_WIDTHS = {
+  landscape: [640, 828, 1080, 1280, 1920, 2560],
+  portrait: [640, 828, 1080, 1280],
+}
+
 interface ImageLoaderProps {
   src: string
   width: number
@@ -44,8 +50,16 @@ export default function imageLoader({ src, width, quality }: ImageLoaderProps): 
     return src
   }
 
-  // Handle local assets (from /public folder)
-  // These should be served directly without transformation
+  // Pre-sized local images: `/images/carousel/<name>.webp` has variants on disk named
+  // `<name>-<width>.webp` (generated ahead of time), so pick the smallest one that covers the request.
+  const responsive = src.match(/^(\/images\/carousel\/[a-z0-9-]+-(landscape|portrait))\.webp$/)
+  if (responsive) {
+    const widths = RESPONSIVE_WIDTHS[responsive[2] as 'landscape' | 'portrait']
+    const chosen = widths.find((w) => w >= width) ?? widths[widths.length - 1]
+    return `${responsive[1]}-${chosen}.webp`
+  }
+
+  // Other local assets (from /public folder) are served directly without transformation
   if (src.startsWith('/')) {
     return src
   }
