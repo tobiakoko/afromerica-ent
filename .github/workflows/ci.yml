@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Cancel an in-progress run when a newer commit lands on the same branch/PR
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,23 +32,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linter
+      # Non-blocking until the existing lint errors (mostly no-explicit-any) are cleared;
+      # remove continue-on-error then so lint gates merges.
+      - name: Run linter (non-blocking)
         run: npm run lint
         continue-on-error: true
 
       - name: Run type check
         run: npx tsc --noEmit
-        continue-on-error: true
 
-      - name: Run tests
-        run: npm test
-        continue-on-error: true
-        env:
-          NODE_ENV: test
+      # There is no test suite yet. Add a "test" script (e.g. Vitest) and a step here
+      # running `npm test` once one exists.
 
+      # The build needs no real secrets: clients that use them are created on first request.
+      # The Supabase values are placeholders; pages that fetch at build time handle the failure.
       - name: Build application
         run: npm run build
         env:
-          SKIP_ENV_VALIDATION: true
           NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
           NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key

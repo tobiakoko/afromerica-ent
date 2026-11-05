@@ -4,14 +4,7 @@ import { paystackClient } from '@/lib/paystack/client';
 import crypto from 'crypto';
 import { CURRENCY, PAYMENT_STATUS, APP_METADATA } from '@/lib/constants';
 import { jwtVerify } from 'jose';
-
-const JWT_SECRET = (() => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is required');
-  }
-  return new TextEncoder().encode(secret);
-})();
+import { getJwtSecret } from '@/lib/auth/jwt-secret';
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,9 +28,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Resolve outside the token try/catch so a missing secret is a server error, not an "invalid token"
+      const jwtSecret = getJwtSecret();
       try {
         // Verify the JWT token
-        const { payload } = await jwtVerify(validationToken, JWT_SECRET);
+        const { payload } = await jwtVerify(validationToken, jwtSecret);
 
         // Check if the token contains verified status
         if (!payload.verified) {

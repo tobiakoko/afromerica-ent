@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { hashOTP, isOTPExpired } from '@/lib/otp/generator';
 import { SignJWT } from 'jose';
-
-const JWT_SECRET = (() => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is required');
-  }
-  return new TextEncoder().encode(secret);
-})();
+import { getJwtSecret } from '@/lib/auth/jwt-secret';
 
 export async function POST(request: NextRequest) {
   try {
@@ -119,7 +112,7 @@ export async function POST(request: NextRequest) {
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('1h')
-      .sign(JWT_SECRET);
+      .sign(getJwtSecret());
 
     return NextResponse.json({
       success: true,

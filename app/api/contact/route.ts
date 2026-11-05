@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { getResend } from '@/lib/resend/client';
 
 const SUPPORT_EMAIL = process.env.RESEND_SUPPORT_EMAIL || 'support@afromericaent.com';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Afromerica Entertainment <noreply@afromericaent.com>';
@@ -29,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email to support team
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to: SUPPORT_EMAIL,
       replyTo: email,
@@ -78,7 +76,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Send confirmation email to user
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to: email,
       subject: 'We received your message - Afromerica Entertainment',

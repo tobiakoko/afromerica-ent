@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { SignJWT } from 'jose'
 import type { VoterAuthRequest, VoterAuthResponse } from '@/types/finale'
-
-const JWT_SECRET = (() => {
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is required')
-  }
-  return new TextEncoder().encode(secret)
-})()
+import { getJwtSecret } from '@/lib/auth/jwt-secret'
 
 export async function POST(request: NextRequest) {
   try {
@@ -200,7 +193,7 @@ export async function POST(request: NextRequest) {
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('4h')
-      .sign(JWT_SECRET)
+      .sign(getJwtSecret())
 
     return NextResponse.json<VoterAuthResponse>({
       success: true,

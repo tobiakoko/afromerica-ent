@@ -1,13 +1,11 @@
 import { render } from '@react-email/render';
-import { Resend } from 'resend';
+import { getResend } from '@/lib/resend/client';
 import TicketConfirmationEmail from '@/lib/resend/templates/ticket-confirmation';
 import VoteConfirmationEmail from '@/lib/resend/templates/vote-confirmation';
 import OTPEmail from '@/lib/resend/templates/otp-email';
 
 // FIXME: Add error handling
 // FIXME: Hardcoded email domains should be in env vars
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendTicketConfirmation(data: {
   to: string;
@@ -32,7 +30,7 @@ export async function sendTicketConfirmation(data: {
     })
   );
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: 'Afromerica Tickets <support@afromericaent.com>',
     to: data.to,
     subject: `Ticket Confirmed: ${data.booking.event?.title}`,
@@ -57,7 +55,7 @@ export async function sendVoteConfirmation(data: {
     })
   );
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: 'Afromerica Votes <support@afromericaent.com>',
     to: data.to,
     subject: `Vote Confirmed for ${data.artistName}!`,
@@ -77,7 +75,7 @@ export async function sendOTP(data: {
     })
   );
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: 'Afromerica <support@afromericaent.com>',
     to: data.to,
     subject: `Your verification code: ${data.otp}`,
