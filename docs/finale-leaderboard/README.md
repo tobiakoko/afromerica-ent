@@ -14,7 +14,11 @@ This folder is a focused, do-this-next set of instructions for one improvement:
   - Fixed a fetch race the doc didn't cover: the initial-load effect re-ran on every tab change and re-fetched the *current* stage, which could overwrite the selected stage's data. Fetching is now driven by `selectedStage`, and stale responses are ignored.
   - Stage-dependent rendering (Stage 4 columns, winners banner) keys off the stage the loaded rows belong to, so the banner can never label another stage's leaders as winners mid-switch.
   - The tab row wraps on mobile (`flex flex-wrap` → `sm:grid sm:grid-cols-5`).
-- **Cleanup (`05`) — not yet done.**
+- **Cleanup (`05`) — done**, with these deviations:
+  - The live vote page renders `VoteForm.tsx`, so the unused `voting-form-with-otp.tsx` was deleted.
+  - `hooks/use-auth.ts` (unused) and `app/(admin)/admin/users/page.tsx` were deleted: the `profiles` table they query doesn't exist in production, so the page always redirected away and nothing linked to it.
+  - `FIX_ADMINS_RLS.sql` became `supabase/migrations/20251229132604_fix_admins_rls.sql` (timestamp = when it was first committed). The live `admins` policies already match it.
+  - `.prettierrc` was removed (empty, and Prettier isn't installed).
 - Note: `docs/audit/`, referenced throughout, does not exist in this repo.
 
 ## Scope guardrails (read first)
