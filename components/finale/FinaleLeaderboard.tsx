@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -36,25 +36,34 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
   const [loading, setLoading] = useState(true)
   const [config, setConfig] = useState<FinaleConfig | null>(null)
   const [leaderboard, setLeaderboard] = useState<DetailedLeaderboardEntry[]>([])
+  // The stage the rows in `leaderboard` actually belong to. Rendering keys off this
+  // (not the selected tab) so a tab switch never labels old rows with the new stage.
+  const [leaderboardStage, setLeaderboardStage] = useState<FinaleStage | null>(null)
   const [selectedStage, setSelectedStage] = useState<FinaleStage | 'cumulative' | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string>('')
   const [autoRefresh, setAutoRefresh] = useState(true)
+  // Only the most recent request may update state, so slow responses can't overwrite newer ones.
+  const latestRequest = useRef(0)
 
   const fetchLeaderboard = useCallback(
     async (stage?: FinaleStage | 'cumulative' | null) => {
+      const requestId = ++latestRequest.current
       try {
         const params = new URLSearchParams({
           event_id: eventId,
           include_breakdown: 'true',
         })
 
-        if (stage && stage !== 'cumulative') {
-          params.set('stage', stage)
+        const requestedStage = stage && stage !== 'cumulative' ? stage : null
+        if (requestedStage) {
+          params.set('stage', requestedStage)
         }
 
         const response = await fetch(`/api/finale/leaderboard?${params.toString()}`)
 
         const data: LeaderboardResponse = await response.json()
+
+        if (requestId !== latestRequest.current) return
 
         if (!response.ok || !data.success) {
           toast.error(data.message || 'Failed to fetch leaderboard')
@@ -63,31 +72,39 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
 
         if (data.config) {
           setConfig(data.config)
-          if (selectedStage === null && data.config.current_stage) {
-            setSelectedStage(data.config.current_stage)
-          }
+          const finaleConfig = data.config
+          // On a completed finale, open on Stage 1 so the stages read in order.
+          setSelectedStage((prev) =>
+            prev ??
+            (finaleConfig.current_status === 'completed'
+              ? 'stage_1'
+              : finaleConfig.current_stage)
+          )
         }
 
         if (data.leaderboard) {
           setLeaderboard(data.leaderboard)
+          setLeaderboardStage(requestedStage ?? data.config?.current_stage ?? null)
         }
 
         if (data.last_updated) {
           setLastUpdated(data.last_updated)
         }
       } catch (error) {
+        if (requestId !== latestRequest.current) return
         console.error('Error fetching leaderboard:', error)
         toast.error('Failed to fetch leaderboard data')
       }
     },
-    [eventId, selectedStage]
+    [eventId]
   )
 
+  // Fetch whenever the selected stage changes (null = initial load of the current stage)
   useEffect(() => {
     let isMounted = true
 
     const load = async () => {
-      await fetchLeaderboard()
+      await fetchLeaderboard(selectedStage)
       if (isMounted) {
         setLoading(false)
       }
@@ -98,7 +115,7 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
     return () => {
       isMounted = false
     }
-  }, [eventId, fetchLeaderboard])
+  }, [eventId, selectedStage, fetchLeaderboard])
 
   // Set up real-time subscription with fallback polling
   useEffect(() => {
@@ -136,10 +153,9 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
     }
   }, [eventId, config, autoRefresh, selectedStage, supabase, fetchLeaderboard])
 
+  // The fetch effect above reloads data when selectedStage changes
   const handleStageChange = (stage: FinaleStage | 'cumulative') => {
     setSelectedStage(stage)
-    const stageParam = stage === 'cumulative' ? null : stage
-    fetchLeaderboard(stageParam)
   }
 
   if (loading) {
@@ -162,8 +178,7 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
     )
   }
 
-  const currentStage =
-    selectedStage === 'cumulative' ? config.current_stage : selectedStage || config.current_stage
+  const currentStage = leaderboardStage ?? config.current_stage
   const isStage4 = currentStage === 'stage_4'
   const isCompleted = config.current_status === 'completed'
 
@@ -226,29 +241,28 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
         <WinnersCelebration winners={leaderboard.filter(w => w.rank <= 3)} />
       )}
 
-      {/* Stage Selector (for Stages 1-3) */}
-      {!isStage4 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>View By Stage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs
-              value={(selectedStage || config.current_stage || 'cumulative') as string}
-              onValueChange={(value) =>
-                handleStageChange(value as FinaleStage | 'cumulative')
-              }
-            >
-              <TabsList className="grid grid-cols-4 w-full">
-                <TabsTrigger value="stage_1">Stage 1</TabsTrigger>
-                <TabsTrigger value="stage_2">Stage 2</TabsTrigger>
-                <TabsTrigger value="stage_3">Stage 3</TabsTrigger>
-                <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
+      {/* Stage Selector — always available so viewers can browse every stage */}
+      <Card>
+        <CardHeader>
+          <CardTitle>View By Stage</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs
+            value={(selectedStage || config.current_stage || 'cumulative') as string}
+            onValueChange={(value) =>
+              handleStageChange(value as FinaleStage | 'cumulative')
+            }
+          >
+            <TabsList className="flex flex-wrap h-auto w-full sm:grid sm:grid-cols-5">
+              <TabsTrigger value="stage_1">Stage 1</TabsTrigger>
+              <TabsTrigger value="stage_2">Stage 2</TabsTrigger>
+              <TabsTrigger value="stage_3">Stage 3</TabsTrigger>
+              <TabsTrigger value="stage_4">Stage 4</TabsTrigger>
+              <TabsTrigger value="cumulative">Cumulative</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Leaderboard Table */}
       <Card>
