@@ -11,14 +11,7 @@ import {
   validateCriteriaScores,
   getMaxScoreForStage,
 } from '@/types/finale'
-
-const JWT_SECRET = (() => {
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is required')
-  }
-  return new TextEncoder().encode(secret)
-})()
+import { getJwtSecret } from '@/lib/auth/jwt-secret'
 
 interface VoterTokenPayload extends JWTPayload {
   voter_id: string
@@ -44,9 +37,11 @@ export async function POST(request: NextRequest) {
 
     const token = authHeader.substring(7)
     let payload: VoterTokenPayload
+    // Resolve outside the token try/catch so a missing secret is a server error, not an "invalid token"
+    const jwtSecret = getJwtSecret()
 
     try {
-      const verified = await jwtVerify<VoterTokenPayload>(token, JWT_SECRET)
+      const verified = await jwtVerify<VoterTokenPayload>(token, jwtSecret)
       payload = verified.payload
     } catch {
       return NextResponse.json<VoteResponse>(
