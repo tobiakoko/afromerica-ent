@@ -19,6 +19,11 @@ This folder is a focused, do-this-next set of instructions for one improvement:
   - `hooks/use-auth.ts` (unused) and `app/(admin)/admin/users/page.tsx` were deleted: the `profiles` table they query doesn't exist in production, so the page always redirected away and nothing linked to it.
   - `FIX_ADMINS_RLS.sql` became `supabase/migrations/20251229132604_fix_admins_rls.sql` (timestamp = when it was first committed). The live `admins` policies already match it.
   - `.prettierrc` was removed (empty, and Prettier isn't installed).
+  - Follow-up pass (the audit's dependency and dead-code items):
+    - Removed `swr` (and its provider), `next-theme`, `react-otp-input` (and the unused `components/ui/otp-input.tsx`), `jsonwebtoken` + `@types/jsonwebtoken`, `next-auth`, the bare `sentry` package, `@sentry/nextjs` and `ms`.
+    - Deleted the unused `lib/monitoring.ts`, `lib/performance.ts`, `lib/instrumentation.ts` and `lib/seo.ts` (1,602 lines), plus the unused "coming soon" `vote/vote.tsx`.
+    - Moved the `supabase` CLI and `dotenv` (only used by `scripts/`) to `devDependencies`, and dropped the `NEXTAUTH_*` variables from the CI and deploy workflows.
+    - Kept `react-icons`: the vote page uses its TikTok icon, which lucide doesn't have. Kept `@tanstack/react-query`: its provider is mounted, though nothing calls it yet.
 - Note: `docs/audit/`, referenced throughout, does not exist in this repo.
 
 ## Scope guardrails (read first)
