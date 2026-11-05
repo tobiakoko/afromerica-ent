@@ -65,12 +65,17 @@ export function EventCard({ event, priority = false }: EventCardProps) {
 
           {/* Badges - Apple style minimal badges */}
           <div className="absolute top-4 right-4 flex flex-col gap-2">
-            {event.featured && !event.is_sold_out && (
+            {event.is_past && (
+              <span className="px-3 py-1.5 bg-gray-900/90 backdrop-blur-md text-white rounded-full text-xs font-medium shadow-lg">
+                Past Event
+              </span>
+            )}
+            {event.featured && !event.is_sold_out && !event.is_past && (
               <span className="px-3 py-1.5 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md text-gray-900 dark:text-white rounded-full text-xs font-medium shadow-lg">
                 Featured
               </span>
             )}
-            {event.sold_out_percentage >= 90 && !event.is_sold_out && (
+            {event.sold_out_percentage >= 90 && !event.is_sold_out && !event.is_past && (
               <span className="px-3 py-1.5 bg-orange-500/95 backdrop-blur-md text-white rounded-full text-xs font-medium shadow-lg">
                 Almost Full
               </span>
@@ -106,13 +111,13 @@ export function EventCard({ event, priority = false }: EventCardProps) {
             {event.show_leaderboard && (
               <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
                 <TrendingUp className="w-[18px] h-[18px] shrink-0 stroke-[1.5]" aria-hidden="true" />
-                <span className="font-medium">Voting Enabled</span>
+                <span className="font-medium">{event.is_past ? 'Results available' : 'Voting Enabled'}</span>
               </div>
             )}
           </div>
 
           {/* Price - Apple style clean pricing */}
-          {(event.ticket_price !== null && event.ticket_price !== undefined) || (event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata) ? (
+          {!event.is_past && ((event.ticket_price !== null && event.ticket_price !== undefined) || (event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata)) ? (
             <div className="mt-6 pt-5 border-t border-gray-200/60 dark:border-gray-800">
               {event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata ? (
                 <div className="text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed">

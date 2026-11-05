@@ -164,7 +164,7 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
                         Grand Finale Contestant
                       </h3>
                       <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        This artist is one of the Top 10 finalists competing in the December Showcase 2025
+                        This artist was one of the Top 10 finalists in the December Showcase 2025
                       </p>
                     </div>
                   </div>

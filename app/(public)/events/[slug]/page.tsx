@@ -93,6 +93,13 @@ export default async function EventPage({ params }: EventPageProps) {
                 {event.title}
               </h1>
 
+              {event.is_past && (
+                <p className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Calendar className="w-4 h-4 stroke-[1.5]" aria-hidden="true" />
+                  This event has ended. Thank you to everyone who came out.
+                </p>
+              )}
+
               {/* Meta Info Grid with Refined Glassmorphism */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 {/* Date */}
@@ -169,7 +176,7 @@ export default async function EventPage({ params }: EventPageProps) {
                   {!hasAvailableTickets(event) ? (
                     <>
                       <Ticket className="w-5 h-5 mr-2 stroke-[1.5]" aria-hidden="true" />
-                      Sold Out
+                      {event.is_past ? 'Event Ended' : 'Sold Out'}
                     </>
                   ) : (
                     <Link href={`/events/${event.slug}`}>
@@ -234,11 +241,12 @@ export default async function EventPage({ params }: EventPageProps) {
           <aside className="lg:col-span-1 animate-in fade-in slide-in-from-bottom-4 duration-1000" style={{ animationDelay: '200ms' }} aria-labelledby="ticket-info-heading">
             <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl border border-gray-200/60 dark:border-gray-800 p-8 sticky top-8 shadow-2xl shadow-black/10 dark:shadow-black/40">
               <h3 id="ticket-info-heading" className="font-semibold text-2xl tracking-tight text-gray-900 dark:text-white mb-8">
-                Ticket Information
+                {event.is_past ? 'Event Information' : 'Ticket Information'}
               </h3>
 
               {/* Price with Apple-style Large Number Display */}
-              {((event.ticket_price !== null && event.ticket_price !== undefined) || (event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata)) && (
+              {/* Pricing is irrelevant once an event has ended */}
+              {!event.is_past && ((event.ticket_price !== null && event.ticket_price !== undefined) || (event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata)) && (
                 <div className="mb-8">
                   {event.metadata && typeof event.metadata === 'object' && 'pricing_note' in event.metadata ? (
                     <>
@@ -259,9 +267,11 @@ export default async function EventPage({ params }: EventPageProps) {
               )}
 
               {/* Availability Status with Refined Background */}
-              <div className="mb-8 p-5 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200/60 dark:border-gray-800">
-                <EventTicketProgress event={event} />
-              </div>
+              {!event.is_past && (
+                <div className="mb-8 p-5 bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200/60 dark:border-gray-800">
+                  <EventTicketProgress event={event} />
+                </div>
+              )}
 
               {/* CTA Button with Enhanced Hover */}
               <Button
@@ -273,7 +283,7 @@ export default async function EventPage({ params }: EventPageProps) {
                 {!hasAvailableTickets(event) ? (
                   <>
                     <AlertCircle className="w-[18px] h-[18px] mr-2 stroke-[1.5]" aria-hidden="true" />
-                    Sold Out
+                    {event.is_past ? 'Event Ended' : 'Sold Out'}
                   </>
                 ) : (
                   <Link href={`/events/${event.slug}`}>
@@ -288,7 +298,7 @@ export default async function EventPage({ params }: EventPageProps) {
                 {event.status && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400 font-light">Status</span>
-                    <span className="font-semibold text-gray-900 dark:text-white capitalize">{event.status}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white capitalize">{event.is_past ? 'Ended' : event.status}</span>
                   </div>
                 )}
                 {event.published_at && (
@@ -302,7 +312,7 @@ export default async function EventPage({ params }: EventPageProps) {
               </div>
 
               {/* Security Note with Icon */}
-              <div className="mt-8 pt-6 border-t border-gray-200/60 dark:border-gray-800 text-xs text-center text-gray-500 dark:text-gray-500 font-light leading-relaxed">
+              <div hidden={event.is_past} className="mt-8 pt-6 border-t border-gray-200/60 dark:border-gray-800 text-xs text-center text-gray-500 dark:text-gray-500 font-light leading-relaxed">
                 🔒 Secure booking powered by Paystack
               </div>
             </div>
@@ -334,7 +344,9 @@ export async function generateMetadata({ params }: EventPageProps) {
   // Create SEO-optimized description
   const description = event.short_description
     || event.description?.slice(0, 160)
-    || `Join us for ${event.title} on ${formattedDate} at ${event.venue || 'our venue'}${event.city ? ` in ${event.city}` : ''}. Get your tickets now!`
+    || (event.is_past
+      ? `${event.title} took place on ${formattedDate} at ${event.venue || 'our venue'}${event.city ? ` in ${event.city}` : ''}.`
+      : `Join us for ${event.title} on ${formattedDate} at ${event.venue || 'our venue'}${event.city ? ` in ${event.city}` : ''}. Get your tickets now!`)
 
   // Use cover image with fallback
   const imageUrl = event.cover_image_url || event.image_url

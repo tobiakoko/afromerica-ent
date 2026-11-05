@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { HomepageCarousel } from "@/components/home/HeroCarousel";
-import { Calendar, TrendingUp } from "lucide-react";
+import { Calendar, Trophy } from "lucide-react";
 import { createCachedClient } from "@/utils/supabase/server-cached";
 import { ShaderRGB } from "@/components/ui/shader-rgb";
 import { Suspense } from "react";
@@ -82,14 +82,11 @@ export default async function HomePage() {
           {/* Centered content - Apple style clean and minimal */}
           <div className="relative z-20 flex min-h-screen items-center justify-center px-4 sm:px-6 py-16 sm:py-20">
             <div className="w-full max-w-5xl text-center animate-in fade-in slide-in-from-bottom-6 duration-1000">
-              {/* Live badge - Apple style pill */}
+              {/* Status badge - Apple style pill */}
               <div className="mb-6 sm:mb-8 flex items-center justify-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-                <span className="flex h-2 w-2">
-                  <span className="absolute inline-flex h-2 w-2 rounded-full bg-[#00FFF0] opacity-75 animate-ping" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#00FFF0]" />
-                </span>
+                <span className="inline-flex h-2 w-2 rounded-full bg-[#00FFF0]" aria-hidden="true" />
                 <p className="text-xs md:text-sm text-[#00FFF0] font-medium tracking-wide uppercase">
-                  December Showcase 2025 — Live Now
+                  December Showcase 2025 — Winners Announced
                 </p>
               </div>
 
@@ -104,7 +101,7 @@ export default async function HomePage() {
               {/* Supporting text - Apple style light and spacious */}
               <p className="mx-auto max-w-3xl text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200 font-light leading-relaxed mb-8 sm:mb-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 px-4">
                 Celebrating African culture through music, live experiences and community.
-                Discover artists, events and the December showcase.
+                Discover our artists and meet the winners of the December showcase.
               </p>
 
               {/* CTA actions - Apple style improved buttons */}
@@ -117,14 +114,13 @@ export default async function HomePage() {
                   <Link
                     href={
                       decemberShowcase?.slug
-                        ? `/events/${decemberShowcase.slug}/finale/vote`
+                        ? `/events/${decemberShowcase.slug}/finale/leaderboard`
                         : "/events"
                     }
-                    aria-label="Authenticate to vote in the finale"
                   >
                     <span className="inline-flex items-center gap-2 sm:gap-3">
-                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" />
-                      <span>Finale Voting — Get In</span>
+                      <Trophy className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" aria-hidden="true" />
+                      <span>Meet the Winners</span>
                     </span>
                   </Link>
                 </Button>
@@ -135,17 +131,10 @@ export default async function HomePage() {
                   variant="outline"
                   className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-10 text-sm sm:text-base border-2 border-white/30 bg-white/5 backdrop-blur-md text-white hover:bg-white/10 hover:border-white/50 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
                 >
-                  <Link
-                    href={
-                      decemberShowcase?.slug
-                        ? `/events/${decemberShowcase.slug}/finale/leaderboard`
-                        : "/events"
-                    }
-                    aria-label="View finale leaderboard"
-                  >
+                  <Link href="/events">
                     <span className="inline-flex items-center gap-2 sm:gap-3">
-                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" />
-                      <span>See Finale Leaderboard</span>
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 stroke-2" aria-hidden="true" />
+                      <span>Browse Events</span>
                     </span>
                   </Link>
                 </Button>

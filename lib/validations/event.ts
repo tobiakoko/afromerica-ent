@@ -79,6 +79,10 @@ export function sanitizeEvent(rawEvent: unknown): DatabaseEvent | null {
 export function transformToPublicEvent(event: DatabaseEvent): PublicEvent {
   const now = new Date()
   const eventDate = new Date(event.event_date)
+  // An event has ended once its end time (or start time, if no end is set) has passed,
+  // or once an admin marks it completed — whichever comes first.
+  const endsAt = new Date(event.end_date || event.event_date)
+  const hasEnded = endsAt < now || event.status === EVENT_STATUS.COMPLETED
   const capacity = event.capacity || 0
   const ticketsSold = event.tickets_sold || 0
   const ticketsAvailable = Math.max(0, capacity - ticketsSold)
@@ -89,8 +93,8 @@ export function transformToPublicEvent(event: DatabaseEvent): PublicEvent {
     tickets_available: ticketsAvailable,
     sold_out_percentage: Math.min(100, soldOutPercentage),
     is_sold_out: ticketsAvailable <= 0 || event.status === EVENT_STATUS.SOLDOUT,
-    is_past: eventDate < now,
-    is_upcoming: eventDate > now && event.status === EVENT_STATUS.UPCOMING,
+    is_past: hasEnded,
+    is_upcoming: !hasEnded && eventDate > now && event.status === EVENT_STATUS.UPCOMING,
   }
 }
 
@@ -108,6 +112,9 @@ export function getEventStatusBadge(event: PublicEvent): {
   label: string
   variant: 'default' | 'destructive' | 'warning' | 'success'
 } | null {
+  if (event.is_past) {
+    return { label: 'Past Event', variant: 'default' }
+  }
   if (event.is_sold_out) {
     return { label: 'Sold Out', variant: 'destructive' }
   }

@@ -292,10 +292,10 @@ export const getFeaturedEvents = cache(async (limit = 3): Promise<{
 })
 
 /**
- * Check if event has available tickets
+ * Check if event has available tickets (never true once the event has ended)
  */
 export function hasAvailableTickets(event: PublicEvent): boolean {
-  return !event.is_sold_out && event.tickets_available > 0
+  return !event.is_past && !event.is_sold_out && event.tickets_available > 0
 }
 
 /**

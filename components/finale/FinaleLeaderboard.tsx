@@ -73,13 +73,9 @@ export function FinaleLeaderboard({ eventId }: FinaleLeaderboardProps) {
         if (data.config) {
           setConfig(data.config)
           const finaleConfig = data.config
-          // On a completed finale, open on Stage 1 so the stages read in order.
-          setSelectedStage((prev) =>
-            prev ??
-            (finaleConfig.current_status === 'completed'
-              ? 'stage_1'
-              : finaleConfig.current_stage)
-          )
+          // Open on the current stage — on a completed finale that's the final stage, which
+          // shows the winners. The stage tabs let visitors browse every earlier stage.
+          setSelectedStage((prev) => prev ?? finaleConfig.current_stage)
         }
 
         if (data.leaderboard) {
