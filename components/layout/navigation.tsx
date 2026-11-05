@@ -6,13 +6,11 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import AnnouncementBanner from "@/components/banner";
 import { APP_METADATA, NAVIGATION } from "@/lib/constants";
-import { trackNavClick, analytics } from "@/lib/analytics";
+import { trackNavClick } from "@/lib/analytics";
 
 export function HomeNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [bannerDismissed, setBannerDismissed] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -65,21 +63,9 @@ export function HomeNavigation() {
         Skip to main content
       </a>
 
-      {/* Top Banner */}
-      <AnnouncementBanner
-          message="Welcome to AfroMerica Entertainment"
-          linkHref="/events/december-showcase-2025/leaderboard"
-          linkText="December Artist Discovery is open"
-          onDismiss={() => {
-            analytics.ctaClick('Dismiss Banner', 'top-banner')
-            setBannerDismissed(true)
-          }}
-       />
-
       {/* Navigation - Apple style */}
       <header
-        className="fixed left-0 right-0 z-40 w-full bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/10 transition-all duration-500 ease-in-out"
-        style={{ top: bannerDismissed ? '0' : '48px' }}
+        className="fixed top-0 left-0 right-0 z-40 w-full bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-white/10 transition-all duration-500 ease-in-out"
         role="banner"
       >
         <nav className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 flex items-center justify-between h-16" aria-label="Main" role="navigation">

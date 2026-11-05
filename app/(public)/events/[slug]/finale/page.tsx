@@ -36,6 +36,8 @@ export default async function FinalePage({ params }: FinalePageProps) {
     .eq('event_id', event.id)
     .single()
 
+  const isFinaleComplete = finaleConfig?.current_status === 'completed'
+
   return (
     <div className="min-h-screen">
       <PageHero
@@ -45,14 +47,44 @@ export default async function FinalePage({ params }: FinalePageProps) {
             Grand Finale
           </span>
         }
-        description="The ultimate showdown - Top 10 finalists compete for the crown"
+        description={
+          isFinaleComplete
+            ? 'The Top 10 finalists competed for the crown — see who won'
+            : 'The ultimate showdown - Top 10 finalists compete for the crown'
+        }
         badge={event.title}
         badgeHref={`/events/${slug}`}
       />
 
       <div className="container mx-auto px-4 py-12 space-y-8">
-        {/* Voter Authentication Section */}
-        {finaleConfig ? (
+        {/* Finale over: point visitors to the results instead of the voter sign-in */}
+        {isFinaleComplete ? (
+          <Card className="border-2 border-yellow-400">
+            <CardContent className="py-12">
+              <div className="text-center space-y-6">
+                <Trophy className="mx-auto w-16 h-16 text-yellow-500" aria-hidden="true" />
+                <div className="space-y-3">
+                  <h2 className="text-3xl md:text-4xl font-bold">The Grand Finale is complete</h2>
+                  <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                    Voting has closed and the winners have been announced. Thank you to every finalist,
+                    judge and voter who took part.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-4 justify-center pt-2">
+                  <Button asChild size="lg">
+                    <Link href={`/events/${slug}/finale/leaderboard`}>
+                      <Trophy className="w-5 h-5 mr-2" aria-hidden="true" />
+                      See the Winners
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg">
+                    <Link href="/events">Browse Events</Link>
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : finaleConfig ? (
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Voter Auth Form - Takes 2 columns on large screens */}
             <div className="lg:col-span-2">
@@ -154,7 +186,8 @@ export default async function FinalePage({ params }: FinalePageProps) {
           </Card>
         )}
 
-        {/* What to Expect */}
+        {/* What to Expect — only while the finale is still to come */}
+        {!isFinaleComplete && (
         <div className="grid md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
@@ -198,6 +231,7 @@ export default async function FinalePage({ params }: FinalePageProps) {
             </CardContent>
           </Card>
         </div>
+        )}
 
         {/* Event Details Preview */}
         <Card>
@@ -244,7 +278,8 @@ export default async function FinalePage({ params }: FinalePageProps) {
           </CardContent>
         </Card>
 
-        {/* Call to Action */}
+        {/* Call to Action — only while the finale is still to come */}
+        {!isFinaleComplete && (
         <Card className="bg-linear-to-r from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 border-purple-200 dark:border-purple-800">
           <CardContent className="py-8 text-center">
             <h3 className="text-2xl font-bold mb-4 text-purple-900 dark:text-purple-100">
@@ -261,6 +296,7 @@ export default async function FinalePage({ params }: FinalePageProps) {
             </Button>
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   )

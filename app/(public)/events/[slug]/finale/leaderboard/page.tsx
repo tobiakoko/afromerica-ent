@@ -76,7 +76,11 @@ export default async function FinaleLeaderboardPage({
     <div className="min-h-screen">
       <PageHero
         title="Grand Finale Leaderboard"
-        description="Live standings and scores from all stages"
+        description={
+          finaleConfig.current_status === 'completed'
+            ? 'Final results and scores from every stage'
+            : 'Live standings and scores from all stages'
+        }
         badge={event.title}
         badgeHref={`/events/${slug}`}
       />
