@@ -14,7 +14,7 @@ concurrency:
 jobs:
   production-audit:
     name: Browser screenshots, portfolio composition, Lighthouse
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
       AUDIT_SITE_URL: 'https://www.afromericaent.com/'
